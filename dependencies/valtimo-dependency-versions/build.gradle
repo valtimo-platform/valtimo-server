@@ -37,6 +37,7 @@ dependencies {
         api(project(":document-generation"))
         api(project(":external-event"))
         api(project(":exporter"))
+        api(project(":extension"))
         api(project(":mail:flowmailer"))
         api(project(":form"))
         api(project(":form-flow"))
