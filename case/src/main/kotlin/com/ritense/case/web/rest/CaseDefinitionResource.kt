@@ -210,19 +210,20 @@ class CaseDefinitionResource(
         // caseDefinitionService.
         // Get the case definition by version
         // run the export service with that version
-        // Grap only files related to that version
+        // Grab only files related to that version
         // return the zip file
+        // Option b: get the files from Git and zip them.
+        // use importService.import
 
-
-        // Option b: get the files from git.
-
-        val baos = exportService.export(DocumentDefinitionExportRequest(caseDefinitionName, caseDefinitionVersion))
+       /* val baos = exportService.export(DocumentDefinitionExportRequest(caseDefinitionName, caseDefinitionVersion))
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
         val fileName = "${caseDefinitionName}_${caseDefinitionVersion}_$timestamp.valtimo.zip"
         return ResponseEntity
             .ok()
             .header("Content-Disposition", "attachment;filename=$fileName")
-            .body(baos.toByteArray())
+            .body(baos.toByteArray())*/
+        return ResponseEntity
+            .ok().build()
     }
 
     @PostMapping("/management/v1/case/import")

@@ -76,8 +76,8 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
         // custom export for the case definition into a archive for deployer
         // or
         // make an archive manually
+        // build a mini ui that does this. As a discussion piece. using exiting importer and exporter.
         // build deployer that can deploy a case definition from an export.
-        // build a mini ui that does this. As a discussion piece.
 
         // phase 2 case definition:  connect the process definition to the case definition
 
