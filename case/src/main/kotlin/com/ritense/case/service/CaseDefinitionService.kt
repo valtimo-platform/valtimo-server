@@ -178,4 +178,8 @@ class CaseDefinitionService(
         caseDefinitionRepository.save(caseDefinition)
         return caseDefinition
     }
+
+    fun getCaseDefinition(id: UUID) = caseDefinitionRepository.getReferenceById(id)
+
+    fun getCaseDefinitions() = caseDefinitionRepository.findAll()
 }

@@ -55,6 +55,8 @@ class CaseDefinitionResource(
     private val importService: ImportService
 ) {
 
+    private final val caseDefinitionService: CaseDefinitionService = TODO("initialize me")
+
     @GetMapping("/v1/case/{caseDefinitionName}/settings")
     fun getCaseSettings(
         @LoggableResource("documentDefinitionName") @PathVariable caseDefinitionName: String
@@ -185,6 +187,47 @@ class CaseDefinitionResource(
     @PostMapping("/management/v1/case/import")
     @RunWithoutAuthorization
     fun import(
+        @RequestParam("file") file: MultipartFile
+    ): ResponseEntity<Unit> {
+        return try {
+            importService.import(file.inputStream)
+            ResponseEntity.ok().build()
+        } catch (exception: ImportServiceException) {
+            logger.info(exception) { "Import failed" }
+            ResponseEntity.badRequest().build()
+        }
+    }
+
+    // NEW for POC
+    @GetMapping("/management/v1/case-definition/{caseDefinitionVersion}/export",
+        produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]
+    )
+    @RunWithoutAuthorization
+    fun getExportCaseDefinition(
+        @LoggableResource("caseDefinitionVersion") @PathVariable caseDefinitionVersion: String
+    ): ResponseEntity<ByteArray> {
+        // TODO
+        // caseDefinitionService.
+        // Get the case definition by version
+        // run the export service with that version
+        // Grap only files related to that version
+        // return the zip file
+
+
+        // Option b: get the files from git.
+
+        val baos = exportService.export(DocumentDefinitionExportRequest(caseDefinitionName, caseDefinitionVersion))
+        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
+        val fileName = "${caseDefinitionName}_${caseDefinitionVersion}_$timestamp.valtimo.zip"
+        return ResponseEntity
+            .ok()
+            .header("Content-Disposition", "attachment;filename=$fileName")
+            .body(baos.toByteArray())
+    }
+
+    @PostMapping("/management/v1/case/import")
+    @RunWithoutAuthorization
+    fun importCaseDefinition(
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<Unit> {
         return try {

@@ -16,13 +16,14 @@
 
 package com.ritense.exporter.config
 
+import com.ritense.exporter.CaseDefinitionExportService
 import com.ritense.exporter.ExportService
 import com.ritense.exporter.Exporter
 import com.ritense.exporter.ValtimoExportService
 import com.ritense.exporter.request.ExportRequest
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 
 @AutoConfiguration
 class ExportAutoConfiguration {
@@ -31,6 +32,14 @@ class ExportAutoConfiguration {
     @ConditionalOnMissingBean(ExportService::class)
     fun exportService(exporters: List<Exporter<*>>): ExportService {
         return ValtimoExportService(
+            exporters as List<Exporter<ExportRequest>>
+        )
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CaseDefinitionExportService::class)
+    fun caseDefinitionExportService(exporters: List<Exporter<*>>): ExportService {
+        return CaseDefinitionExportService(
             exporters as List<Exporter<ExportRequest>>
         )
     }

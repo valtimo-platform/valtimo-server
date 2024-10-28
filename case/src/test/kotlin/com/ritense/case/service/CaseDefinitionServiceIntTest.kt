@@ -72,6 +72,14 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
             caseDefinitionName = "definition-test"
         )
         assertThat(caseTabs).hasSize(1)
+        // next steps deployer
+        // custom export for the case definition into a archive for deployer
+        // or
+        // make an archive manually
+        // build deployer that can deploy a case definition from an export.
+        // build a mini ui that does this. As a discussion piece.
+
+        // phase 2 case definition:  connect the process definition to the case definition
 
     }
 }
