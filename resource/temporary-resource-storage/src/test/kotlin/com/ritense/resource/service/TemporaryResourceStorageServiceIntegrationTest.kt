@@ -109,18 +109,21 @@ class TemporaryResourceStorageServiceIntegrationTest : BaseIntegrationTest() {
     fun `should patch metadata`() {
         val fileData = "My file data"
         val fileName = "test.txt"
-        val customMetaDataKey = "testKey"
+        val changeKey = "changeKey"
+        val removeKey = "removeKey"
 
         val resourceId = temporaryResourceStorageService.store(
             fileData.byteInputStream(),
             mapOf(
                 MetadataType.FILE_NAME.key to fileName,
-                customMetaDataKey to "x"
+                changeKey to "x",
+                removeKey to "exists"
                 )
         )
 
         temporaryResourceStorageService.patchResourceMetaData(resourceId, mapOf(
-            customMetaDataKey to "y"
+            changeKey to "y",
+            removeKey to null
         ))
 
         val patchedMetaData = temporaryResourceStorageService.getResourceMetadata(resourceId, false)
@@ -128,7 +131,8 @@ class TemporaryResourceStorageServiceIntegrationTest : BaseIntegrationTest() {
         assertThat(patchedMetaData[MetadataType.FILE_NAME.key]).isEqualTo(fileName)
         assertThat(patchedMetaData[MetadataType.FILE_PATH.key]).asString().hasSizeGreaterThan(0)
         assertThat(patchedMetaData[MetadataType.FILE_SIZE.key]).isEqualTo(fileData.length.toString())
-        assertThat(patchedMetaData[customMetaDataKey]).isEqualTo("y")
+        assertThat(patchedMetaData[changeKey]).isEqualTo("y")
+        assertThat(patchedMetaData).doesNotContainKey(removeKey)
     }
 
     @Test

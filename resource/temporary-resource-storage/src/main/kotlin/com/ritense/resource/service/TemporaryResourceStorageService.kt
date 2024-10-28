@@ -85,14 +85,19 @@ class TemporaryResourceStorageService(
     /**
      * This method can be used to enrich the metadata before it is handled.
      */
-    fun patchResourceMetaData(id: String, metaData: Map<String, Any>) {
+    fun patchResourceMetaData(id: String, metaData: Map<String, Any?>) {
         require(!metaData.containsKey(MetadataType.FILE_PATH.key)) { "${MetadataType.FILE_PATH.key} cannot be patched!" }
 
         val metaDataFile = getMetaDataFileFromResourceId(id)
         require(!metaDataFile.notExists()) { "No resource found with id '$id'" }
 
         val originalMetaData = getMetadataFromFile(metaDataFile, false)
-        writeMetaDataFile(metaDataFile, originalMetaData + metaData)
+        // Since the metadata does not allow null values, this code removes the key when the value is null
+        val newMetaData = (originalMetaData + metaData)
+            .mapNotNull { (key, value) -> if(value != null) Pair(key, value) else null }
+            .toMap()
+
+        writeMetaDataFile(metaDataFile, newMetaData)
     }
 
     private fun writeMetaDataFile(file: Path, metaDataContent: Map<String, Any>) {
