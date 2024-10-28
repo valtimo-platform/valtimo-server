@@ -77,9 +77,26 @@ class TemporaryResourceStorageService(
             MetadataType.FILE_SIZE.key to dataFile.fileSize().toString()
         )
         val metaDataFile = Files.createTempFile(tempDir, "${random.nextLong().toULong()}-", ".json")
-        metaDataFile.toFile().writeText(objectMapper.writeValueAsString(metaDataContent))
+        writeMetaDataFile(metaDataFile, metaDataContent)
 
         return metaDataFile.nameWithoutExtension
+    }
+
+    /**
+     * This method can be used to enrich the metadata before it is handled.
+     */
+    fun patchResourceMetaData(id: String, metaData: Map<String, Any>) {
+        require(!metaData.containsKey(MetadataType.FILE_PATH.key)) { "${MetadataType.FILE_PATH.key} cannot be patched!" }
+
+        val metaDataFile = getMetaDataFileFromResourceId(id)
+        require(!metaDataFile.notExists()) { "No resource found with id '$id'" }
+
+        val originalMetaData = getMetadataFromFile(metaDataFile, false)
+        writeMetaDataFile(metaDataFile, originalMetaData + metaData)
+    }
+
+    private fun writeMetaDataFile(file: Path, metaDataContent: Map<String, Any>) {
+        file.toFile().writeText(objectMapper.writeValueAsString(metaDataContent))
     }
 
     fun deleteResource(id: String): Boolean {
@@ -108,16 +125,21 @@ class TemporaryResourceStorageService(
     internal fun getResourceMetadata(id: String, filterPath: Boolean): Map<String, Any> {
         val metaDataFile = getMetaDataFileFromResourceId(id)
         require(!metaDataFile.notExists()) { "No resource found with id '$id'" }
-        val typeRef = object : TypeReference<Map<String, Any>>() {}
-        return objectMapper.readValue(metaDataFile.readText(), typeRef)
-            .filter {
-                !filterPath || it.key != MetadataType.FILE_PATH.key
-            }
+
+        return getMetadataFromFile(metaDataFile, filterPath)
     }
 
     internal fun getMetaDataFileFromResourceId(resourceId: String): Path {
         val safeFileName = Path("$resourceId.json").fileName.toString()
         return Path.of(tempDir.pathString, safeFileName)
+    }
+
+    internal fun getMetadataFromFile(metaDataFile: Path, filterPath: Boolean): Map<String, Any> {
+        val typeRef = object : TypeReference<Map<String, Any>>() {}
+        return objectMapper.readValue(metaDataFile.readText(), typeRef)
+            .filter {
+                !filterPath || it.key != MetadataType.FILE_PATH.key
+            }
     }
 
     fun getMetadataValue(resourceStorageFieldId: String, metadataKey: String): String {

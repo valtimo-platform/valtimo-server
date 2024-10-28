@@ -26,6 +26,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
+import java.util.UUID
 import kotlin.io.path.Path
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -102,6 +103,45 @@ class TemporaryResourceStorageServiceIntegrationTest : BaseIntegrationTest() {
         val traversedMetaData = temporaryResourceStorageService.getResourceMetadata("../$resourceId")
         assertThat(traversedMetaData).containsEntry(MetadataType.FILE_NAME.key, fileName)
         assertThat(traversedMetaData).doesNotContainKey("traversed")
+    }
+
+    @Test
+    fun `should patch metadata`() {
+        val fileData = "My file data"
+        val fileName = "test.txt"
+        val customMetaDataKey = "testKey"
+
+        val resourceId = temporaryResourceStorageService.store(
+            fileData.byteInputStream(),
+            mapOf(
+                MetadataType.FILE_NAME.key to fileName,
+                customMetaDataKey to "x"
+                )
+        )
+
+        temporaryResourceStorageService.patchResourceMetaData(resourceId, mapOf(
+            customMetaDataKey to "y"
+        ))
+
+        val patchedMetaData = temporaryResourceStorageService.getResourceMetadata(resourceId, false)
+
+        assertThat(patchedMetaData[MetadataType.FILE_NAME.key]).isEqualTo(fileName)
+        assertThat(patchedMetaData[MetadataType.FILE_PATH.key]).asString().hasSizeGreaterThan(0)
+        assertThat(patchedMetaData[MetadataType.FILE_SIZE.key]).isEqualTo(fileData.length.toString())
+        assertThat(patchedMetaData[customMetaDataKey]).isEqualTo("y")
+    }
+
+    @Test
+    fun `should not patch filePath in metadata`() {
+        val exception = assertThrows<IllegalArgumentException> {
+            temporaryResourceStorageService.patchResourceMetaData(
+                UUID.randomUUID().toString(), mapOf(
+                    MetadataType.FILE_PATH.key to "",
+                )
+            )
+        }
+
+        assertThat(exception.message).isEqualTo("${MetadataType.FILE_PATH.key} cannot be patched!")
     }
 
     @Test
