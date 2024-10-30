@@ -6,14 +6,6 @@
         "formDefinitionName": "start-form-bezwaar"
     },
     {
-        "activityId": "validate-request",
-        "activityType": "bpmn:UserTask:create",
-        "formDefinitionName": "user-task-validate-request",
-        "processLinkType": "form",
-        "formDisplayType": "panel",
-        "formSize": "medium"
-    },
-    {
         "activityId": "in-behandeling",
         "activityType": "bpmn:UserTask:create",
         "formDefinitionName": "empty-form",
