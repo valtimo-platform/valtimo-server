@@ -18,8 +18,8 @@ package com.ritense.formviewmodel.web.rest.error
 
 import com.ritense.formviewmodel.error.BusinessException
 import com.ritense.formviewmodel.error.FormException
-import com.ritense.formviewmodel.web.rest.dto.BusinessRuleError
-import com.ritense.formviewmodel.web.rest.dto.FormError
+import com.ritense.formviewmodel.error.MultipleFormException
+import com.ritense.formviewmodel.web.rest.dto.MultipleFormError
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -34,11 +34,30 @@ class FormViewModelModuleExceptionTranslator {
     fun handleFormException(
         ex: FormException,
         request: NativeWebRequest
-    ): ResponseEntity<FormError> {
+    ): ResponseEntity<MultipleFormError> {
         return ResponseEntity
             .badRequest()
             .body(
-                FormError(ex.message, ex.component)
+                MultipleFormError(
+                    listOf(
+                        MultipleFormException.ComponentError(
+                            component = ex.component,
+                            message = ex.message ?: UNKNOWN_FORM_ERROR
+                        )
+                    )
+                )
+            )
+    }
+
+    @ExceptionHandler(MultipleFormException::class)
+    fun handleFormException(
+        ex: MultipleFormException,
+        request: NativeWebRequest
+    ): ResponseEntity<MultipleFormError> {
+        return ResponseEntity
+            .badRequest()
+            .body(
+                MultipleFormError(ex.componentErrors)
             )
     }
 
@@ -46,12 +65,23 @@ class FormViewModelModuleExceptionTranslator {
     fun handleBusinessException(
         ex: BusinessException,
         request: NativeWebRequest
-    ): ResponseEntity<BusinessRuleError> {
+    ): ResponseEntity<MultipleFormError> {
         return ResponseEntity
             .badRequest()
             .body(
-                BusinessRuleError(ex.message)
+                MultipleFormError(
+                    listOf(
+                        MultipleFormException.ComponentError(
+                            component = null,
+                            message = ex.message ?: UNKNOWN_BUSINESS_RULE_ERROR
+                        )
+                    )
+                )
             )
     }
 
+    companion object {
+        private const val UNKNOWN_FORM_ERROR = "Unknown Form Error"
+        private const val UNKNOWN_BUSINESS_RULE_ERROR = "Unknown Business Rule Error"
+    }
 }
