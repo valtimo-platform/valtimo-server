@@ -148,8 +148,8 @@ class FormViewModelResourceTest : BaseTest() {
                 .contentType(APPLICATION_JSON_UTF8_VALUE)
                 .content(objectMapper.writeValueAsString(TestViewModel()))
         ).andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Im a child"))
-            .andExpect(jsonPath("$.component").value("age"))
+            .andExpect(jsonPath("$.componentErrors.[0].message").value("Im a child"))
+            .andExpect(jsonPath("$.componentErrors.[0].component").value("age"))
     }
 
     // start form tests
@@ -254,8 +254,8 @@ class FormViewModelResourceTest : BaseTest() {
                 .contentType(APPLICATION_JSON_UTF8_VALUE)
                 .content(objectMapper.writeValueAsString(TestViewModel()))
         ).andExpect(status().isBadRequest)
-            .andExpect(jsonPath("$.error").value("Im a child"))
-            .andExpect(jsonPath("$.component").value("age"))
+            .andExpect(jsonPath("$.componentErrors.[0].message").value("Im a child"))
+            .andExpect(jsonPath("$.componentErrors.[0].component").value("age"))
     }
 
     companion object {

@@ -191,14 +191,14 @@ class AdminDashboardResourceSecurityIntTest : SecuritySpecificEndpointIntegratio
             1
         )
         val widget = WidgetConfiguration(
-            "some-key",
-            "title",
-            dashboard,
-            "dataSourceKey",
-            objectMapper.readTree("""{}""") as ObjectNode,
-            objectMapper.readTree("""{}""") as ObjectNode,
-            "displayType",
-            1
+            key = "some-key",
+            title = "title",
+            dashboard = dashboard,
+            dataSourceKey = "dataSourceKey",
+            dataSourceProperties = objectMapper.readTree("""{}""") as ObjectNode,
+            displayTypeProperties = objectMapper.readTree("""{}""") as ObjectNode,
+            displayType = "displayType",
+            order = 1
         )
         widgets.add(widget)
         dashboardRepository.save(dashboard)
