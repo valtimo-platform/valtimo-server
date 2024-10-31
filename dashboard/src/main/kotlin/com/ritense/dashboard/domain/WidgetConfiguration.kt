@@ -29,7 +29,6 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.Type
 import java.net.URI
-import java.net.URL
 
 @Entity
 @Table(name = "dashboard_widget_configuration")
@@ -62,7 +61,7 @@ data class WidgetConfiguration(
 
     @Column(name = "url", nullable = false)
     @Convert(converter = UriAttributeConverter::class)
-    val url: URI?,
+    val url: URI? = null,
 
     @Column(name = "sort_order", nullable = false)
     val order: Int
