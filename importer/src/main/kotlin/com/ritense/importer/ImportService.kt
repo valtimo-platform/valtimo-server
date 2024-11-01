@@ -20,4 +20,5 @@ import java.io.InputStream
 
 interface ImportService {
     fun import(inputStream: InputStream)
+    fun import(requests: List<ImportRequest>)
 }

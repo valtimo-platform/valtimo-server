@@ -20,11 +20,11 @@ import com.ritense.importer.exception.CyclicImporterDependencyException
 import com.ritense.importer.exception.DuplicateImporterTypeException
 import com.ritense.importer.exception.InvalidImportZipException
 import com.ritense.importer.exception.TooManyImportCandidatesException
-import java.io.InputStream
-import java.util.zip.ZipInputStream
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.transaction.annotation.Transactional
+import java.io.InputStream
+import java.util.zip.ZipInputStream
 
 open class ValtimoImportService(
     importers: Set<Importer>
@@ -106,8 +106,12 @@ open class ValtimoImportService(
 
     @Transactional
     override fun import(inputStream: InputStream) {
-        val entries = readZipEntries(inputStream)
-        val importerEntriesMap = getEntriesByImporter(entries)
+        import(readZipEntries(inputStream).map { ImportRequest(it.fileName, it.content) })
+    }
+
+    @Transactional
+    override fun import(requests: List<ImportRequest>) {
+        val importerEntriesMap = getEntriesByImporter(requests)
 
         importerEntriesMap.forEach { (importer, entries) ->
             entries.forEach { entry ->
@@ -140,7 +144,7 @@ open class ValtimoImportService(
      * When no files are provided, an empty list value is mapped.
      * @param entries
      */
-    private fun getEntriesByImporter(entries: List<ZipFileEntry>): LinkedHashMap<Importer, List<ZipFileEntry>> {
+    private fun getEntriesByImporter(entries: List<ImportRequest>): Map<Importer, List<ImportRequest>> {
         val entryPairs = entries.mapNotNull { entry ->
             orderedImporters.filter { importer ->
                 importer.supports(entry.fileName)
