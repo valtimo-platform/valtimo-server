@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package com.ritense.dashboard.web.rest.dto
+package com.ritense.formviewmodel.web.rest.dto
 
-import com.fasterxml.jackson.databind.node.ObjectNode
-import java.net.URI
+import com.ritense.formviewmodel.error.MultipleFormException
 
-data class WidgetConfigurationUpdateRequestDto(
-    val key: String,
-    val title: String,
-    val dataSourceKey: String,
-    val displayType: String,
-    val dataSourceProperties: ObjectNode,
-    val displayTypeProperties: ObjectNode,
-    val url: URI? = null
+class MultipleFormError (
+    val componentErrors: List<MultipleFormException.ComponentError> = emptyList(),
 )

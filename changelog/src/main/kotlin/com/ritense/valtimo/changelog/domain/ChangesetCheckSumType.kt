@@ -14,17 +14,9 @@
  * limitations under the License.
  */
 
-package com.ritense.formviewmodel.web.rest.dto
+package com.ritense.valtimo.changelog.domain
 
-class FormError (
-    error: String?,
-    val component: String? = null
-) {
-
-    val error: String = error ?: UNKNOWN_FORM_ERROR
-
-    companion object {
-        const val UNKNOWN_FORM_ERROR = "Unknown Form Error"
-    }
-
+enum class ChangesetCheckSumType {
+    LEGACY,
+    FILE_HASH,
 }

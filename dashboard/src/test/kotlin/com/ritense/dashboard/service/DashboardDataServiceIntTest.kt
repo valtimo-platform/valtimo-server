@@ -1,7 +1,6 @@
 package com.ritense.dashboard.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.authorization.AuthorizationContext
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.dashboard.BaseIntegrationTest
 import com.ritense.dashboard.TestDataSource
@@ -10,7 +9,6 @@ import com.ritense.dashboard.TestDataSource.Companion.NUMBER_DATA_KEY
 import com.ritense.dashboard.TestDataSourceProperties
 import com.ritense.dashboard.TestWidgetNumberResult
 import com.ritense.dashboard.TestWidgetNumbersResult
-import com.ritense.dashboard.domain.Dashboard
 import com.ritense.dashboard.domain.WidgetConfiguration
 import com.ritense.dashboard.repository.WidgetConfigurationRepository
 import com.ritense.valtimo.contract.authentication.model.ValtimoUser
@@ -45,15 +43,21 @@ class DashboardDataServiceIntTest @Autowired constructor(
         clearCache()
 
         numberConfiguration = WidgetConfiguration(
-            NUMBER_CONFIG_KEY, "", mock(), NUMBER_DATA_KEY,
-            objectMapper.valueToTree(TestDataSourceProperties("xyz")),
-            objectMapper.createObjectNode(),
-            "", 0
+            key = NUMBER_CONFIG_KEY, title = "", dashboard = mock(), dataSourceKey = NUMBER_DATA_KEY,
+            dataSourceProperties = objectMapper.valueToTree(TestDataSourceProperties("xyz")),
+            displayTypeProperties = objectMapper.createObjectNode(),
+            displayType = "",
+            order = 0
         )
         numbersConfiguration = WidgetConfiguration(
-            NUMBERS_CONFIG_KEY, "", mock(), NUMBERS_DATA_KEY,
-            objectMapper.createObjectNode(), objectMapper.createObjectNode(),
-            "", 1
+            key = NUMBERS_CONFIG_KEY,
+            title = "",
+            dashboard = mock(),
+            dataSourceKey = NUMBERS_DATA_KEY,
+            dataSourceProperties = objectMapper.createObjectNode(),
+            displayTypeProperties = objectMapper.createObjectNode(),
+            displayType = "",
+            order = 1
         )
 
         whenever(widgetConfigurationRepository.findAllByDashboardKey(DASHBOARD_KEY)).thenReturn(

@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.ritense.formviewmodel.web.rest.dto
+package com.ritense.formviewmodel.error
 
-class BusinessRuleError (
-    error: String?
-) {
-
-    var error: String = error ?: UNKNOWN_BUSINESS_RULE_ERROR
-
-    companion object {
-        const val UNKNOWN_BUSINESS_RULE_ERROR = "Unknown Business Rule Error"
-    }
-
+class MultipleFormException(
+    val componentErrors: List<ComponentError> = emptyList()
+) : Exception() {
+    data class ComponentError(
+        val component: String?,
+        val message: String
+    )
 }
