@@ -20,6 +20,7 @@ import com.ritense.formviewmodel.error.BusinessException
 import com.ritense.formviewmodel.error.FormException
 import com.ritense.formviewmodel.error.MultipleFormException
 import com.ritense.formviewmodel.web.rest.dto.MultipleFormError
+import com.ritense.formviewmodel.web.rest.dto.SingleFormError
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -34,17 +35,13 @@ class FormViewModelModuleExceptionTranslator {
     fun handleFormException(
         ex: FormException,
         request: NativeWebRequest
-    ): ResponseEntity<MultipleFormError> {
+    ): ResponseEntity<SingleFormError> {
         return ResponseEntity
             .badRequest()
             .body(
-                MultipleFormError(
-                    listOf(
-                        MultipleFormException.ComponentError(
-                            component = ex.component,
-                            message = ex.message ?: UNKNOWN_FORM_ERROR
-                        )
-                    )
+                SingleFormError(
+                    error = ex.message ?: UNKNOWN_FORM_ERROR,
+                    component = ex.component
                 )
             )
     }
@@ -65,17 +62,12 @@ class FormViewModelModuleExceptionTranslator {
     fun handleBusinessException(
         ex: BusinessException,
         request: NativeWebRequest
-    ): ResponseEntity<MultipleFormError> {
+    ): ResponseEntity<SingleFormError> {
         return ResponseEntity
             .badRequest()
             .body(
-                MultipleFormError(
-                    listOf(
-                        MultipleFormException.ComponentError(
-                            component = null,
-                            message = ex.message ?: UNKNOWN_BUSINESS_RULE_ERROR
-                        )
-                    )
+                SingleFormError(
+                    error = ex.message ?: UNKNOWN_BUSINESS_RULE_ERROR
                 )
             )
     }
