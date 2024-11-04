@@ -37,7 +37,8 @@ class CamundaProcessDefinitionImporter(
 
     override fun import(request: ImportRequest) {
         request.content.inputStream().use {
-            camundaProcessService.deploy(fileNameWithoutPath(request.fileName), it)
+            val result = camundaProcessService.deploy(fileNameWithoutPath(request.fileName), it)
+            // link request.caseDefinitionId with result.id
         }
     }
 

@@ -25,6 +25,7 @@ import com.ritense.case.domain.BooleanDisplayTypeParameter
 import com.ritense.case.domain.DateFormatDisplayTypeParameter
 import com.ritense.case.domain.EnumDisplayTypeParameter
 import com.ritense.case.domain.casedefinition.CaseTabCaseDefinitionMapper
+import com.ritense.case.domain.casedefinition.ProcessDefinitionCaseDefinitionMapper
 import com.ritense.case.repository.CaseDefinitionListColumnRepository
 import com.ritense.case.repository.CaseDefinitionRepository
 import com.ritense.case.repository.CaseDefinitionSettingsRepository
@@ -408,6 +409,13 @@ class CaseAutoConfiguration {
     ) = CaseDefinitionSpecificationFactory(
         caseDefinitionRepository,
         queryDialectHelper
+    )
+
+    @Bean
+    fun processDefinitionCaseDefinitionMapper(
+        caseDefinitionRepository: CaseDefinitionRepository
+    ) = ProcessDefinitionCaseDefinitionMapper(
+        caseDefinitionRepository
     )
 
 }

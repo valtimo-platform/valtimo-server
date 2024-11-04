@@ -90,7 +90,7 @@ class ValtimoAuthorizationService(
         return (mappers.firstOrNull {
             it.supports(from, to)
         } as AuthorizationEntityMapper<FROM, TO>?)
-            ?: throw AccessDeniedException("No entity mapper found for given arguments.")
+            ?: throw AccessDeniedException("No entity mapper found for given arguments. $from -> $to")
     }
 
     override fun <T : Any> getAvailableActionsForResource(clazz: Class<T>): List<Action<T>> {

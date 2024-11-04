@@ -16,6 +16,8 @@
 
 package com.ritense.valtimo.camunda;
 
+import static com.ritense.logging.LoggingContextKt.withLoggingContext;
+
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
 import com.ritense.valtimo.event.ProcessDefinitionDeployedEvent;
 import java.util.ArrayList;
@@ -26,8 +28,6 @@ import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-
-import static com.ritense.logging.LoggingContextKt.withLoggingContext;
 
 public class ProcessDefinitionDeployedEventPublisher implements Deployer {
 
@@ -43,9 +43,11 @@ public class ProcessDefinitionDeployedEventPublisher implements Deployer {
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReadyEvent() {
         isApplicationReady = true;
-        events.forEach(event -> withLoggingContext(CamundaProcessDefinition.class, event.getProcessDefinitionId(), () ->
-            applicationEventPublisher.publishEvent(event)
-        ));
+        events.forEach(event ->
+            withLoggingContext(CamundaProcessDefinition.class, event.getProcessDefinitionId(), () ->
+                applicationEventPublisher.publishEvent(event)
+            )
+        );
         events = null;
     }
 
@@ -53,6 +55,8 @@ public class ProcessDefinitionDeployedEventPublisher implements Deployer {
     public void deploy(DeploymentEntity deployment) {
         if (deployment.isNew() && deployment.getDeployedArtifacts() != null) {
             final var processDefinitions = deployment.getDeployedArtifacts(ProcessDefinitionEntity.class);
+            // GET THE CASE DEFINITION ID from a new file
+
             if (processDefinitions != null) {
                 processDefinitions.forEach(definition -> publishEvent(deployment, definition));
             }
@@ -60,6 +64,7 @@ public class ProcessDefinitionDeployedEventPublisher implements Deployer {
     }
 
     public void publishEvent(DeploymentEntity deployment, ProcessDefinitionEntity processDefinition) {
+        //TODO get the caseDefinitionId
         final var event = new ProcessDefinitionDeployedEvent(deployment, processDefinition);
         if (isApplicationReady) {
             withLoggingContext(CamundaProcessDefinition.class, event.getProcessDefinitionId(), () ->

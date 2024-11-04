@@ -44,4 +44,15 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="add-case-definition-3" author="Ritense">
+        <createTable tableName="case_definition_process_definition">
+            <column name="case_definition_id" type="${uuidType}">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="case_definition_process_definition_pk"/>
+            </column>
+            <column name="camunda_process_definition_id" type="VARCHAR(64)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="case_definition_process_definition_pk"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>

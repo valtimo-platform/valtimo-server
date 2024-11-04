@@ -1,10 +1,54 @@
 {
-    "changesetId": "case-definition-case-tab-v4",
+    "changesetId": "case-definition-case-tab-v5",
     "permissions": [
         {
             "resourceType": "com.ritense.case.domain.CaseTab",
             "action": "view",
             "roleKey": "ROLE_CUSTOM_TEST",
+            "conditions": [
+                {
+                    "type": "container",
+                    "resourceType": "com.ritense.case.domain.casedefinition.CaseDefinition",
+                    "conditions": [
+                        {
+                            "type": "field",
+                            "field": "version.version",
+                            "operator": "==",
+                            "value": "1.0.0"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "resourceType": "com.ritense.valtimo.camunda.domain.CamundaExecution",
+            "action": "create",
+            "roleKey": "ROLE_PDTEST",
+            "conditions": [
+                {
+                    "type": "container",
+                    "resourceType": "com.ritense.valtimo.camunda.domain.CamundaProcessDefinition",
+                    "conditions": [
+                        {
+                            "type": "container",
+                            "resourceType": "com.ritense.case.domain.casedefinition.CaseDefinition",
+                            "conditions": [
+                                {
+                                    "type": "field",
+                                    "field": "version.version",
+                                    "operator": "==",
+                                    "value": "1.0.0"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "action": "view_list",
+            "roleKey": "ROLE_PDTEST",
+            "resourceType": "com.ritense.valtimo.camunda.domain.CamundaProcessDefinition",
             "conditions": [
                 {
                     "type": "container",

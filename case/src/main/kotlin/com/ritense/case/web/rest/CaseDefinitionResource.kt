@@ -55,8 +55,6 @@ class CaseDefinitionResource(
     private val importService: ImportService
 ) {
 
-    private final val caseDefinitionService: CaseDefinitionService = TODO("initialize me")
-
     @GetMapping("/v1/case/{caseDefinitionName}/settings")
     fun getCaseSettings(
         @LoggableResource("documentDefinitionName") @PathVariable caseDefinitionName: String
@@ -76,7 +74,10 @@ class CaseDefinitionResource(
         @LoggableResource("documentDefinitionName") @PathVariable caseDefinitionName: String
     ): ResponseEntity<CaseDefinitionSettings> = getCaseSettings(caseDefinitionName)
 
-    @Deprecated("Since 11.0.0", ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.updateCaseSettingsForManagement"))
+    @Deprecated(
+        "Since 11.0.0",
+        ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.updateCaseSettingsForManagement")
+    )
     @PatchMapping("/v1/case/{caseDefinitionName}/settings")
     @RunWithoutAuthorization
     fun updateCaseSettings(
@@ -112,7 +113,10 @@ class CaseDefinitionResource(
         @LoggableResource("documentDefinitionName") @PathVariable caseDefinitionName: String
     ): ResponseEntity<List<CaseListColumnDto>> = getCaseListColumn(caseDefinitionName)
 
-    @Deprecated("Since 11.0.0", ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.createCaseListColumnForManagement"))
+    @Deprecated(
+        "Since 11.0.0",
+        ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.createCaseListColumnForManagement")
+    )
     @PostMapping("/v1/case/{caseDefinitionName}/list-column")
     @RunWithoutAuthorization
     fun createCaseListColumn(
@@ -130,7 +134,10 @@ class CaseDefinitionResource(
         return ResponseEntity.ok().build()
     }
 
-    @Deprecated("Since 11.0.0", ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.updateListColumnForManagement"))
+    @Deprecated(
+        "Since 11.0.0",
+        ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.updateListColumnForManagement")
+    )
     @PutMapping("/v1/case/{caseDefinitionName}/list-column")
     @RunWithoutAuthorization
     fun updateListColumn(
@@ -148,7 +155,10 @@ class CaseDefinitionResource(
         return ResponseEntity.ok().build()
     }
 
-    @Deprecated("Since 11.0.0", ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.deleteListColumnForManagement"))
+    @Deprecated(
+        "Since 11.0.0",
+        ReplaceWith("com.ritense.case.web.rest.CaseDefinitionResource.deleteListColumnForManagement")
+    )
     @DeleteMapping("/v1/case/{caseDefinitionName}/list-column/{columnKey}")
     @RunWithoutAuthorization
     fun deleteListColumn(
@@ -166,7 +176,8 @@ class CaseDefinitionResource(
         return ResponseEntity.noContent().build()
     }
 
-    @GetMapping("/management/v1/case/{caseDefinitionName}/{caseDefinitionVersion}/export",
+    @GetMapping(
+        "/management/v1/case/{caseDefinitionName}/{caseDefinitionVersion}/export",
         produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]
     )
     @RunWithoutAuthorization
@@ -198,7 +209,7 @@ class CaseDefinitionResource(
         }
     }
 
-    // NEW for POC
+    /*// NEW for POC
     @GetMapping("/management/v1/case-definition/{caseDefinitionVersion}/export",
         produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]
     )
@@ -215,13 +226,13 @@ class CaseDefinitionResource(
         // Option b: get the files from Git and zip them.
         // use importService.import
 
-       /* val baos = exportService.export(DocumentDefinitionExportRequest(caseDefinitionName, caseDefinitionVersion))
+       *//* val baos = exportService.export(DocumentDefinitionExportRequest(caseDefinitionName, caseDefinitionVersion))
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
         val fileName = "${caseDefinitionName}_${caseDefinitionVersion}_$timestamp.valtimo.zip"
         return ResponseEntity
             .ok()
             .header("Content-Disposition", "attachment;filename=$fileName")
-            .body(baos.toByteArray())*/
+            .body(baos.toByteArray())*//*
         return ResponseEntity
             .ok().build()
     }
@@ -238,7 +249,7 @@ class CaseDefinitionResource(
             logger.info(exception) { "Import failed" }
             ResponseEntity.badRequest().build()
         }
-    }
+    }*/
 
     companion object {
         val logger = KotlinLogging.logger {}

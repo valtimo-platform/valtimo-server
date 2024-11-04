@@ -42,9 +42,9 @@ class CaseDefinitionSpecification(
     ): Predicate {
         // Filter the permissions for the relevant ones and use those to find the filters that are required
         // Turn those filters into predicates
-        val groupList = query.groupList.toMutableList()
+    /*    val groupList = query.groupList.toMutableList()
         groupList.add(root.get<UUID>("id"))
-        query.groupBy(groupList)
+        query.groupBy(groupList)*/
 
         val predicates = permissions.stream()
             .filter { permission: Permission ->

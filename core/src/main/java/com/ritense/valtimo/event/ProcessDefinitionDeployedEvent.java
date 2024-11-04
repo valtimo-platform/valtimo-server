@@ -25,12 +25,18 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 
 public class ProcessDefinitionDeployedEvent {
+   // private final String caseDefinitionId;
     private final String previousProcessDefinitionId;
     private final String processDefinitionId;
     private final String processDefinitionKey;
     private final BpmnModelInstance processDefinitionModelInstance;
 
-    public ProcessDefinitionDeployedEvent(DeploymentEntity deployment, ProcessDefinitionEntity processDefinition) {
+    public ProcessDefinitionDeployedEvent(
+       // String caseDefinitionId,
+        DeploymentEntity deployment,
+        ProcessDefinitionEntity processDefinition
+    ) {
+      //  this.caseDefinitionId = caseDefinitionId;
         this.previousProcessDefinitionId = processDefinition.getPreviousProcessDefinitionId();
         this.processDefinitionId = processDefinition.getId();
         this.processDefinitionKey = processDefinition.getKey();
@@ -43,6 +49,10 @@ public class ProcessDefinitionDeployedEvent {
         }
     }
 
+  /*  public String getCaseDefinitionId() {
+        return caseDefinitionId;
+    }
+*/
     @Nullable
     public String getPreviousProcessDefinitionId() {
         return previousProcessDefinitionId;

@@ -1,0 +1,6 @@
+{
+    "id": "case-definition-name",
+    "bpmnLinks" : [
+        "case/src/test/resources/bpmn/test.bpmn"
+    ]
+}

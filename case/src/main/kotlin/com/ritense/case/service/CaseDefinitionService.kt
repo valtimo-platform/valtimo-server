@@ -21,6 +21,7 @@ import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthor
 import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.request.EntityAuthorizationRequest
 import com.ritense.case.domain.CaseDefinitionSettings
+import com.ritense.case.domain.casedefinition.CaseCamundaProcessDefinition
 import com.ritense.case.domain.casedefinition.CaseDefinition
 import com.ritense.case.domain.casedefinition.SemVer
 import com.ritense.case.exception.InvalidListColumnException
@@ -54,7 +55,7 @@ class CaseDefinitionService(
     private val documentDefinitionService: DocumentDefinitionService,
     valueResolverService: ValueResolverService,
     private val authorizationService: AuthorizationService,
-    private val caseDefinitionRepository: CaseDefinitionRepository
+    private val caseDefinitionRepository: CaseDefinitionRepository,
 ) {
     var validators: Map<Operation, ListColumnValidator<CaseListColumnDto>> = mapOf(
         Operation.CREATE to CreateCaseListColumnValidator(
@@ -177,6 +178,26 @@ class CaseDefinitionService(
         )
         caseDefinitionRepository.save(caseDefinition)
         return caseDefinition
+    }
+
+    fun assignProcessDefinition(
+        id: UUID,
+        processDefinitionId: String
+    ): CaseDefinition {
+        val caseDefinition = caseDefinitionRepository.getReferenceById(id)
+        caseDefinition.processDefinitions.add(
+            CaseCamundaProcessDefinition(
+                id = processDefinitionId
+            )
+        )
+        return caseDefinitionRepository.save(caseDefinition)
+    }
+
+    fun getProcessDefinitions(
+        id: UUID,
+    ): CaseDefinition {
+        val caseDefinition = caseDefinitionRepository.getReferenceById(id)
+        return caseDefinitionRepository.save(caseDefinition)
     }
 
     fun getCaseDefinition(id: UUID) = caseDefinitionRepository.getReferenceById(id)

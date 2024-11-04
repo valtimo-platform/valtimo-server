@@ -18,6 +18,12 @@ package com.ritense.case.repository
 
 import com.ritense.case.domain.casedefinition.CaseDefinition
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 import java.util.UUID
 
-interface CaseDefinitionRepository : JpaRepository<CaseDefinition, UUID>
+interface CaseDefinitionRepository : JpaRepository<CaseDefinition, UUID> {
+
+    @Query("SELECT cd FROM CaseDefinition cd JOIN cd.processDefinitions pd WHERE pd.id = :processDefinitionId")
+    fun findByProcessDefinitionIn(processDefinitionId: String): CaseDefinition
+
+}
