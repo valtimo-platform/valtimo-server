@@ -77,7 +77,8 @@ class PluginAutoConfiguration {
         pluginDefinitionRepository: PluginDefinitionRepository,
         pluginCategoryRepository: PluginCategoryRepository,
         pluginActionDefinitionRepository: PluginActionDefinitionRepository,
-        pluginActionPropertyDefinitionRepository: PluginActionPropertyDefinitionRepository
+        pluginActionPropertyDefinitionRepository: PluginActionPropertyDefinitionRepository,
+        pluginConfigurationRepository: PluginConfigurationRepository,
     ): PluginDeploymentListener {
         return PluginDeploymentListener(
             pluginDefinitionResolver,
@@ -85,7 +86,8 @@ class PluginAutoConfiguration {
             pluginDefinitionRepository,
             pluginCategoryRepository,
             pluginActionDefinitionRepository,
-            pluginActionPropertyDefinitionRepository
+            pluginActionPropertyDefinitionRepository,
+            pluginConfigurationRepository,
         )
     }
 
