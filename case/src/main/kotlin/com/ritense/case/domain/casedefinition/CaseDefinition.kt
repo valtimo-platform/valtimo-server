@@ -43,6 +43,7 @@ Architectural improvement options:
 • Merge certain modules.
 • Restructure modules:
 • Core module + ZGW module = Monolith (Modulith).
+    Find a impl project to verify.
 
 Goals:
 
