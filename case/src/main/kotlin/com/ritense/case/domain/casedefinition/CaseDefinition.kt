@@ -10,46 +10,71 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.util.UUID
 
-// Q1:  In de CaseDefintion entity andere entities linken? Willen we zgw loskoppelen.
-// A:   Optie A: Core properties zijn in de CaseDefinition.
-//      Optie B: Alle addons zijn een losse entity.
+/*
+Q1: Linking other entities to the CaseDefinition entity? We want to decouple ZGW.
 
-// Q2:  Niet fijn dat we 1 CaseCamundaProcessDefinition class hebben. Ref op Core
-// A:   Optie A: Case is core, move it, Dus Case module komt dan te vervallen?
-//      Optie B: Camunda wordt een losse module alle moven
-//      Optie C: CaseCamundaProcessDefinition wordt een losse entity
+Answer:
 
-// Q3   Wat is de strategie, rondom? Er is een grote kans dat een reference naar CaseDefinition wordt gemaakt.
-//      Is er een behoefte aan feasability study voor een van de opties? Om D te valideren wel.
-//      Risico is dependency hell. We willen geen cyclic dependencies. Kunnen we dit hervalideren.
-// A:   Optie A (OPEN): New RelatedCaseDefinitionId interface maken, locale entity impl. findBy<Type>(caseDefId)
-//      Optie B (): Elke entity maak een reference naar CaseDefinition. (JPA supported)
-//      Optie C (): Elke een entity maakt een FK naar CaseDefinition middels een column id (Buiten jpa om)
-//      Optie D (Toms choice combined with e but breaking) : CaseDefinition die alle relaties heeft.
-//      Optie E (Afgeschoten): CaseDefinition relaties expliciet maken aan beide kanten.
-//      Archictectuur improvement options:
-//         - Sommige module samenvoegen
-//         - Restrukturering van de modules
-//              - Core module + ZGW module = Monolith = Modulith
-//      We zijn op naar 2 dingen: Hoe gaan we relaties leggen? En de dependencies structuur in the monolith
+• Option A: Core properties are within the CaseDefinition.
+• Option B: All add-ons become separate entities.
 
-// Q4:  Wat gaan we functioneel maken? rondom CaseDefinition
-// A:   Lijst van functionele requirements:
-//      Randvoorwaarden:
-//      - Need to scale and decreased dependecies between processes
-//      Must haves:
-//      - Configuratie kunnen koppelen aan CaseDefinition zowel op DB/JPA als op File niveau.
-//      - Import / export van CaseDefinition supported, nieuwe meta file met version.
-//          - Bestaande config's moeten linken aan CaseDefinition zoals in de feasability study
-//          - 1 manier van autodeployment middels de Import/export aanpak (Technical debt wegnemen)
-//      - Forms, DocumentDefinition, ProcessDefinitions zijn gekoppeld aan 1 CaseDefinition. Geen hergebruik.
-//      - Migration = Custom vs Tooling 1 liquibase so isolate and create case-definitions on upgrade.
-//          - Even creating the new config files in the right place. For an impl team to commit and use.
-//      Really nice to have:
-//      - PBAC supported ideaal maar lijkt niet acuut nodig maar is feasable
-//      - Herzien van config bestanden in structuur. Sommige moeten op een vaste plek staan.
-//      V2:
-//      - What about changelog? Verbeteren of houden zoals het is?
+Q2: It’s problematic that we only have one CaseCamundaProcessDefinition class. Reference to Core.
+
+Answer:
+
+• Option A: Case is core, move it, which would mean the Case module would no longer exist.
+• Option B: Camunda becomes a separate module; move everything there.
+• Option C: CaseCamundaProcessDefinition becomes a standalone entity.
+
+Q3: What is the overall strategy? There is a significant likelihood of creating a reference to CaseDefinition.
+
+Is there a need for a feasibility study for any of the options? To validate Option D, yes. The risk is dependency hell; we want to avoid cyclic dependencies. Can we re-evaluate this?
+
+Answer:
+
+• Option A (OPEN): Create a new RelatedCaseDefinitionId interface, local entity implementation with findBy<Type>(caseDefId).
+• Option B: Each entity references CaseDefinition (JPA-supported).
+• Option C: Each entity creates an FK to CaseDefinition using a column ID (outside JPA).
+• Option D (Tom’s preferred choice, combined with E but disruptive): CaseDefinition holds all relationships.
+• Option E (Rejected): Explicitly define relationships in CaseDefinition on both ends.
+
+Architectural improvement options:
+
+• Merge certain modules.
+• Restructure modules:
+• Core module + ZGW module = Monolith (Modulith).
+
+Goals:
+
+• Establish relationship structures.
+• Define dependency structure within the monolith.
+
+Q4: What functional aspects do we need to develop regarding CaseDefinition?
+
+Answer:
+List of functional requirements:
+Prerequisites:
+
+• Ability to scale and reduce dependencies between processes.
+
+Must-haves:
+
+• Ability to link configurations to CaseDefinition at both DB/JPA and file levels.
+• Support import/export of CaseDefinition with a new versioned meta file.
+• Existing configurations must link to CaseDefinition as outlined in the feasibility study.
+• One method for auto-deployment using the import/export approach to remove technical debt.
+• Forms, DocumentDefinition, and ProcessDefinitions are linked to a single CaseDefinition with no reuse.
+• Migration strategy = custom vs. tooling (using one Liquibase instance) to isolate and create case-definitions during upgrades.
+• Include creating new configuration files in the correct location for the implementation team to commit and use.
+
+Nice-to-haves:
+
+• PBAC support is ideal but not urgently needed and feasible.
+• Revising the structure of configuration files, ensuring some are stored in fixed locations.
+
+Version 2 (V2):
+
+• What about the changelog? Should it be improved or kept as is?*/
 
 @Entity
 @Table(name = "case_definition_2")
