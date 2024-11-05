@@ -154,8 +154,10 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
                 version = version
             )
             // When
-            val process =
-                repositoryService.createProcessDefinitionQuery().processDefinitionKey("test-process").singleResult()!!
+            val process = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionKey("test-process")
+                .singleResult()!!
+
             val result = caseDefinitionService.assignProcessDefinition(id, process.id)
             // Then
             assertThat(result.id).isEqualTo(id)
