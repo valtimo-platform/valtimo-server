@@ -23,6 +23,7 @@ import static com.ritense.valtimo.contract.utils.AssertionConcern.assertStateTru
 import com.ritense.authorization.Action;
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.authorization.AuthorizationService;
+import com.ritense.authorization.request.AuthorizationResourceContext;
 import com.ritense.authorization.request.EntityAuthorizationRequest;
 import com.ritense.authorization.request.RelatedEntityAuthorizationRequest;
 import com.ritense.document.domain.Document;
@@ -195,6 +196,42 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
                     CamundaExecutionActionProvider.CREATE,
                     CamundaProcessDefinition.class,
                     processDefinition.getId()
+                )
+            );
+        }).toList();
+    }
+
+    @Override
+    public List<CamundaProcessJsonSchemaDocumentDefinition> findProcessDocumentDefinitions(
+        UUID documentId,
+        @Nullable Boolean startableByUser,
+        @Nullable Boolean canInitializeDocument
+    ) {
+        Document document = documentService.findBy(JsonSchemaDocumentId.existingId(documentId)).orElseThrow();
+
+        List<CamundaProcessJsonSchemaDocumentDefinition> results = processDocumentDefinitionRepository
+            .findAll(document.definitionId().name(), startableByUser, canInitializeDocument);
+
+        // check if feature toggle is turned on, if so use documentId. Else, use documentDefinitionId by retrieving it
+
+        return results.stream().filter(result -> {
+            CamundaProcessDefinition processDefinition = AuthorizationContext.runWithoutAuthorization(() ->
+                repositoryService.findLatestProcessDefinition(
+                    result.processDocumentDefinitionId().processDefinitionKey().toString()
+                )
+            );
+
+            return authorizationService.hasPermission(
+                new RelatedEntityAuthorizationRequest<>(
+                    CamundaExecution.class,
+                    CamundaExecutionActionProvider.CREATE,
+                    CamundaProcessDefinition.class,
+                    processDefinition.getId()
+                ).withContext(
+                    new AuthorizationResourceContext(
+                        JsonSchemaDocument.class,
+                        (JsonSchemaDocument) document
+                    )
                 )
             );
         }).toList();
