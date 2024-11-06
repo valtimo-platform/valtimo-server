@@ -21,3 +21,5 @@ com.ritense.valtimo.config.CustomFailedJobConfiguration
 com.ritense.valtimo.config.JacksonConfiguration
 com.ritense.valtimo.config.ValtimoDatabaseConfiguration
 com.ritense.valtimo.logging.CamundaLoggingAutoConfiguration
+com.ritense.case.configuration.CaseAutoConfiguration
+com.ritense.case_.configuration.CaseWidgetAutoConfiguration

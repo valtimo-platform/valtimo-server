@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo
+package com.ritense.case_.repository
 
-import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import org.camunda.bpm.engine.impl.interceptor.Command
-import org.camunda.bpm.engine.impl.interceptor.CommandInterceptor
+import com.ritense.case.domain.CaseTabId
+import com.ritense.case_.domain.tab.CaseWidgetTab
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-class ValtimoCommandInterceptor() : CommandInterceptor() {
-    override fun <T : Any?> execute(command: Command<T>?): T {
-        return runWithoutAuthorization { next.execute(command) }
-    }
-}
+interface CaseWidgetTabRepository : JpaRepository<CaseWidgetTab, CaseTabId>, JpaSpecificationExecutor<CaseWidgetTab>

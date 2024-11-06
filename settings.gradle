@@ -21,7 +21,6 @@ include(
     "audit",
     "authorization",
     "besluit",
-    "case",
     "changelog",
     "command-handling",
     "connector",

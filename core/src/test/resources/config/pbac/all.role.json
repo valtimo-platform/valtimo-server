@@ -3,6 +3,12 @@
     "roles": [
         "ROLE_USER",
         "ROLE_ADMIN",
-        "IDENTITY_LINK_ROLE"
+        "IDENTITY_LINK_ROLE",
+        "ROLE_ALL_WIDGETS",
+        "ROLE_ONLY_TEST_WIDGETS",
+        "ROLE_ONLY_TEST_DEFINITION_TABS",
+        "ROLE_ONLY_TEST_WIDGETS_FOR_CONTEXT",
+        "ROLE_CUSTOM_TEST",
+        "ROLE_PDTEST"
     ]
 }

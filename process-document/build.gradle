@@ -35,7 +35,6 @@ dockerCompose {
 
 dependencies {
     implementation project(":audit")
-    implementation project(":case")
     implementation project(":changelog")
     implementation project(":contract")
     implementation project(":core")
