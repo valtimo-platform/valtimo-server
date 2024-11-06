@@ -17,9 +17,9 @@
 package com.ritense.formviewmodel.web.rest.error
 
 import com.ritense.formviewmodel.error.BusinessException
+import com.ritense.formviewmodel.error.FormErrorsException
 import com.ritense.formviewmodel.error.FormException
-import com.ritense.formviewmodel.error.MultipleFormException
-import com.ritense.formviewmodel.web.rest.dto.MultipleFormError
+import com.ritense.formviewmodel.web.rest.dto.MultipleFormErrors
 import com.ritense.formviewmodel.web.rest.dto.SingleFormError
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import org.springframework.http.ResponseEntity
@@ -46,15 +46,15 @@ class FormViewModelModuleExceptionTranslator {
             )
     }
 
-    @ExceptionHandler(MultipleFormException::class)
-    fun handleFormException(
-        ex: MultipleFormException,
+    @ExceptionHandler(FormErrorsException::class)
+    fun handleFormErrorsException(
+        ex: FormErrorsException,
         request: NativeWebRequest
-    ): ResponseEntity<MultipleFormError> {
+    ): ResponseEntity<MultipleFormErrors> {
         return ResponseEntity
             .badRequest()
             .body(
-                MultipleFormError(ex.componentErrors)
+                MultipleFormErrors(ex.componentErrors)
             )
     }
 

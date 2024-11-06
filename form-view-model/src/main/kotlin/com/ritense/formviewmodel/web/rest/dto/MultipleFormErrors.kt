@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package com.ritense.formviewmodel.error
+package com.ritense.formviewmodel.web.rest.dto
 
-class MultipleFormException(
-    val componentErrors: List<ComponentError> = emptyList()
-) : Exception() {
-    data class ComponentError(
-        val component: String?,
-        val message: String
-    )
-}
+import com.ritense.formviewmodel.error.FormErrorsException
+
+class MultipleFormErrors (
+    val componentErrors: List<FormErrorsException.ComponentError> = emptyList(),
+)
