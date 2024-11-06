@@ -36,6 +36,7 @@ dependencies {
     implementation project(":plugin")
     implementation project(":zgw:objecten-api")
     implementation project(":zgw:objecttypen-api")
+    implementation project(":zgw:zaken-api")
     implementation project(":logging")
 
     implementation "io.github.microutils:kotlin-logging:${kotlinLoggingVersion}"

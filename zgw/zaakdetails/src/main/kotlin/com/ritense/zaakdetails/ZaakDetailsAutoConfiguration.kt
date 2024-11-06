@@ -24,7 +24,10 @@ import com.ritense.valtimo.contract.config.LiquibaseMasterChangeLogLocation
 import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncManagementResource
 import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncRepository
 import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncService
+import com.ritense.zaakdetails.repository.ZaakdetailsObjectRepository
 import com.ritense.zaakdetails.security.ZaakDetailsHttpSecurityConfigurer
+import com.ritense.zaakdetails.service.ZaakdetailsObjectService
+import com.ritense.zakenapi.ZaakUrlProvider
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -35,8 +38,8 @@ import org.springframework.core.annotation.Order
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import javax.sql.DataSource
 
-@EnableJpaRepositories(basePackageClasses = [DocumentObjectenApiSyncRepository::class])
-@EntityScan("com.ritense.zaakdetails.documentobjectenapisync")
+@EnableJpaRepositories(basePackageClasses = [DocumentObjectenApiSyncRepository::class, ZaakdetailsObjectRepository::class])
+@EntityScan(basePackages = ["com.ritense.zaakdetails.documentobjectenapisync", "com.ritense.zaakdetails.domain"])
 @AutoConfiguration
 class ZaakDetailsAutoConfiguration {
 
@@ -56,6 +59,8 @@ class ZaakDetailsAutoConfiguration {
         documentService: DocumentService,
         pluginService: PluginService,
         objectSyncService: ObjectSyncService,
+        zaakUrlProvider: ZaakUrlProvider,
+        zaakdetailsObjectService: ZaakdetailsObjectService
     ): DocumentObjectenApiSyncService {
         return DocumentObjectenApiSyncService(
             documentObjectenApiSyncRepository,
@@ -63,6 +68,8 @@ class ZaakDetailsAutoConfiguration {
             documentService,
             pluginService,
             objectSyncService,
+            zaakUrlProvider,
+            zaakdetailsObjectService
         )
     }
 
@@ -83,5 +90,13 @@ class ZaakDetailsAutoConfiguration {
     @ConditionalOnMissingBean(ZaakDetailsHttpSecurityConfigurer::class)
     fun zaakDetailsHttpSecurityConfigurer(): ZaakDetailsHttpSecurityConfigurer {
         return ZaakDetailsHttpSecurityConfigurer()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ZaakdetailsObjectService::class)
+    fun zaakdetailsObjectService(
+        zaakdetailsObjectRepository: ZaakdetailsObjectRepository
+    ): ZaakdetailsObjectService {
+        return ZaakdetailsObjectService(zaakdetailsObjectRepository)
     }
 }
