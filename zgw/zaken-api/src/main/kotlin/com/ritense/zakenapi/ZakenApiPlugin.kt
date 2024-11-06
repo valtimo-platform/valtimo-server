@@ -18,11 +18,14 @@ package com.ritense.zakenapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.ritense.catalogiapi.CatalogiApiPlugin
+import com.ritense.document.service.DocumentService
+import com.ritense.logging.withLoggingContext
 import com.ritense.plugin.annotation.Plugin
 import com.ritense.plugin.annotation.PluginAction
 import com.ritense.plugin.annotation.PluginActionProperty
 import com.ritense.plugin.annotation.PluginProperty
 import com.ritense.plugin.service.PluginService
+import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.processlink.domain.ActivityTypeWithEventName.SERVICE_TASK_START
 import com.ritense.processlink.domain.ActivityTypeWithEventName.USER_TASK_CREATE
 import com.ritense.resource.service.TemporaryResourceStorageService
@@ -59,7 +62,6 @@ import com.ritense.zgw.Page
 import com.ritense.zgw.Rsin
 import mu.KLogger
 import mu.KotlinLogging
-import mu.withLoggingContext
 import org.camunda.bpm.engine.delegate.DelegateExecution
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
@@ -81,7 +83,9 @@ class ZakenApiPlugin(
     private val zaakInstanceLinkRepository: ZaakInstanceLinkRepository,
     private val pluginService: PluginService,
     private val zaakHersteltermijnRepository: ZaakHersteltermijnRepository,
-    private val platformTransactionManager: PlatformTransactionManager
+    private val platformTransactionManager: PlatformTransactionManager,
+    private val documentService: DocumentService,
+    private val processDocumentAssociationService: ProcessDocumentAssociationService,
 ) {
     @Url
     @PluginProperty(key = URL_PROPERTY, secret = false)
@@ -160,16 +164,25 @@ class ZakenApiPlugin(
         execution: DelegateExecution,
         @PluginActionProperty rsin: Rsin,
         @PluginActionProperty zaaktypeUrl: URI,
+        @PluginActionProperty description: String? = null,
+        @PluginActionProperty plannedEndDate: String? = null,
+        @PluginActionProperty finalDeliveryDate: String? = null,
     ) {
         withLoggingContext(
             CATALOGI_API.ZAAKTYPE to zaaktypeUrl.toString()
         ) {
             val documentId = UUID.fromString(execution.businessKey)
 
-            createZaak(documentId, rsin, zaaktypeUrl)
+            createZaak(
+                documentId,
+                rsin,
+                zaaktypeUrl,
+                description,
+                plannedEndDate?.let { LocalDate.parse(it) },
+                finalDeliveryDate?.let { LocalDate.parse(it) },
+            )
 
             logger.info { "Zaak of zaaktype with URL '$zaaktypeUrl' created for document with id '$documentId'" }
-
         }
     }
 
@@ -177,6 +190,9 @@ class ZakenApiPlugin(
         documentId: UUID,
         rsin: Rsin,
         zaaktypeUrl: URI,
+        description: String? = null,
+        plannedEndDate: LocalDate? = null,
+        finalDeliveryDate: LocalDate? = null,
     ) {
         withLoggingContext(
             CATALOGI_API.ZAAKTYPE to zaaktypeUrl.toString(),
@@ -191,7 +207,8 @@ class ZakenApiPlugin(
             }
 
             val startdatum = LocalDate.now()
-            val uiterlijkeEinddatumAfdoening = calculateUiterlijkeEinddatumAfdoening(zaaktypeUrl, startdatum)
+            val uiterlijkeEinddatumAfdoening =
+                finalDeliveryDate ?: calculateUiterlijkeEinddatumAfdoening(zaaktypeUrl, startdatum)
 
             val zaak = client.createZaak(
                 authenticationPluginConfiguration,
@@ -202,6 +219,8 @@ class ZakenApiPlugin(
                     verantwoordelijkeOrganisatie = rsin,
                     startdatum = startdatum,
                     uiterlijkeEinddatumAfdoening = uiterlijkeEinddatumAfdoening,
+                    omschrijving = description,
+                    einddatumGepland = plannedEndDate,
                 )
             )
 

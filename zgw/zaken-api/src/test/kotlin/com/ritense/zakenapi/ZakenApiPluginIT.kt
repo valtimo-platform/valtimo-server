@@ -34,7 +34,6 @@ import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.valtimo.contract.resource.Resource
 import com.ritense.zakenapi.domain.CreateZaakRequest
 import com.ritense.zgw.Rsin
-import jakarta.transaction.Transactional
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -53,6 +52,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.POST
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.RestClient
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
@@ -168,6 +168,31 @@ class ZakenApiPluginIT : BaseIntegrationTest() {
 
         val requestBody = getRequestBody(POST, "/zaken/zaken", CreateZaakRequest::class.java)
         assertEquals(requestBody.uiterlijkeEinddatumAfdoening, LocalDate.now().plusDays(84))
+    }
+
+    @Test
+    fun `should create zaak with description and plannedEndDate`() {
+        val zakenApiPlugin = pluginService.createInstance<ZakenApiPlugin>(UUID.fromString(ZAKEN_API_PLUGIN_ID))
+        val document = runWithoutAuthorization {
+            documentService.createDocument(
+                NewDocumentRequest(DOCUMENT_DEFINITION_KEY, objectMapper.createObjectNode())
+            ).resultingDocument().get()
+        }
+        val description = "omschrijving"
+        val plannedEndDate = LocalDate.now().plusDays(10)
+
+        zakenApiPlugin.createZaak(
+            document.id().id,
+            Rsin("155539620"),
+            URI("http://localhost:56273/catalogi/my-zaaktype-id"),
+            description,
+            plannedEndDate,
+            null
+        )
+
+        val requestBody = getRequestBody(POST, "/zaken/zaken", CreateZaakRequest::class.java)
+        assertEquals(requestBody.omschrijving, description)
+        assertEquals(requestBody.einddatumGepland, plannedEndDate)
     }
 
     @Test

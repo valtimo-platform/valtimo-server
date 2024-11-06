@@ -17,6 +17,7 @@
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
     id "idea"
@@ -37,11 +38,11 @@ plugins {
     id "com.avast.gradle.docker-compose" version "${dockerComposePluginVersion}"
     id "com.github.jk1.dependency-license-report" version "${dependencyLicenseReportVersion}"
     id "project-report"
-    id "org.owasp.dependencycheck" version "8.4.0"
+    id "org.owasp.dependencycheck" version "8.4.3"
 }
 
 jacoco {
-    toolVersion = "0.8.9"
+    toolVersion = "0.8.12"
 }
 
 def allTestCoverageFile = "${rootDir}/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml"
@@ -166,6 +167,10 @@ subprojects { subproject ->
 
         dockerCompose {
             useDockerComposeV2 = true
+            if (DefaultNativePlatform.currentOperatingSystem.macOsX) {
+                executable = "/usr/local/bin/docker-compose"
+                dockerExecutable = "/usr/local/bin/docker"
+            }
         }
 
         tasks.withType(KotlinCompile).configureEach {
