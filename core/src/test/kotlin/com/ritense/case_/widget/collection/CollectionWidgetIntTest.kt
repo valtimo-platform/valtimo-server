@@ -16,8 +16,8 @@
 
 package com.ritense.case_.widget.collection
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import com.ritense.case.BaseIntegrationTest
 import com.ritense.case.TestResolverFactory
 import com.ritense.case.domain.CaseTabType
 import com.ritense.case.service.CaseTabService
@@ -70,7 +70,12 @@ class CollectionWidgetIntTest @Autowired constructor(
         val widgetKey = "my-widget"
         val documentId = runWithoutAuthorization {
             createCaseWidgetTab(caseDefinitionName, tabKey, widgetKey)
-            documentService.createDocument(NewDocumentRequest(caseDefinitionName, MapperSingleton.get().createObjectNode())).resultingDocument().get().id()
+            documentService.createDocument(
+                NewDocumentRequest(
+                    caseDefinitionName,
+                    MapperSingleton.get().createObjectNode()
+                )
+            ).resultingDocument().get().id()
         }
         mockMvc.perform(
             get("/api/v1/document/{documentId}/widget-tab/{tabKey}", documentId, tabKey)
@@ -101,17 +106,24 @@ class CollectionWidgetIntTest @Autowired constructor(
         val widgetKey = "my-widget"
         val documentId = runWithoutAuthorization {
             createCaseWidgetTab(caseDefinitionName, tabKey, widgetKey)
-            documentService.createDocument(NewDocumentRequest(caseDefinitionName, MapperSingleton.get().createObjectNode())).resultingDocument().get().id()
+            documentService.createDocument(
+                NewDocumentRequest(
+                    caseDefinitionName,
+                    MapperSingleton.get().createObjectNode()
+                )
+            ).resultingDocument().get().id()
         }
 
         whenever(testValueResolverFactory.createResolver(documentId.toString())).thenReturn(Function { collectionPlaceholder ->
             assertThat(collectionPlaceholder).isEqualTo("myCollection")
 
-            listOf(mapOf(
-                "someTitleKey" to "z",
-                "someKey" to "x",
-                "someOtherKey" to "y"
-            ))
+            listOf(
+                mapOf(
+                    "someTitleKey" to "z",
+                    "someKey" to "x",
+                    "someOtherKey" to "y"
+                )
+            )
         })
         mockMvc.perform(
             get("/api/v1/document/{documentId}/widget-tab/{tabKey}/widget/{widgetKey}", documentId, tabKey, widgetKey)
@@ -134,7 +146,10 @@ class CollectionWidgetIntTest @Autowired constructor(
         tabKey: String,
         widgetKey: String
     ): CaseWidgetTabDto {
-        tabService.createCaseTab(caseDefinitionName, CaseTabDto(key = tabKey, type = CaseTabType.WIDGETS, contentKey = "-"))
+        tabService.createCaseTab(
+            caseDefinitionName,
+            CaseTabDto(key = tabKey, type = CaseTabType.WIDGETS, contentKey = "-")
+        )
         return widgetTabService.updateWidgetTab(
             CaseWidgetTabDto(
                 caseDefinitionName = caseDefinitionName,

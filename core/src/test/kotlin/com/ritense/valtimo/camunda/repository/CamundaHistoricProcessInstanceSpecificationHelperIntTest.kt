@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.camunda.repository
 
-import com.ritense.valtimo.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.ADMIN
 import com.ritense.valtimo.service.CamundaTaskService
 import org.assertj.core.api.Assertions
@@ -35,8 +35,7 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
     private val camundaHistoricProcessInstanceRepository: CamundaHistoricProcessInstanceRepository,
     private val taskService: CamundaTaskService,
     private val identityService: IdentityService
-) :
-    BaseIntegrationTest() {
+) : BaseIntegrationTest() {
 
     private var originalUserId: String? = null
     private lateinit var processInstancesMap: Map<String, List<ProcessInstance>>
@@ -77,8 +76,9 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
     @Test
     @Transactional
     fun query() {
-        val result = camundaHistoricProcessInstanceRepository.findAll(CamundaHistoricProcessInstanceSpecificationHelper.query())
-            .map { it.id }
+        val result =
+            camundaHistoricProcessInstanceRepository.findAll(CamundaHistoricProcessInstanceSpecificationHelper.query())
+                .map { it.id }
 
         Assertions.assertThat(result).isNotEmpty
         Assertions.assertThat(result).containsAll(camundaHistoricProcessInstanceRepository.findAll().map { it.id })
@@ -116,7 +116,8 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
         ).map { it.id }
 
         Assertions.assertThat(instanceIds).containsAll(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
-        Assertions.assertThat(instanceIds).doesNotContainAnyElementsOf(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
+        Assertions.assertThat(instanceIds)
+            .doesNotContainAnyElementsOf(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
     }
 
     @Test
@@ -127,7 +128,8 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
         ).map { it.id }
 
         Assertions.assertThat(instanceIds).containsAll(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
-        Assertions.assertThat(instanceIds).doesNotContainAnyElementsOf(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
+        Assertions.assertThat(instanceIds)
+            .doesNotContainAnyElementsOf(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
     }
 
     @Test
@@ -138,7 +140,8 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
         ).map { it.id }
 
         Assertions.assertThat(instanceIds).containsAll(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
-        Assertions.assertThat(instanceIds).doesNotContainAnyElementsOf(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
+        Assertions.assertThat(instanceIds)
+            .doesNotContainAnyElementsOf(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
     }
 
     @Test
@@ -157,7 +160,8 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
         ).map { it.id }
 
         Assertions.assertThat(instanceIds).containsAll(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
-        Assertions.assertThat(instanceIds).doesNotContainAnyElementsOf(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
+        Assertions.assertThat(instanceIds)
+            .doesNotContainAnyElementsOf(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
     }
 
     @Test
@@ -176,7 +180,8 @@ class CamundaHistoricProcessInstanceSpecificationHelperIntTest @Autowired constr
         ).map { it.id }
 
         Assertions.assertThat(instanceIds).containsAll(getProcessInstancesByKey(TEST_PROCESS).map { it.id })
-        Assertions.assertThat(instanceIds).doesNotContainAnyElementsOf(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
+        Assertions.assertThat(instanceIds)
+            .doesNotContainAnyElementsOf(getProcessInstancesByKey(USER_TASK_PROCESS).map { it.id })
     }
 
     @Test

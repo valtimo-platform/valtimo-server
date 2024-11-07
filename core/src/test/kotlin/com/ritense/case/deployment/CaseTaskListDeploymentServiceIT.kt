@@ -16,7 +16,7 @@
 
 package com.ritense.case.deployment
 
-import com.ritense.case.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import com.ritense.case.repository.TaskListColumnRepository
 import com.ritense.valtimo.changelog.repository.ChangesetRepository
 import com.ritense.valtimo.changelog.service.ChangelogDeployer

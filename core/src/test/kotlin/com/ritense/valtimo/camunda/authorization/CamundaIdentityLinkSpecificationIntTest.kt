@@ -16,9 +16,9 @@
 
 package com.ritense.valtimo.camunda.authorization
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.request.EntityAuthorizationRequest
-import com.ritense.valtimo.BaseIntegrationTest
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byProcessInstanceId
 import com.ritense.valtimo.service.CamundaTaskService

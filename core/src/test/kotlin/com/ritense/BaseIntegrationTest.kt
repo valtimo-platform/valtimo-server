@@ -15,7 +15,10 @@
  */
 package com.ritense
 
+import com.ritense.case.deployment.CaseTabDeploymentService
+import com.ritense.case.deployment.CaseTaskListDeploymentService
 import com.ritense.outbox.OutboxService
+import com.ritense.testutilscommon.junit.extension.LiquibaseRunnerExtension
 import com.ritense.valtimo.contract.authentication.UserManagementService
 import com.ritense.valtimo.contract.mail.MailSender
 import com.ritense.valtimo.repository.CamundaSearchProcessInstanceRepository
@@ -29,26 +32,36 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.core.io.support.ResourcePatternResolver
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @SpringBootTest(properties = ["valtimo.outbox.enabled=true"])
-@ExtendWith(SpringExtension::class)
+@ExtendWith(SpringExtension::class, LiquibaseRunnerExtension::class)
 @Tag("integration")
 abstract class BaseIntegrationTest {
     @Inject
-    var runtimeService: RuntimeService? = null
+    lateinit var runtimeService: RuntimeService
 
     @MockBean
-    var userManagementService: UserManagementService? = null
+    lateinit var userManagementService: UserManagementService
 
     @MockBean
-    var mailSender: MailSender? = null
+    lateinit var mailSender: MailSender
 
     @SpyBean
-    var outboxService: OutboxService? = null
+    lateinit var outboxService: OutboxService
 
     @SpyBean
-    var camundaSearchProcessInstanceRepository: CamundaSearchProcessInstanceRepository? = null
+    lateinit var camundaSearchProcessInstanceRepository: CamundaSearchProcessInstanceRepository
+
+    @SpyBean
+    lateinit var resourcePatternResolver: ResourcePatternResolver
+
+    @SpyBean
+    lateinit var caseTabDeploymentService: CaseTabDeploymentService
+
+    @SpyBean
+    lateinit var caseTaskListDeploymentService: CaseTaskListDeploymentService
 
     @BeforeEach
     fun beforeEach() {

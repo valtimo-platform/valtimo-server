@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.camunda.repository
 
-import com.ritense.valtimo.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

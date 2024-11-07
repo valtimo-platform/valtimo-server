@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.camunda.repository
 
-import com.ritense.valtimo.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

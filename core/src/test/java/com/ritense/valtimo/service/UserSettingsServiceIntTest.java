@@ -19,7 +19,7 @@ package com.ritense.valtimo.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.ritense.valtimo.BaseIntegrationTest;
+import com.ritense.BaseIntegrationTest;
 import com.ritense.valtimo.contract.authentication.model.ValtimoUser;
 import com.ritense.valtimo.domain.user.UserSettings;
 import com.ritense.valtimo.repository.UserSettingsRepository;

@@ -16,7 +16,7 @@
 
 package com.ritense.case.deployment
 
-import com.ritense.case.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import com.ritense.case.domain.CaseTabType
 import com.ritense.case.repository.CaseTabRepository
 import com.ritense.case.repository.CaseTabSpecificationHelper.Companion.TAB_ORDER

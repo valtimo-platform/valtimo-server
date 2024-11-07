@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.logging
 
-import com.ritense.valtimo.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import com.ritense.valtimo.contract.LoggingConstants
 import com.ritense.valtimo.contract.authentication.ManageableUser
 import com.ritense.valtimo.logging.impl.TestController
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import org.slf4j.MDC
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType

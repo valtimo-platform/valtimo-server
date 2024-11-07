@@ -16,9 +16,9 @@
 
 package com.ritense.valtimo.export
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.exporter.request.DecisionDefinitionExportRequest
-import com.ritense.valtimo.BaseIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
 import org.camunda.bpm.engine.RepositoryService
 import org.camunda.bpm.model.dmn.Dmn

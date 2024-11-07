@@ -17,6 +17,7 @@
 
 package com.ritense.valtimo
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.valtimo.service.CamundaProcessService
 import org.camunda.bpm.engine.ProcessEngine

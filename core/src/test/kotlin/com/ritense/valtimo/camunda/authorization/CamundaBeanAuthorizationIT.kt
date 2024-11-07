@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.camunda.authorization
 
-import com.ritense.valtimo.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import org.camunda.bpm.engine.DecisionService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

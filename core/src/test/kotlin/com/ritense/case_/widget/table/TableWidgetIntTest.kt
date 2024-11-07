@@ -16,8 +16,8 @@
 
 package com.ritense.case_.widget.table
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import com.ritense.case.BaseIntegrationTest
 import com.ritense.case.TestResolverFactory
 import com.ritense.case.domain.CaseTabType
 import com.ritense.case.service.CaseTabService

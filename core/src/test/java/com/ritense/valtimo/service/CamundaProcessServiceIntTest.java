@@ -18,8 +18,8 @@ package com.ritense.valtimo.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ritense.BaseIntegrationTest;
 import com.ritense.authorization.AuthorizationContext;
-import com.ritense.valtimo.BaseIntegrationTest;
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
 import com.ritense.valtimo.exception.FileExtensionNotSupportedException;
 import com.ritense.valtimo.exception.NoFileExtensionFoundException;
@@ -68,8 +68,12 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
         AuthorizationContext.runWithoutAuthorization(() -> {
             camundaProcessService.deploy(
                 "aProcessName.bpmn",
-                new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "shouldDeploy.xml"))
-                    .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
+                new ByteArrayInputStream(processes.stream()
+                    .filter(process -> Objects.equals(process.getFilename(), "shouldDeploy.xml"))
+                    .findFirst()
+                    .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+                    .getInputStream()
+                    .readAllBytes())
             );
             return null;
         });
@@ -104,95 +108,139 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
         AuthorizationContext.runWithoutAuthorization(() -> {
             camundaProcessService.deploy(
                 "aDmnName.dmn",
-                new ByteArrayInputStream(tables.stream().filter(table -> Objects.equals(table.getFilename(), "sampleDecisionTable.xml"))
-                    .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
+                new ByteArrayInputStream(tables.stream()
+                    .filter(table -> Objects.equals(table.getFilename(), "sampleDecisionTable.xml"))
+                    .findFirst()
+                    .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+                    .getInputStream()
+                    .readAllBytes())
             );
             return null;
         });
         List<DecisionDefinition> definitions = repositoryService.createDecisionDefinitionQuery().list();
-        Assertions.assertTrue(definitions.stream().anyMatch(decisionDefinition -> decisionDefinition.getKey().equals("Evenementenvergunning-risico")));
+        Assertions.assertTrue(definitions.stream()
+            .anyMatch(decisionDefinition -> decisionDefinition.getKey().equals("Evenementenvergunning-risico")));
     }
 
     @Test
     void shouldNotDeployFileWithInvalidExtension() {
         List<Resource> testFiles = List.of(test);
         String textFileName = "aTextFile.txt";
-        Assertions.assertThrows(FileExtensionNotSupportedException.class,
+        Assertions.assertThrows(
+            FileExtensionNotSupportedException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
+                    camundaProcessService.deploy(
                         textFileName,
-                        new ByteArrayInputStream(testFiles.stream().filter(testFile -> Objects.equals(testFile.getFilename(), "sampleTextFile.txt"))
-                                .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
-                );
-                return null;
-            }
-        ));
+                        new ByteArrayInputStream(testFiles.stream()
+                            .filter(testFile -> Objects.equals(testFile.getFilename(), "sampleTextFile.txt"))
+                            .findFirst()
+                            .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+                            .getInputStream()
+                            .readAllBytes())
+                    );
+                    return null;
+                }
+            )
+        );
         List<DecisionDefinition> dmnDefinitions = repositoryService.createDecisionDefinitionQuery().list();
         List<CamundaProcessDefinition> bpmnDefinitions = AuthorizationContext
-                .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
-        Assertions.assertFalse(dmnDefinitions.stream().anyMatch(dmnDefinition -> dmnDefinition.getResourceName().equals(textFileName)));
-        Assertions.assertFalse(bpmnDefinitions.stream().anyMatch(bpmnDefinition -> bpmnDefinition.getResourceName().equals(textFileName)));
+            .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
+        Assertions.assertFalse(dmnDefinitions.stream()
+            .anyMatch(dmnDefinition -> dmnDefinition.getResourceName().equals(textFileName)));
+        Assertions.assertFalse(bpmnDefinitions.stream()
+            .anyMatch(bpmnDefinition -> bpmnDefinition.getResourceName().equals(textFileName)));
     }
 
     @Test
     void shouldNotDeployFileWithoutExtension() {
         List<Resource> testFiles = List.of(test);
         String sampleFileName = "aFileName";
-        Assertions.assertThrows(NoFileExtensionFoundException.class,
+        Assertions.assertThrows(
+            NoFileExtensionFoundException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
+                    camundaProcessService.deploy(
                         sampleFileName,
-                        new ByteArrayInputStream(testFiles.stream().filter(testFile -> Objects.equals(testFile.getFilename(), "sampleTestFile"))
-                                .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
-                );
-                return null;
+                        new ByteArrayInputStream(testFiles.stream()
+                            .filter(testFile -> Objects.equals(testFile.getFilename(), "sampleTestFile"))
+                            .findFirst()
+                            .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+                            .getInputStream()
+                            .readAllBytes())
+                    );
+                    return null;
                 }
-            ));
+            )
+        );
         List<DecisionDefinition> dmnDefinitions = repositoryService.createDecisionDefinitionQuery().list();
         List<CamundaProcessDefinition> bpmnDefinitions = AuthorizationContext
-                .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
-        Assertions.assertFalse(dmnDefinitions.stream().anyMatch(dmnDefinition -> dmnDefinition.getResourceName().equals(sampleFileName)));
-        Assertions.assertFalse(bpmnDefinitions.stream().anyMatch(bpmnDefinition -> bpmnDefinition.getResourceName().equals(sampleFileName)));
+            .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
+        Assertions.assertFalse(dmnDefinitions.stream()
+            .anyMatch(dmnDefinition -> dmnDefinition.getResourceName().equals(sampleFileName)));
+        Assertions.assertFalse(bpmnDefinitions.stream()
+            .anyMatch(bpmnDefinition -> bpmnDefinition.getResourceName().equals(sampleFileName)));
     }
 
     @Test
     void shouldNotDeployNewSystemProcess() {
         List<Resource> processes = List.of(bpmn);
-        Assertions.assertThrows(ProcessNotDeployableException.class,
+        Assertions.assertThrows(
+            ProcessNotDeployableException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
-                    "aProcessName.bpmn",
-                    new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "shouldNotDeploy.xml"))
-                        .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes()));
-                return null;
-            }
-        ));
+                    camundaProcessService.deploy(
+                        "aProcessName.bpmn",
+                        new ByteArrayInputStream(processes.stream()
+                            .filter(process -> Objects.equals(process.getFilename(), "shouldNotDeploy.xml"))
+                            .findFirst()
+                            .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+                            .getInputStream()
+                            .readAllBytes())
+                    );
+                    return null;
+                }
+            )
+        );
         List<CamundaProcessDefinition> definitions = AuthorizationContext
             .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
-        Assertions.assertFalse(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("firstProcess")));
-        Assertions.assertFalse(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
+        Assertions.assertFalse(definitions.stream()
+            .anyMatch(processDefinition -> processDefinition.getKey().equals("firstProcess")));
+        Assertions.assertFalse(definitions.stream()
+            .anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
     }
 
     @Test
     void shouldNotUpdateExistingSystemProcess() throws IOException {
         List<Resource> processes = List.of(bpmn);
-        var systemProcessModel = Bpmn.readModelFromStream(new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "systemProcess.xml"))
-                .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes()));
+        var systemProcessModel = Bpmn.readModelFromStream(new ByteArrayInputStream(processes.stream()
+            .filter(process -> Objects.equals(process.getFilename(), "systemProcess.xml"))
+            .findFirst()
+            .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+            .getInputStream()
+            .readAllBytes()));
         repositoryService.createDeployment().addModelInstance("systemProcess.bpmn", systemProcessModel).deploy();
         List<CamundaProcessDefinition> definitions = AuthorizationContext
             .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
-        Assertions.assertTrue(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
+        Assertions.assertTrue(definitions.stream()
+            .anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
 
-        Assertions.assertThrows(ProcessNotDeployableException.class,
+        Assertions.assertThrows(
+            ProcessNotDeployableException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
-                    "aProcessName.bpmn",
-                    new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "shouldNotDeploy.xml"))
-                        .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes()));
-                return null;
-            }
-        ));
-        Assertions.assertFalse(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("firstProcess")));
-        Assertions.assertTrue(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
+                    camundaProcessService.deploy(
+                        "aProcessName.bpmn",
+                        new ByteArrayInputStream(processes.stream()
+                            .filter(process -> Objects.equals(process.getFilename(), "shouldNotDeploy.xml"))
+                            .findFirst()
+                            .orElseGet(() -> new ByteArrayResource(new byte[]{}))
+                            .getInputStream()
+                            .readAllBytes())
+                    );
+                    return null;
+                }
+            )
+        );
+        Assertions.assertFalse(definitions.stream()
+            .anyMatch(processDefinition -> processDefinition.getKey().equals("firstProcess")));
+        Assertions.assertTrue(definitions.stream()
+            .anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
     }
 }

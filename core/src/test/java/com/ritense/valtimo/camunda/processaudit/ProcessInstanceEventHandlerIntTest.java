@@ -19,7 +19,7 @@ package com.ritense.valtimo.camunda.processaudit;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-import com.ritense.valtimo.BaseIntegrationTest;
+import com.ritense.BaseIntegrationTest;
 import com.ritense.valtimo.contract.audit.AuditEvent;
 import org.camunda.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.Disabled;

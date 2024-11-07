@@ -1,11 +1,10 @@
 package com.ritense.case.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.Action
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.request.EntityAuthorizationRequest
-import com.ritense.case.BaseIntegrationTest
 import com.ritense.case.domain.CaseTabType
 import com.ritense.case.web.rest.dto.CaseTabDto
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
@@ -26,7 +25,6 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
     private val caseDefinitionService: CaseDefinitionService,
     private val caseTabService: CaseTabService,
     private val repositoryService: RepositoryService,
-    private val objectMapper: ObjectMapper,
     private val camundaProcessService: CamundaProcessService,
     private val camundaProcessDefinitionRepository: CamundaProcessDefinitionRepository,
     private val authorizationService: AuthorizationService
@@ -117,7 +115,7 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
             )
             // When
             val process =
-                repositoryService.createProcessDefinitionQuery().processDefinitionKey("test-process").singleResult()!!
+                repositoryService.createProcessDefinitionQuery().processDefinitionKey("test-process-cd").singleResult()!!
             val result = caseDefinitionService.assignProcessDefinition(id, process.id)
             // Then
             assertThat(result.id).isEqualTo(id)
@@ -125,7 +123,7 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
         }
 
         // Start the process and hit pcab
-        val processInstanceWithDefinition = camundaProcessService.startProcess("test-process", "", emptyMap())
+        val processInstanceWithDefinition = camundaProcessService.startProcess("test-process-cd", "", emptyMap())
         assertThat(processInstanceWithDefinition).isNotNull
 
         // The list call is missing
@@ -165,7 +163,7 @@ class CaseDefinitionServiceIntTest @Autowired constructor(
         }
 
         assertThrows<AccessDeniedException> {
-            val processInstanceWithDefinition = camundaProcessService.startProcess("test-process", "", emptyMap())
+            val processInstanceWithDefinition = camundaProcessService.startProcess("test-process-cd", "", emptyMap())
         }
 
         // The list call is missing

@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ritense.valtimo.BaseIntegrationTest;
+import com.ritense.BaseIntegrationTest;
 import com.ritense.valtimo.repository.camunda.dto.ProcessInstance;
 import com.ritense.valtimo.web.rest.dto.ProcessInstanceSearchDTO;
 import jakarta.inject.Inject;

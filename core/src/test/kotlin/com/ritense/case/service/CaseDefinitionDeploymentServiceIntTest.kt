@@ -1,7 +1,7 @@
 package com.ritense.case.service
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import com.ritense.case.BaseIntegrationTest
 import com.ritense.case.repository.CaseDefinitionSettingsRepository
 import com.ritense.document.service.DocumentDefinitionService
 import jakarta.transaction.Transactional
@@ -41,12 +41,14 @@ class CaseDefinitionDeploymentServiceIntTest @Autowired constructor(
     fun `should deploy settings caseDefinitionName and json content`() {
         val caseDefinitionName = "by-case-definition-name-and-json"
 
-        caseDefinitionDeploymentService.deploy(caseDefinitionName, """
+        caseDefinitionDeploymentService.deploy(
+            caseDefinitionName, """
             {
                 "canHaveAssignee": true,
                 "autoAssignTasks": false
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         val settings = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
 

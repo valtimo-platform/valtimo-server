@@ -1,6 +1,6 @@
 package com.ritense.valtimo.camunda.repository
 
-import com.ritense.valtimo.BaseIntegrationTest
+import com.ritense.BaseIntegrationTest
 import org.assertj.core.api.Assertions
 import org.camunda.bpm.engine.runtime.ProcessInstance
 import org.junit.jupiter.api.BeforeEach
@@ -12,7 +12,6 @@ import java.util.UUID
 class CamundaVariableInstanceSpecificationHelperIntTest @Autowired constructor(
     private val camundaVariableInstanceRepository: CamundaVariableInstanceRepository
 ) : BaseIntegrationTest() {
-
 
     private lateinit var processInstances: List<ProcessInstance>
 

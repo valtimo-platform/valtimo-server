@@ -16,8 +16,8 @@
 
 package com.ritense.valtimo.logging
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import com.ritense.valtimo.BaseIntegrationTest
 import com.ritense.valtimo.camunda.domain.ProcessInstanceWithDefinition
 import com.ritense.valtimo.contract.LoggingConstants
 import com.ritense.valtimo.logging.impl.LoggingTestBean

@@ -16,9 +16,9 @@
 
 package com.ritense.valtimo.importer
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.importer.ImportRequest
-import com.ritense.valtimo.BaseIntegrationTest
 import com.ritense.valtimo.exception.FileExtensionNotSupportedException
 import com.ritense.valtimo.service.CamundaProcessService
 import org.assertj.core.api.Assertions.assertThat

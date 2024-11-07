@@ -17,17 +17,27 @@
 package com.ritense
 
 import com.ritense.authorization.AuthorizationService
+import com.ritense.case.configuration.CaseAutoConfiguration
+import com.ritense.case_.configuration.CaseWidgetAutoConfiguration
+import com.ritense.valtimo.FakeUserRepository
 import com.ritense.valtimo.camunda.authorization.UnauthorizedProcessBean
 import com.ritense.valtimo.contract.annotation.ProcessBean
+import com.ritense.valtimo.contract.config.LiquibaseRunnerAutoConfiguration
 import com.ritense.valtimo.contract.mail.MailSender
 import com.ritense.valtimo.logging.impl.LoggingTestBean
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 
-@SpringBootApplication
+@SpringBootApplication(
+    scanBasePackageClasses = [
+        LiquibaseRunnerAutoConfiguration::class,
+        CaseAutoConfiguration::class,
+        CaseWidgetAutoConfiguration::class
+    ]
+)
 class CoreTestConfiguration {
 
     fun main(args: Array<String>) {
@@ -36,6 +46,7 @@ class CoreTestConfiguration {
 
     @TestConfiguration
     class TestConfig {
+
         @Bean
         fun fakeUserRepository(): FakeUserRepository {
             return FakeUserRepository()
@@ -43,7 +54,7 @@ class CoreTestConfiguration {
 
         @Bean
         fun mailSender(): MailSender {
-            return Mockito.mock(MailSender::class.java)
+            return mock(MailSender::class.java)
         }
 
         @Bean

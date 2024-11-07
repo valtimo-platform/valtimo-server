@@ -17,8 +17,8 @@
 package com.ritense.case.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import com.ritense.case.BaseIntegrationTest
 import com.ritense.case.domain.ColumnDefaultSort
 import com.ritense.case.domain.DateFormatDisplayTypeParameter
 import com.ritense.case.service.CaseListDeploymentService.Companion.CASE_LIST_DEFINITIONS_PATH
@@ -36,7 +36,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @Transactional
-class CaseListDeploymentServiceIntTest: BaseIntegrationTest() {
+class CaseListDeploymentServiceIntTest : BaseIntegrationTest() {
     @Autowired
     lateinit var caseDefinitionService: CaseDefinitionService
 
@@ -53,8 +53,10 @@ class CaseListDeploymentServiceIntTest: BaseIntegrationTest() {
         assertEquals("test:createdOn", firstColumn.path)
         assertEquals("date", firstColumn.displayType.type)
         assertTrue(firstColumn.displayType.displayTypeParameters is DateFormatDisplayTypeParameter)
-        assertEquals("yyyy-MM-dd",
-            (firstColumn.displayType.displayTypeParameters as DateFormatDisplayTypeParameter).dateFormat)
+        assertEquals(
+            "yyyy-MM-dd",
+            (firstColumn.displayType.displayTypeParameters as DateFormatDisplayTypeParameter).dateFormat
+        )
         assertFalse(firstColumn.sortable)
         assertEquals(ColumnDefaultSort.DESC, firstColumn.defaultSort)
         assertEquals(0, firstColumn.order)
@@ -133,8 +135,10 @@ class CaseListDeploymentServiceIntTest: BaseIntegrationTest() {
         assertEquals("test:createdOn", firstColumn.path)
         assertEquals("date", firstColumn.displayType.type)
         assertTrue(firstColumn.displayType.displayTypeParameters is DateFormatDisplayTypeParameter)
-        assertEquals("yyyy-MM-dd",
-            (firstColumn.displayType.displayTypeParameters as DateFormatDisplayTypeParameter).dateFormat)
+        assertEquals(
+            "yyyy-MM-dd",
+            (firstColumn.displayType.displayTypeParameters as DateFormatDisplayTypeParameter).dateFormat
+        )
         assertFalse(firstColumn.sortable)
         assertEquals(ColumnDefaultSort.DESC, firstColumn.defaultSort)
         assertEquals(0, firstColumn.order)

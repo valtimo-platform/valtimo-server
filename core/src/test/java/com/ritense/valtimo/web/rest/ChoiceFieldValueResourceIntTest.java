@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ritense.valtimo.BaseIntegrationTest;
+import com.ritense.BaseIntegrationTest;
 import com.ritense.valtimo.choicefield.repository.ChoiceFieldRepository;
 import com.ritense.valtimo.choicefield.repository.ChoiceFieldValueRepository;
 import com.ritense.valtimo.domain.choicefield.ChoiceField;
@@ -73,17 +73,17 @@ class ChoiceFieldValueResourceIntTest extends BaseIntegrationTest {
         choiceFieldValueRepository.save(choiceFieldValue);
 
         mockMvc.perform(
-            get("/api/v1/choice-field-values/{choice_field_name}/values", "keyName")
-                .accept(APPLICATION_JSON_VALUE)
-        )
-        .andDo(print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0].id").isNumber())
-        .andExpect(jsonPath("$[0].value").value("value"))
-        .andExpect(jsonPath("$[0].deprecated").value(false))
-        .andExpect(jsonPath("$[0].name").value("name"))
-        .andExpect(jsonPath("$[0].choiceField.id").isNumber())
-        .andExpect(jsonPath("$[0].choiceField.keyName").value("keyName"))
-        .andExpect(jsonPath("$[0].choiceField.title").value("title"));
+                get("/api/v1/choice-field-values/{choice_field_name}/values", "keyName")
+                    .accept(APPLICATION_JSON_VALUE)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").isNumber())
+            .andExpect(jsonPath("$[0].value").value("value"))
+            .andExpect(jsonPath("$[0].deprecated").value(false))
+            .andExpect(jsonPath("$[0].name").value("name"))
+            .andExpect(jsonPath("$[0].choiceField.id").isNumber())
+            .andExpect(jsonPath("$[0].choiceField.keyName").value("keyName"))
+            .andExpect(jsonPath("$[0].choiceField.title").value("title"));
     }
 }

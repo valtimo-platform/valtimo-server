@@ -16,8 +16,8 @@
 
 package com.ritense.valtimo.scripttask
 
+import com.ritense.BaseIntegrationTest
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
-import com.ritense.valtimo.BaseIntegrationTest
 import com.ritense.valtimo.service.CamundaProcessService
 import org.camunda.bpm.engine.HistoryService
 import org.junit.jupiter.api.Test
