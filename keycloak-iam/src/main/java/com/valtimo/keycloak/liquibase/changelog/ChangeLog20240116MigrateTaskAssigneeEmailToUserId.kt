@@ -16,7 +16,7 @@
 
 package com.valtimo.keycloak.liquibase.changelog
 
-import com.ritense.valtimo.contract.config.ValtimoProperties
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField
 import liquibase.change.custom.CustomTaskChange
 import liquibase.database.Database
 import liquibase.database.jvm.JdbcConnection
@@ -42,8 +42,8 @@ class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, Envi
     override fun execute(database: Database) {
         logger.info("Starting ${this::class.simpleName}")
 
-        val identifierFieldValue = environment.getProperty("valtimo.oauth.identifier-field")
-        if (ValtimoProperties.IdentifierField.USERNAME.toString().equals(identifierFieldValue, true)) {
+        val identifierFieldValue = environment.getProperty("valtimo.oauth.identifier-field", IdentifierField.USERID.toString())
+        if (!IdentifierField.USERID.toString().equals(identifierFieldValue, true)) {
             logger.info("Identifierfield value was set to $identifierFieldValue. Aborting migration.")
             return
         }
