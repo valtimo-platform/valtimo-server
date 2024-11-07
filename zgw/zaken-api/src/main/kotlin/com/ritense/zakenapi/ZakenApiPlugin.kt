@@ -18,8 +18,8 @@ package com.ritense.zakenapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.ritense.catalogiapi.CatalogiApiPlugin
-import com.ritense.document.domain.Document
 import com.ritense.document.service.DocumentService
+import com.ritense.logging.withLoggingContext
 import com.ritense.plugin.annotation.Plugin
 import com.ritense.plugin.annotation.PluginAction
 import com.ritense.plugin.annotation.PluginActionProperty
@@ -64,7 +64,6 @@ import com.ritense.zgw.Page
 import com.ritense.zgw.Rsin
 import mu.KLogger
 import mu.KotlinLogging
-import mu.withLoggingContext
 import org.camunda.bpm.engine.delegate.DelegateExecution
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
