@@ -227,8 +227,8 @@ class DocumentObjectenApiSyncService(
             }
 
             if(checkExistingZaakObjectBeforeCreating) {
-                val zaakobject = zakenApiPlugin.getZaakObject(zaakUri, zaakdetailsObject.objectURI)
-                if (zaakobject == null) {
+                val zaakobjectExists = zakenApiPlugin.getZaakObject(zaakUri, zaakdetailsObject.objectURI) == null
+                if (!zaakobjectExists) {
                     createZaakObject(zaakUri, zakenApiPlugin, zaakdetailsObject)
                 }
             } else {
