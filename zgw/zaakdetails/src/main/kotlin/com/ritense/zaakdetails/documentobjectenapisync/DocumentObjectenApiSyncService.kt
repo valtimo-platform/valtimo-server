@@ -131,27 +131,16 @@ class DocumentObjectenApiSyncService(
 
             val checkExistingZaakObjectBeforeCreating: Boolean;
 
-            //Object exists and reference has been stored: update
-            if(zaakdetailsObjectOptional.isPresent) {
+            if(zaakdetailsObjectOptional.isPresent) { //Zaakdetails object exists and reference has been stored: update
                 zaakdetailsObject = zaakdetailsObjectOptional.get()
 
                 objectenApiPlugin.objectUpdate(zaakdetailsObject.objectURI, objectRequest)
 
-                //The reference exists, the zaakobject has been created before
                 checkExistingZaakObjectBeforeCreating = false
             } else {
                 val existingObjectWrapper = getObjectWithCaseId(document, objectenApiPlugin, objectManagementConfiguration, objecttypenApiPlugin)
 
-                if(existingObjectWrapper == null) { //Object does not exist: create and store reference
-                    val newObjectWrapper = objectenApiPlugin.createObject(objectRequest)
-                    zaakdetailsObject = ZaakdetailsObject(
-                        id = document.id().id,
-                        objectURI = newObjectWrapper.url
-                    )
-
-                    //New object, the zaakobject can't exist yet
-                    checkExistingZaakObjectBeforeCreating = false
-                } else { //Object exists, but reference has not been stored: update and store reference
+                if(existingObjectWrapper != null) { //Zaakdetails object exists, but reference has not been stored: update and store reference
                     objectenApiPlugin.objectUpdate(existingObjectWrapper.url, objectRequest)
 
                     zaakdetailsObject = ZaakdetailsObject(
@@ -159,15 +148,24 @@ class DocumentObjectenApiSyncService(
                         objectURI = existingObjectWrapper.url
                     )
 
-                    //Existing object, we don't know whether the zaakobject already exists
+                    //Existing zaakdetails object, we don't know whether the zaakobject already exists
                     checkExistingZaakObjectBeforeCreating = true
+                } else { //Zaakdetails object does not exist: create and store reference
+                    val newObjectWrapper = objectenApiPlugin.createObject(objectRequest)
+                    zaakdetailsObject = ZaakdetailsObject(
+                        id = document.id().id,
+                        objectURI = newObjectWrapper.url
+                    )
+
+                    //New zaakdetails object, the zaakobject can't exist yet
+                    checkExistingZaakObjectBeforeCreating = false
                 }
 
                 zaakdetailsObjectService.save(zaakdetailsObject)
             }
 
             if(!zaakdetailsObject.linkedToZaak) {
-                linkToZaak(zaakdetailsObject, checkExistingZaakObjectBeforeCreating)
+                createZaakObjectIfNotExisting(zaakdetailsObject, checkExistingZaakObjectBeforeCreating)
             }
         }
     }
@@ -209,7 +207,7 @@ class DocumentObjectenApiSyncService(
         ).results.firstOrNull()
     }
 
-    private fun linkToZaak(
+    private fun createZaakObjectIfNotExisting(
         zaakdetailsObject: ZaakdetailsObject,
         checkExistingZaakObjectBeforeCreating: Boolean
     ) {
