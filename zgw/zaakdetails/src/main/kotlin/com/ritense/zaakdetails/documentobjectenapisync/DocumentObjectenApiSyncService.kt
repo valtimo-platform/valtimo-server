@@ -140,7 +140,7 @@ class DocumentObjectenApiSyncService(
                 //The reference exists, the zaakobject has been created before
                 checkExistingZaakObjectBeforeCreating = false
             } else {
-                val existingObjectWrapper = getObjectBasedOnCaseId(document, objectenApiPlugin, objectManagementConfiguration, objecttypenApiPlugin)
+                val existingObjectWrapper = getObjectWithCaseId(document, objectenApiPlugin, objectManagementConfiguration, objecttypenApiPlugin)
 
                 if(existingObjectWrapper == null) { //Object does not exist: create and store reference
                     val newObjectWrapper = objectenApiPlugin.createObject(objectRequest)
@@ -190,7 +190,7 @@ class DocumentObjectenApiSyncService(
         )
     }
 
-    private fun getObjectBasedOnCaseId(
+    private fun getObjectWithCaseId(
         document: Document,
         objectenApiPlugin: ObjectenApiPlugin,
         objectManagementConfiguration: ObjectManagementInfo,
