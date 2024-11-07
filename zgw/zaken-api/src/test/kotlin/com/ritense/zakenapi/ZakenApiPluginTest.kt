@@ -1094,7 +1094,7 @@ internal class ZakenApiPluginTest {
         plugin.url = URI("https://zaken.plugin.url")
         plugin.authenticationPluginConfiguration = authenticationMock
 
-        plugin.createZaakObject(URI.create("https://zaak.url"), URI.create("https://object.url"), documentId)
+        plugin.createZaakObject(URI.create("https://zaak.url"), URI.create("https://object.url"), "zaakdetails", documentId)
 
         val captor = argumentCaptor<ZaakObjectRequest>()
         verify(zakenApiClient).createZaakObject(any(), any(), captor.capture())
