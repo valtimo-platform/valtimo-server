@@ -21,9 +21,12 @@ import com.ritense.resource.BaseIntegrationTest
 import com.ritense.resource.domain.MetadataType
 import com.ritense.valtimo.contract.upload.MimeTypeDeniedException
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ClassPathResource
 import kotlin.io.path.Path
@@ -36,6 +39,11 @@ class TemporaryResourceStorageServiceIntegrationTest : BaseIntegrationTest() {
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
+
+    @BeforeEach
+    fun beforeEach() {
+        whenever(resourceStorageMetadataRepository.getResourceStorageMetadataByIdFileId(any())).thenReturn(emptyList())
+    }
 
     @Test
     fun `should store and get resource as inputStream`() {

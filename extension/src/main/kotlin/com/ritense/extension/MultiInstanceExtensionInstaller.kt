@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.ritense.resource
+package com.ritense.extension
 
-import com.ritense.temporaryresource.repository.ResourceStorageMetadataRepository
-import org.junit.jupiter.api.Tag
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.scheduling.annotation.Scheduled
 
-@SpringBootTest
-@Tag("integration")
-abstract class BaseIntegrationTest {
+class MultiInstanceExtensionInstaller(
+    private val extensionManager: ExtensionManager,
+) {
 
-    @MockBean
-    lateinit var resourceStorageMetadataRepository: ResourceStorageMetadataRepository
-
+    @Scheduled(cron = "\${valtimo.extension.multiinstancecron:0 0 * * * ?}")
+    fun loadAndInstallExtensionsFromDisk() {
+        extensionManager.loadPlugins()
+        extensionManager.startPlugins()
+    }
 }

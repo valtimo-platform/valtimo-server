@@ -16,16 +16,12 @@
 
 package com.ritense.resource.service
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.resource.domain.MetadataType
-import com.ritense.temporaryresource.domain.ResourceStorageMetadataId
-import com.ritense.temporaryresource.domain.getEnumFromKey
 import com.ritense.temporaryresource.repository.ResourceStorageMetadataRepository
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.upload.MimeTypeDeniedException
 import com.ritense.valtimo.contract.upload.ValtimoUploadProperties
-import jakarta.persistence.EntityNotFoundException
 import mu.KotlinLogging
 import org.apache.tika.Tika
 import org.springframework.stereotype.Service
@@ -42,6 +38,9 @@ import kotlin.io.path.nameWithoutExtension
 import kotlin.io.path.notExists
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.ritense.temporaryresource.domain.ResourceStorageMetadataId
+import com.ritense.temporaryresource.domain.StorageMetadataKeys
 
 @Service
 @SkipComponentScan
@@ -58,7 +57,7 @@ class TemporaryResourceStorageService(
         TEMP_DIR
     }
 
-    fun store(inputStream: InputStream, metadata: Map<String, Any> = emptyMap()): String {
+    fun store(inputStream: InputStream, metadata: Map<String, Any?> = emptyMap()): String {
         val dataFile = BufferedInputStream(inputStream).use { bis ->
             if (uploadProperties.acceptedMimeTypes.isNotEmpty()) {
                 //Tika marks the stream, reads the first few bytes and resets it when done.
@@ -87,8 +86,7 @@ class TemporaryResourceStorageService(
         if (metaDataFile.notExists()) {
             return false
         }
-        val typeRef = object : TypeReference<Map<String, Any>>() {}
-        val metadata = objectMapper.readValue(metaDataFile.readText(), typeRef)
+        val metadata = objectMapper.readValue<Map<String, Any>>(metaDataFile.readText())
         val dataFile = Path(metadata[MetadataType.FILE_PATH.key] as String)
         val deleted = Files.deleteIfExists(dataFile)
         Files.deleteIfExists(metaDataFile)
@@ -96,48 +94,48 @@ class TemporaryResourceStorageService(
     }
 
     fun getResourceContentAsInputStream(id: String): InputStream {
-        val metadata = getResourceMetadata(id, false)
-        val dataFile = Path(metadata[MetadataType.FILE_PATH.key] as String)
-        return dataFile.inputStream()
+        return Path(getMetadataFilePath(id)).inputStream()
+    }
+
+    fun getMetadataValue(id: String, key: String): Any? {
+        val metadataKey = StorageMetadataKeys.entries.find { it.key == key }
+        if (metadataKey != null) {
+            return repository.getReferenceById(
+                ResourceStorageMetadataId(
+                    fileId = id,
+                    metadataKey = metadataKey
+                )
+            ).metadataValue
+        }
+
+        return getMetadataFromFile(id)[key]
     }
 
     fun getResourceMetadata(id: String): Map<String, Any> {
-        return getResourceMetadata(id, true)
+        return repository.getResourceStorageMetadataByIdFileId(id)
+            .associate { it.id.metadataKey.key to it.metadataValue } +
+            getMetadataFromFile(id)
     }
 
-    internal fun getResourceMetadata(id: String, filterPath: Boolean): Map<String, Any> {
+    internal fun getMetadataFromFile(id: String): Map<String, Any> {
+        val metaDataFile = getMetaDataFileFromResourceId(id)
+        if (metaDataFile.notExists()) {
+            return emptyMap()
+        }
+        return objectMapper.readValue<Map<String, Any>>(metaDataFile.readText())
+            .filter { it.key != MetadataType.FILE_PATH.key }
+    }
+
+    internal fun getMetadataFilePath(id: String): String {
         val metaDataFile = getMetaDataFileFromResourceId(id)
         require(!metaDataFile.notExists()) { "No resource found with id '$id'" }
-        val typeRef = object : TypeReference<Map<String, Any>>() {}
-        return objectMapper.readValue(metaDataFile.readText(), typeRef)
-            .filter {
-                !filterPath || it.key != MetadataType.FILE_PATH.key
-            }
+        val metadata = objectMapper.readValue<Map<String, Any>>(metaDataFile.readText())
+        return metadata[MetadataType.FILE_PATH.key] as String
     }
 
     internal fun getMetaDataFileFromResourceId(resourceId: String): Path {
         val safeFileName = Path("$resourceId.json").fileName.toString()
         return Path.of(tempDir.pathString, safeFileName)
-    }
-
-    fun getMetadataValue(resourceStorageFieldId: String, metadataKey: String): String {
-        return getEnumFromKey(metadataKey).fold(
-            onSuccess = { enumKey ->
-                try {
-                    repository.getReferenceById(
-                        ResourceStorageMetadataId(
-                            fileId = resourceStorageFieldId,
-                            metadataKey = enumKey
-                        )
-                    ).metadataValue
-                } catch (e: EntityNotFoundException) {
-                    throw IllegalStateException("Resource $resourceStorageFieldId does not exist", e)
-                }
-            },
-            onFailure = { exception ->
-                throw IllegalStateException("Failed to resolve metadata key '$metadataKey'", exception)
-            }
-        )
     }
 
     companion object {

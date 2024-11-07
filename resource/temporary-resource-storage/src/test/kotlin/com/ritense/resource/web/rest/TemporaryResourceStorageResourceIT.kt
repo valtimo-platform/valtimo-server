@@ -53,9 +53,6 @@ internal class TemporaryResourceStorageResourceIT @Autowired constructor(
 ) : BaseIntegrationTest() {
 
     @MockBean
-    private lateinit var resourceStorageMetadataRepository: ResourceStorageMetadataRepository
-
-    @MockBean
     private lateinit var myEventListener: MyEventListener
 
     lateinit var mockMvc: MockMvc

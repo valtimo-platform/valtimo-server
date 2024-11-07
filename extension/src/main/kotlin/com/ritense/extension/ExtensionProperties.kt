@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.ritense.extension
 
-package com.ritense.resource
+import org.springframework.boot.context.properties.ConfigurationProperties
+import java.net.URL
 
-import com.ritense.temporaryresource.repository.ResourceStorageMetadataRepository
-import org.junit.jupiter.api.Tag
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
+@ConfigurationProperties(prefix = "valtimo.extension")
+data class ExtensionProperties(
+    val repositories: Map<String, URL> = emptyMap()
+) {
 
-@SpringBootTest
-@Tag("integration")
-abstract class BaseIntegrationTest {
-
-    @MockBean
-    lateinit var resourceStorageMetadataRepository: ResourceStorageMetadataRepository
-
+    fun getExtensionRepositories() = repositories.map { ExtensionUpdateRepository(it.key, it.value) }
 }
