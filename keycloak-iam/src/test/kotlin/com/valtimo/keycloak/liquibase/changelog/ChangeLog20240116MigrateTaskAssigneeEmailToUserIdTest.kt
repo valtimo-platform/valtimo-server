@@ -16,8 +16,7 @@
 
 package com.valtimo.keycloak.liquibase.changelog
 
-import java.sql.PreparedStatement
-import java.sql.ResultSet
+import com.ritense.valtimo.contract.config.ValtimoProperties
 import liquibase.database.Database
 import liquibase.database.jvm.JdbcConnection
 import okhttp3.mockwebserver.Dispatcher
@@ -30,8 +29,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.core.env.ConfigurableEnvironment
+import java.sql.PreparedStatement
+import java.sql.ResultSet
 
 internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
 
@@ -80,6 +82,18 @@ internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
 
         verify(updateTaskTable).setString(1, "user-id-1")
         verify(updateTaskTable).setString(2, "my-task-id-1")
+    }
+
+    @Test
+    fun `should skip execute changelog`() {
+        val configurableEnvironment: ConfigurableEnvironment = mock()
+        ChangeLog20240116MigrateTaskAssigneeEmailToUserId().postProcessEnvironment(configurableEnvironment, mock())
+        whenever(configurableEnvironment.getProperty("valtimo.oauth.identifier-field")).thenReturn(ValtimoProperties.IdentifierField.USERNAME.toString())
+        val database = mock<Database>()
+
+        changeLog.execute(database)
+
+        verifyNoInteractions(database)
     }
 
 
