@@ -86,6 +86,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -100,6 +101,8 @@ import org.camunda.bpm.engine.form.TaskFormData;
 import org.camunda.bpm.engine.impl.form.validator.FormFieldValidationException;
 import org.camunda.bpm.engine.task.Comment;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -110,6 +113,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 
 public class CamundaTaskService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CamundaTaskService.class);
 
     private static final String CONTEXT = "context";
 
@@ -366,34 +371,40 @@ public class CamundaTaskService {
         var assigneeMap = new java.util.HashMap<String, ValtimoUser>();
         var tasks = typedQuery.getResultList().stream()
             .map(tuple -> {
-                var task = tuple.get(0, CamundaTask.class);
-                var executionId = tuple.get(1, String.class);
-                var businessKey = tuple.get(2, String.class);
-                var processDefinitionId = tuple.get(3, String.class);
-                var processDefinitionKey = tuple.get(4, String.class);
+                try {
+                    var task = tuple.get(0, CamundaTask.class);
+                    var executionId = tuple.get(1, String.class);
+                    var businessKey = tuple.get(2, String.class);
+                    var processDefinitionId = tuple.get(3, String.class);
+                    var processDefinitionKey = tuple.get(4, String.class);
 
-                ValtimoUser valtimoUser;
-                if (task.getAssignee() == null) {
-                    valtimoUser = null;
-                } else if (assigneeMap.containsKey(task.getAssignee())) {
-                    valtimoUser = assigneeMap.get(task.getAssignee());
-                } else {
-                    valtimoUser = getValtimoUser(task.getAssignee());
-                    assigneeMap.put(task.getAssignee(), valtimoUser);
+                    ValtimoUser valtimoUser;
+                    if (task.getAssignee() == null) {
+                        valtimoUser = null;
+                    } else if (assigneeMap.containsKey(task.getAssignee())) {
+                        valtimoUser = assigneeMap.get(task.getAssignee());
+                    } else {
+                        valtimoUser = getValtimoUser(task.getAssignee());
+                        assigneeMap.put(task.getAssignee(), valtimoUser);
+                    }
+
+                    var context = task.getVariable(CONTEXT);
+
+                    return TaskExtended.of(
+                        task,
+                        executionId,
+                        businessKey,
+                        processDefinitionId,
+                        processDefinitionKey,
+                        valtimoUser,
+                        context
+                    );
+                } catch(Exception e) {
+                    logger.error("Failed to build task "+tuple, e);
+                    return null;
                 }
-
-                var context = task.getVariable(CONTEXT);
-
-                return TaskExtended.of(
-                    task,
-                    executionId,
-                    businessKey,
-                    processDefinitionId,
-                    processDefinitionKey,
-                    valtimoUser,
-                    context
-                );
             })
+            .filter(Objects::nonNull)
             .toList();
 
         return new PageImpl<>(tasks, pageable, countTasksFiltered(specification));
