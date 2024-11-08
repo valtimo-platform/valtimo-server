@@ -72,13 +72,15 @@ class FormViewModelResource(
     @PostMapping("/start-form")
     fun updateStartFormViewModel(
         @RequestParam formName: String,
-        @RequestBody submission: ObjectNode,
-        @RequestParam processDefinitionKey: String
+        @RequestParam processDefinitionKey: String,
+        @RequestParam page: Int?,
+        @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateStartFormViewModel(
             formName = formName,
+            processDefinitionKey = processDefinitionKey,
+            page = page,
             submission = submission,
-            processDefinitionKey = processDefinitionKey
         )?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
@@ -88,11 +90,13 @@ class FormViewModelResource(
     fun updateUserTaskFormViewModel(
         @RequestParam formName: String,
         @RequestParam taskInstanceId: String,
+        @RequestParam page: Int?,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateUserTaskFormViewModel(
             formName = formName,
             taskInstanceId = taskInstanceId,
+            page = page,
             submission = submission
         )?.let {
             ResponseEntity.ok(it)
