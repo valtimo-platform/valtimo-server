@@ -16,15 +16,8 @@
 
 package com.ritense.formviewmodel.web.rest.dto
 
-<<<<<<<< HEAD:form-view-model/src/main/kotlin/com/ritense/formviewmodel/web/rest/dto/MultipleFormError.kt
-import com.ritense.formviewmodel.error.MultipleFormException
-
-class MultipleFormError (
-    val componentErrors: List<MultipleFormException.ComponentError> = emptyList(),
-========
 import com.ritense.formviewmodel.error.FormErrorsException
 
 class MultipleFormErrors (
     val componentErrors: List<FormErrorsException.ComponentError> = emptyList(),
->>>>>>>> next-minor:form-view-model/src/main/kotlin/com/ritense/formviewmodel/web/rest/dto/MultipleFormErrors.kt
 )
