@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+<<<<<<<< HEAD:form-view-model/src/main/kotlin/com/ritense/formviewmodel/error/MultipleFormException.kt
 package com.ritense.formviewmodel.error
 
 class MultipleFormException(
@@ -24,3 +25,11 @@ class MultipleFormException(
         val message: String
     )
 }
+========
+package com.ritense.formviewmodel.web.rest.dto
+
+class SingleFormError (
+    val error: String,
+    val component: String? = null,
+)
+>>>>>>>> next-minor:form-view-model/src/main/kotlin/com/ritense/formviewmodel/web/rest/dto/SingleFormError.kt

@@ -43,21 +43,15 @@ class DashboardDataServiceIntTest @Autowired constructor(
         clearCache()
 
         numberConfiguration = WidgetConfiguration(
-            key = NUMBER_CONFIG_KEY, title = "", dashboard = mock(), dataSourceKey = NUMBER_DATA_KEY,
-            dataSourceProperties = objectMapper.valueToTree(TestDataSourceProperties("xyz")),
-            displayTypeProperties = objectMapper.createObjectNode(),
-            displayType = "",
-            order = 0
+            NUMBER_CONFIG_KEY, "", mock(), NUMBER_DATA_KEY,
+            objectMapper.valueToTree(TestDataSourceProperties("xyz")),
+            objectMapper.createObjectNode(),
+            "", null, 0
         )
         numbersConfiguration = WidgetConfiguration(
-            key = NUMBERS_CONFIG_KEY,
-            title = "",
-            dashboard = mock(),
-            dataSourceKey = NUMBERS_DATA_KEY,
-            dataSourceProperties = objectMapper.createObjectNode(),
-            displayTypeProperties = objectMapper.createObjectNode(),
-            displayType = "",
-            order = 1
+            NUMBERS_CONFIG_KEY, "", mock(), NUMBERS_DATA_KEY,
+            objectMapper.createObjectNode(), objectMapper.createObjectNode(),
+            "", null,1
         )
 
         whenever(widgetConfigurationRepository.findAllByDashboardKey(DASHBOARD_KEY)).thenReturn(

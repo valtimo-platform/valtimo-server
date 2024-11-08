@@ -59,7 +59,7 @@ data class WidgetConfiguration(
     @Column(name = "display_type", nullable = false)
     val displayType: String,
 
-    @Column(name = "url", nullable = false)
+    @Column(name = "url")
     @Convert(converter = UriAttributeConverter::class)
     val url: URI? = null,
 
