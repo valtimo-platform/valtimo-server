@@ -56,19 +56,4 @@
     <include file="changelog/20230904-choice-field-values-change-deprecated-datatype.xml" relativeToChangelogFile="true"/>
     <include file="camunda/20240607-camunda-upgrade-7-21-0-changelog.xml" relativeToChangelogFile="true"/>
     <include file="changelog/20241007-applicationproperties.xml" relativeToChangelogFile="true"/>
-
-    <!-- Case -->
-    <include file="changelog/case/20221125-add-case-definition.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20221206-add-case-list-column.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20221214-add-column-order-to-list-column.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20230526-add-column-auto-assign-tasks-to-case-definition.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20230926-add-case-tabs.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20231006-add-standard-case-tabs.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20240228-add-task-list-column.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20240513-add-case-widget-tab.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20240514-add-case-widget-tab-widget.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20240527-add-createdon-createdby-to-case-tabs.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20240617-add-showtasks-to-case-tabs.xml" relativeToChangelogFile="true"/>
-    <include file="changelog/case/20241023-add-case-definition.xml" relativeToChangelogFile="true"/>
-
 </databaseChangeLog>

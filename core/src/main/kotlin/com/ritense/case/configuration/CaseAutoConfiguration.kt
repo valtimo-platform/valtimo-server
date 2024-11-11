@@ -63,6 +63,7 @@ import com.ritense.importer.ImportService
 import com.ritense.valtimo.changelog.service.ChangelogDeployer
 import com.ritense.valtimo.changelog.service.ChangelogService
 import com.ritense.valtimo.contract.authentication.UserManagementService
+import com.ritense.valtimo.contract.config.LiquibaseMasterChangeLogLocation
 import com.ritense.valtimo.contract.database.QueryDialectHelper
 import com.ritense.valueresolver.ValueResolverService
 import org.springframework.beans.factory.annotation.Value
@@ -243,12 +244,12 @@ class CaseAutoConfiguration {
         return CaseHttpSecurityConfigurer()
     }
 
-   /* @Order(Ordered.HIGHEST_PRECEDENCE + 20)
+    @Order(Ordered.HIGHEST_PRECEDENCE + 20)
     @ConditionalOnMissingBean(name = ["caseLiquibaseMasterChangeLogLocation"])
     @Bean
     fun caseLiquibaseMasterChangeLogLocation(): LiquibaseMasterChangeLogLocation {
-        return LiquibaseMasterChangeLogLocation("config/liquibase/case-master.xml")
-    }*/
+        return LiquibaseMasterChangeLogLocation("config/liquibase/changelog/case/case-master.xml")
+    }
 
     @Bean
     fun enumDisplayTypeParameterType(): NamedType {
