@@ -31,6 +31,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId;
 import com.ritense.document.domain.impl.JsonSchemaDocumentId;
+import com.ritense.document.exception.DocumentNotFoundException;
 import com.ritense.document.exception.UnknownDocumentDefinitionException;
 import com.ritense.document.repository.DocumentDefinitionRepository;
 import com.ritense.document.service.DocumentDefinitionService;
@@ -207,12 +208,11 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
         @Nullable Boolean startableByUser,
         @Nullable Boolean canInitializeDocument
     ) {
-        Document document = documentService.findBy(JsonSchemaDocumentId.existingId(documentId)).orElseThrow();
+        Document document = documentService.findBy(JsonSchemaDocumentId.existingId(documentId)).
+            orElseThrow(() -> new DocumentNotFoundException("Document not found with id " + documentId));
 
         List<CamundaProcessJsonSchemaDocumentDefinition> results = processDocumentDefinitionRepository
             .findAll(document.definitionId().name(), startableByUser, canInitializeDocument);
-
-        // check if feature toggle is turned on, if so use documentId. Else, use documentDefinitionId by retrieving it
 
         return results.stream().filter(result -> {
             CamundaProcessDefinition processDefinition = AuthorizationContext.runWithoutAuthorization(() ->
@@ -230,7 +230,7 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
                 ).withContext(
                     new AuthorizationResourceContext(
                         JsonSchemaDocument.class,
-                        (JsonSchemaDocument) document
+                        document
                     )
                 )
             );

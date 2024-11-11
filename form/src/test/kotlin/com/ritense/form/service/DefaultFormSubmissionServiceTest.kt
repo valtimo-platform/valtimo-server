@@ -207,8 +207,6 @@ class DefaultFormSubmissionServiceTest {
         whenever(documentService.get(documentId)).thenReturn(document)
         whenever(processDocumentService.dispatch(any()))
             .thenReturn(ModifyDocumentAndCompleteTaskResultSucceeded(document))
-//        whenever(authorizationService.hasPermission(any<RelatedEntityAuthorizationRequest<CamundaExecution>>()))
-//            .thenReturn(true)
 
         //When
         val formSubmissionResult = defaultFormSubmissionService.handleSubmission(
