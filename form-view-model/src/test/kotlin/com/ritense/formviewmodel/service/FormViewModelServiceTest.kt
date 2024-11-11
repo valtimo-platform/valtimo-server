@@ -81,7 +81,8 @@ class FormViewModelServiceTest : BaseTest() {
         val updatedViewModel = formViewModelService.updateUserTaskFormViewModel(
             formName = "formName",
             taskInstanceId = "taskInstanceId",
-            submission = objectMapper.valueToTree(TestViewModel())
+            submission = objectMapper.valueToTree(TestViewModel()),
+            page = 1
         )
 
         assertThat(updatedViewModel).isNotNull()
