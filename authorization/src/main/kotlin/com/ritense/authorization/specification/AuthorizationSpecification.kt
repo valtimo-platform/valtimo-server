@@ -91,13 +91,12 @@ abstract class AuthorizationSpecification<T : Any>(
                 permission.appliesInContext(
                     relatedEntityAuthorizationRequest.context?.resourceType,
                     relatedEntityAuthorizationRequest.context?.entity
-                )
-                permission.conditionContainer.conditions.all { permissionCondition ->
-                    isAuthorizedForRelatedEntityRecursive(
-                        relatedEntityAuthorizationRequest,
-                        permissionCondition
-                    )
-                }
+                ) && permission.conditionContainer.conditions.all { permissionCondition ->
+                        isAuthorizedForRelatedEntityRecursive(
+                            relatedEntityAuthorizationRequest,
+                            permissionCondition
+                        )
+                    }
             } != null
     }
 
