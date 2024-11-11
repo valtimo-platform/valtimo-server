@@ -117,7 +117,7 @@ class FormViewModelServiceTest : BaseTest() {
     data class RandomViewModel(
         val custom: String
     ) : ViewModel {
-        override fun update(task: CamundaTask?): ViewModel {
+        override fun update(task: CamundaTask?, page: Int?): ViewModel {
             return this
         }
     }

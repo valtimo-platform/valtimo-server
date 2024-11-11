@@ -92,7 +92,8 @@ class FormViewModelResourceTest : BaseTest() {
             formViewModelService.updateUserTaskFormViewModel(
                 formName = eq("test"),
                 taskInstanceId = eq("taskInstanceId"),
-                submission = any()
+                submission = any(),
+                page = eq(null)
             )
         ).thenReturn(TestViewModel())
 
@@ -193,7 +194,8 @@ class FormViewModelResourceTest : BaseTest() {
             formViewModelService.updateStartFormViewModel(
                 formName = eq("test"),
                 submission = any(),
-                processDefinitionKey = eq("processDefinitionKey")
+                processDefinitionKey = eq("processDefinitionKey"),
+                page = eq(null)
             )
         ).thenReturn(TestViewModel())
         mockMvc.perform(

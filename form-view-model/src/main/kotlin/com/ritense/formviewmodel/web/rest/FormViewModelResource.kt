@@ -73,7 +73,7 @@ class FormViewModelResource(
     fun updateStartFormViewModel(
         @RequestParam formName: String,
         @RequestParam processDefinitionKey: String,
-        @RequestParam page: Int?,
+        @RequestParam page: Int? = null,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateStartFormViewModel(
@@ -90,7 +90,7 @@ class FormViewModelResource(
     fun updateUserTaskFormViewModel(
         @RequestParam formName: String,
         @RequestParam taskInstanceId: String,
-        @RequestParam page: Int?,
+        @RequestParam page: Int? = null,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateUserTaskFormViewModel(
