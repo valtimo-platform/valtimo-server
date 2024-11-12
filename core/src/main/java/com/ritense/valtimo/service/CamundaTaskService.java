@@ -197,7 +197,12 @@ public class CamundaTaskService {
             } else {
                 requirePermission(task, ASSIGN);
                 authorizationService.requirePermission(
-                    new DelegateUserEntityAuthorizationRequest<>(CamundaTask.class, ASSIGNABLE, assigneeIdentifier, task)
+                    new DelegateUserEntityAuthorizationRequest<>(
+                        CamundaTask.class,
+                        ASSIGNABLE,
+                        assigneeIdentifier,
+                        task
+                    )
                 );
             }
             final String currentAssignee = task.getAssignee();
@@ -356,7 +361,13 @@ public class CamundaTaskService {
         var processDefinitionIdPath = taskRoot.get(PROCESS_DEFINITION).get(ID);
         var processDefinitionKeyPath = taskRoot.get(PROCESS_DEFINITION).get(KEY);
 
-        query.multiselect(taskRoot, executionIdPath, businessKeyPath, processDefinitionIdPath, processDefinitionKeyPath);
+        query.multiselect(
+            taskRoot,
+            executionIdPath,
+            businessKeyPath,
+            processDefinitionIdPath,
+            processDefinitionKeyPath
+        );
         query.where(specification.toPredicate(taskRoot, query, cb));
         query.groupBy(taskRoot, executionIdPath, businessKeyPath, processDefinitionIdPath, processDefinitionKeyPath);
         query.orderBy(getOrderBy(cb, taskRoot, pageable.getSort()));
@@ -371,40 +382,38 @@ public class CamundaTaskService {
         var assigneeMap = new java.util.HashMap<String, ValtimoUser>();
         var tasks = typedQuery.getResultList().stream()
             .map(tuple -> {
-                try {
-                    var task = tuple.get(0, CamundaTask.class);
-                    var executionId = tuple.get(1, String.class);
-                    var businessKey = tuple.get(2, String.class);
-                    var processDefinitionId = tuple.get(3, String.class);
-                    var processDefinitionKey = tuple.get(4, String.class);
+                var task = tuple.get(0, CamundaTask.class);
+                var executionId = tuple.get(1, String.class);
+                var businessKey = tuple.get(2, String.class);
+                var processDefinitionId = tuple.get(3, String.class);
+                var processDefinitionKey = tuple.get(4, String.class);
 
-                    ValtimoUser valtimoUser;
-                    if (task.getAssignee() == null) {
-                        valtimoUser = null;
-                    } else if (assigneeMap.containsKey(task.getAssignee())) {
-                        valtimoUser = assigneeMap.get(task.getAssignee());
-                    } else {
-                        valtimoUser = getValtimoUser(task.getAssignee());
-                        assigneeMap.put(task.getAssignee(), valtimoUser);
+                ValtimoUser valtimoUser = null;
+                if (task.getAssignee() != null) {
+                    try {
+                        if (assigneeMap.containsKey(task.getAssignee())) {
+                            valtimoUser = assigneeMap.get(task.getAssignee());
+                        } else {
+                            valtimoUser = getValtimoUser(task.getAssignee());
+                            assigneeMap.put(task.getAssignee(), valtimoUser);
+                        }
+                    } catch (Exception e) {
+                        logger.error("Failed to retrieve assignee " + task.getAssignee() + " for task " + task.getId(), e);
                     }
-
-                    var context = task.getVariable(CONTEXT);
-
-                    return TaskExtended.of(
-                        task,
-                        executionId,
-                        businessKey,
-                        processDefinitionId,
-                        processDefinitionKey,
-                        valtimoUser,
-                        context
-                    );
-                } catch(Exception e) {
-                    logger.error("Failed to build task "+tuple, e);
-                    return null;
                 }
+
+                var context = task.getVariable(CONTEXT);
+
+                return TaskExtended.of(
+                    task,
+                    executionId,
+                    businessKey,
+                    processDefinitionId,
+                    processDefinitionKey,
+                    valtimoUser,
+                    context
+                );
             })
-            .filter(Objects::nonNull)
             .toList();
 
         return new PageImpl<>(tasks, pageable, countTasksFiltered(specification));
