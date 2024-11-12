@@ -21,6 +21,7 @@ import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.web.rest.dto.ProcessLinkActivityResult
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -52,6 +53,12 @@ class ProcessLinkActivityServiceTest {
     @Mock
     lateinit var camundaRepositoryService: CamundaRepositoryService
 
+    @Mock
+    lateinit var camundaTaskService: CamundaTaskService
+
+    @Mock
+    lateinit var camundaProcessService: CamundaProcessService
+
     @BeforeEach
     fun init() {
         MockitoAnnotations.openMocks(this)
@@ -60,7 +67,9 @@ class ProcessLinkActivityServiceTest {
             taskService,
             listOf(processLinkActivityHandler),
             authorizationService,
-            camundaRepositoryService
+            camundaRepositoryService,
+            camundaTaskService,
+            camundaProcessService
         )
     }
 
