@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package com.ritense.dashboard.web.rest.dto
+package com.ritense.formviewmodel.error
 
-import com.fasterxml.jackson.databind.node.ObjectNode
-import java.net.URI
-
-data class WidgetConfigurationUpdateRequestDto(
-    val key: String,
-    val title: String,
-    val dataSourceKey: String,
-    val displayType: String,
-    val dataSourceProperties: ObjectNode,
-    val displayTypeProperties: ObjectNode,
-    val url: URI? = null
-)
+class FormErrorsException(
+    val componentErrors: List<ComponentError> = emptyList()
+) : Exception() {
+    data class ComponentError(
+        val component: String?,
+        val message: String
+    )
+}

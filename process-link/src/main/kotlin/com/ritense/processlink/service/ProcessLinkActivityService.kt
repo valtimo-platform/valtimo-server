@@ -16,19 +16,31 @@
 
 package com.ritense.processlink.service
 
+import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
+import com.ritense.authorization.AuthorizationService
+import com.ritense.authorization.request.AuthorizationResourceContext
+import com.ritense.authorization.request.EntityAuthorizationRequest
+import com.ritense.document.domain.impl.JsonSchemaDocument
+import com.ritense.document.domain.impl.JsonSchemaDocumentId
+import com.ritense.document.service.DocumentService
 import com.ritense.logging.LoggableResource
 import com.ritense.logging.withLoggingContext
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.exception.ProcessLinkNotFoundException
 import com.ritense.processlink.web.rest.dto.ProcessLinkActivityResult
+import com.ritense.valtimo.camunda.authorization.CamundaExecutionActionProvider
+import com.ritense.valtimo.camunda.domain.CamundaExecution
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byActive
 import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byId
+import com.ritense.valtimo.camunda.service.CamundaRepositoryService
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
+import com.ritense.valtimo.exception.ProcessDefinitionNotFoundException
 import com.ritense.valtimo.service.CamundaTaskService
 import mu.KotlinLogging
+import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -37,7 +49,10 @@ import java.util.UUID
 class ProcessLinkActivityService(
     private val processLinkService: ProcessLinkService,
     private val taskService: CamundaTaskService,
-    private val processLinkActivityHandlers: List<ProcessLinkActivityHandler<*>>
+    private val processLinkActivityHandlers: List<ProcessLinkActivityHandler<*>>,
+    private val authorizationService: AuthorizationService,
+    private val camundaRepositoryService: CamundaRepositoryService,
+    private val documentService: DocumentService
 ) {
     fun openTask(
         @LoggableResource(resourceType = CamundaTask::class) taskId: UUID
@@ -65,18 +80,72 @@ class ProcessLinkActivityService(
             processDefinitionId,
             ActivityTypeWithEventName.START_EVENT_START
         ) ?: return null
+
+        val processDefinition = runWithoutAuthorization {
+            camundaRepositoryService.findProcessDefinitionById(processLink.processDefinitionId)
+                ?: throw ProcessDefinitionNotFoundException(
+                    "For process definition with id ${processLink.processDefinitionId}"
+                )
+        }
+
+        var entityAuthorizationRequest = EntityAuthorizationRequest(
+            CamundaExecution::class.java,
+            CamundaExecutionActionProvider.CREATE,
+            createDummyCamundaExecution(
+                processDefinition
+            )
+        )
+
+        documentId?.let {
+            entityAuthorizationRequest = entityAuthorizationRequest.withContext(
+                AuthorizationResourceContext(
+                    JsonSchemaDocument::class.java,
+                    documentService.findBy(JsonSchemaDocumentId.existingId(documentId)).get() as JsonSchemaDocument
+                )
+            )
+        }
+
+        authorizationService.requirePermission(entityAuthorizationRequest)
         return withLoggingContext(ProcessLink::class, processLink.id) {
-            var result: ProcessLinkActivityResult<*>? = null
-            processLinkActivityHandlers.forEach {
-                if (it.supports(processLink)) {
-                    result = it.getStartEventObject(processDefinitionId, documentId, documentDefinitionName, processLink)
-                }
-            }
-            result
+            processLinkActivityHandlers
+                .find { it.supports(processLink) }
+                ?.getStartEventObject(processDefinitionId, documentId, documentDefinitionName, processLink)
         }
     }
 
     companion object {
         val logger = KotlinLogging.logger {}
+
+        fun createDummyCamundaExecution(
+            processDefinition: CamundaProcessDefinition,
+            businessKey: String? = null
+        ): CamundaExecution {
+            val execution = CamundaExecution(
+                UUID.randomUUID().toString(),
+                1,
+                null,
+                null,
+                businessKey,
+                null,
+                processDefinition,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true,
+                false,
+                false,
+                false,
+                SuspensionState.ACTIVE.stateCode,
+                0,
+                0,
+                null,
+                HashSet()
+            )
+            execution.processInstance = execution
+            return execution
+        }
+
     }
 }
