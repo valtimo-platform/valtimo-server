@@ -18,6 +18,7 @@ package com.ritense.processlink.configuration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.authorization.AuthorizationService
+import com.ritense.document.service.DocumentService
 import com.ritense.processlink.autodeployment.ProcessLinkDeploymentApplicationReadyEventListener
 import com.ritense.processlink.domain.SupportedProcessLinkTypeHandler
 import com.ritense.processlink.exporter.ProcessLinkExporter
@@ -84,6 +85,7 @@ class ProcessLinkAutoConfiguration {
         processLinkActivityHandlers: List<ProcessLinkActivityHandler<*>>,
         authorizationService: AuthorizationService,
         camundaRepositoryService: CamundaRepositoryService,
+        documentService: DocumentService,
         camundaTaskService: CamundaTaskService,
         camundaProcessService: CamundaProcessService
     ): ProcessLinkActivityService {
@@ -93,6 +95,7 @@ class ProcessLinkAutoConfiguration {
             processLinkActivityHandlers,
             authorizationService,
             camundaRepositoryService,
+            documentService,
             camundaTaskService,
             camundaProcessService
         )

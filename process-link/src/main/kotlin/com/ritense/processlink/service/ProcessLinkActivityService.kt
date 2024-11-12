@@ -50,8 +50,9 @@ class ProcessLinkActivityService(
     private val processLinkActivityHandlers: List<ProcessLinkActivityHandler<*>>,
     private val authorizationService: AuthorizationService,
     private val camundaRepositoryService: CamundaRepositoryService,
+    private val documentService: DocumentService,
     private val camundaTaskService: CamundaTaskService,
-    private val camundaProcessService: CamundaProcessService
+    private val camundaProcessService: CamundaProcessService,
 ) {
     fun openTask(
         @LoggableResource(resourceType = CamundaTask::class) taskId: UUID
@@ -86,15 +87,25 @@ class ProcessLinkActivityService(
                     "For process definition with id ${processLink.processDefinitionId}"
                 )
         }
-        authorizationService.requirePermission(
-            EntityAuthorizationRequest(
-                CamundaExecution::class.java,
-                CamundaExecutionActionProvider.CREATE,
-                createDummyCamundaExecution(
-                    processDefinition
-                )
+
+        var entityAuthorizationRequest = EntityAuthorizationRequest(
+            CamundaExecution::class.java,
+            CamundaExecutionActionProvider.CREATE,
+            createDummyCamundaExecution(
+                processDefinition
             )
         )
+
+        documentId?.let {
+            entityAuthorizationRequest = entityAuthorizationRequest.withContext(
+                AuthorizationResourceContext(
+                    JsonSchemaDocument::class.java,
+                    documentService.findBy(JsonSchemaDocumentId.existingId(documentId)).get() as JsonSchemaDocument
+                )
+            )
+        }
+
+        authorizationService.requirePermission(entityAuthorizationRequest)
         return withLoggingContext(ProcessLink::class, processLink.id) {
             processLinkActivityHandlers
                 .find { it.supports(processLink) }
