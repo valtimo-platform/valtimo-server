@@ -28,22 +28,33 @@ Answer:
 
 Q3: What is the overall strategy? There is a significant likelihood of creating a reference to CaseDefinition.
 
-Is there a need for a feasibility study for any of the options? To validate Option D, yes. The risk is dependency hell; we want to avoid cyclic dependencies. Can we re-evaluate this?
+Is there a need for a feasibility study for any of the options?
+To validate Option D, yes. The risk is dependency hell;
+we want to avoid cyclic dependencies. Can we re-evaluate this?
 
 Answer:
 
 • Option A (OPEN): Create a new RelatedCaseDefinitionId interface, local entity implementation with findBy<Type>(caseDefId).
 • Option B: Each entity references CaseDefinition (JPA-supported).
 • Option C: Each entity creates an FK to CaseDefinition using a column ID (outside JPA).
-• Option D (Tom’s preferred choice, combined with E but disruptive): CaseDefinition holds all relationships.
-• Option E (Rejected): Explicitly define relationships in CaseDefinition on both ends.
+• Option D: (Tom’s preferred choice): CaseDefinition holds all relationships. implicit relationships.
+• Option E: (Rejected): Explicitly define relationships in CaseDefinition on both ends.
 
-Architectural improvement options:
+Decision:
+Choose B (Preferred) or C, both support flexibility for ZGW modules to attach to the caseDefinition concept.
+Code improvements, don't change if not needed. When the bridge is crossed, we can refactor.
+When in trouble with the code, we can always refactor.
 
+Code improvement options:
 • Merge certain modules.
-• Restructure modules:
+    - Result: Case into Core, It's doable, makes life a better in the coming years. Has some test issues to be addressed not a big thing.
+• Standalone case-definition module
 • Core module + ZGW module = Monolith (Modulith).
-    Find a impl project to verify.
+    - Find an impl project to verify.
+- One new module 'core2', as drop in replacement for the
+    - core+document+case+proc-doc+form+process-link+plugin. (Marijn goes further)
+    - Feature flagged
+    - Kotlin only? can be done.
 
 Goals:
 
