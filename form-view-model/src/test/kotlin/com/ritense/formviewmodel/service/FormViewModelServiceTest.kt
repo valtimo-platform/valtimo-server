@@ -81,7 +81,8 @@ class FormViewModelServiceTest : BaseTest() {
         val updatedViewModel = formViewModelService.updateUserTaskFormViewModel(
             formName = "formName",
             taskInstanceId = "taskInstanceId",
-            submission = objectMapper.valueToTree(TestViewModel())
+            submission = objectMapper.valueToTree(TestViewModel()),
+            page = 1
         )
 
         assertThat(updatedViewModel).isNotNull()
@@ -117,7 +118,7 @@ class FormViewModelServiceTest : BaseTest() {
     data class RandomViewModel(
         val custom: String
     ) : ViewModel {
-        override fun update(task: CamundaTask?): ViewModel {
+        override fun update(task: CamundaTask?, page: Int?): ViewModel {
             return this
         }
     }
