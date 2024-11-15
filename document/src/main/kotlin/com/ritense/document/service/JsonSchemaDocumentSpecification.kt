@@ -27,14 +27,13 @@ import jakarta.persistence.criteria.AbstractQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import org.springframework.data.repository.findByIdOrNull
 import java.util.UUID
 
 class JsonSchemaDocumentSpecification(
-    authRequest: AuthorizationRequest<JsonSchemaDocument>,
-    permissions: List<Permission>,
-    private val documentRepository: JsonSchemaDocumentRepository,
-    private val queryDialectHelper: QueryDialectHelper
+        authRequest: AuthorizationRequest<JsonSchemaDocument>,
+        permissions: List<Permission>,
+        private val documentRepository: JsonSchemaDocumentRepository,
+        private val queryDialectHelper: QueryDialectHelper
 ) : AuthorizationSpecification<JsonSchemaDocument>(authRequest, permissions) {
 
     override fun toPredicate(
@@ -65,6 +64,7 @@ class JsonSchemaDocumentSpecification(
         return combinePredicates(criteriaBuilder, predicates)
     }
 
-    override fun identifierToEntity(identifier: String) =
-        documentRepository.findByIdOrNull(JsonSchemaDocumentId.existingId(UUID.fromString(identifier)))
+    override fun identifierToEntity(identifier: String) = documentRepository.getReferenceById(
+        JsonSchemaDocumentId.existingId(UUID.fromString(identifier))
+    )
 }

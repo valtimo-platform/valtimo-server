@@ -26,10 +26,10 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 
 class TestAuthorizationSpecification(
-    authContext: AuthorizationRequest<TestEntity>,
-    permissions: List<Permission>,
-    val queryDialectHelper: QueryDialectHelper
-) : AuthorizationSpecification<TestEntity>(authContext, permissions) {
+        authContext: AuthorizationRequest<TestEntity>,
+        permissions: List<Permission>,
+        val queryDialectHelper: QueryDialectHelper
+): AuthorizationSpecification<TestEntity>(authContext, permissions) {
     override fun toPredicate(
         root: Root<TestEntity>,
         query: AbstractQuery<*>,
@@ -52,7 +52,7 @@ class TestAuthorizationSpecification(
         return combinePredicates(criteriaBuilder, predicates)
     }
 
-    override fun identifierToEntity(identifier: String): TestEntity? {
-        return if (identifier.isEmpty()) null else TestEntity()
+    override fun identifierToEntity(identifier: String): TestEntity {
+        return TestEntity()
     }
 }

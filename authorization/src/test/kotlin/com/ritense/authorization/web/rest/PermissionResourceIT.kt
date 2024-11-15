@@ -145,35 +145,6 @@ class PermissionResourceIT: BaseIntegrationTest() {
 
     @Test
     @WithMockUser(authorities = ["test-role"])
-    fun `requesting permission for non-existing resource returns available false`() {
-        permissionRepository.deleteAll()
-
-        val permissionRequests = listOf(
-            PermissionAvailableRequest(
-                "com.ritense.authorization.testimpl.TestEntity",
-                "view",
-                PermissionContext(
-                    "com.ritense.authorization.testimpl.TestEntity",
-                    "" // Empty identifier will result in null
-                )
-            )
-        )
-
-        mockMvc.perform(
-            MockMvcRequestBuilders
-                .post("/api/v1/permissions")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(objectMapper.writeValueAsString(permissionRequests))
-        )
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect { jsonPath("$[0].resource").value("com.ritense.authorization.testimpl.TestEntity") }
-            .andExpect { jsonPath("$[0].action").value("view") }
-            .andExpect { jsonPath("$[0].available").value(false) }
-    }
-
-    @Test
-    @WithMockUser(authorities = ["test-role"])
     fun `requesting permission for resource with permission and conditions returns available true`() {
 
         val role = roleRepository.findByKey("test-role")!!

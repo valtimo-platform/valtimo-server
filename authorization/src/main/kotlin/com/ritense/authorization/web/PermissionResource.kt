@@ -47,14 +47,20 @@ class PermissionResource(
         : ResponseEntity<List<PermissionAvailableResult>> {
 
         val permissionResponse: List<PermissionAvailableResult> = permissionsPresentRequest.map {
-            val hasPermission = authorizationService.hasPermission(
-                RelatedEntityAuthorizationRequest(
-                    it.getResourceAsClass(),
-                    Action(it.action),
-                    it.context.getResourceAsClass(),
-                    it.context.identifier
-                )
-            )
+            val hasPermission =
+                try {
+                    authorizationService.hasPermission(
+                        RelatedEntityAuthorizationRequest(
+                            it.getResourceAsClass(),
+                            Action(it.action),
+                            it.context.getResourceAsClass(),
+                            it.context.identifier
+                        )
+                    )
+                } catch (ex: Exception) {
+                    logger.error("Failed to determine permissions for $it", ex)
+                    false
+                }
 
             PermissionAvailableResult(
                 it.resource,

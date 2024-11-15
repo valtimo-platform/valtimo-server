@@ -31,8 +31,6 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import mu.KLogger
-import mu.KotlinLogging
 import org.springframework.data.jpa.domain.Specification
 
 abstract class AuthorizationSpecification<T : Any>(
@@ -77,9 +75,7 @@ abstract class AuthorizationSpecification<T : Any>(
                 EntityAuthorizationRequest(
                     relatedEntityAuthorizationRequest.resourceType,
                     relatedEntityAuthorizationRequest.action,
-                    identifierToEntity(relatedEntityAuthorizationRequest.relatedResourceId).also {
-                        logger.error { "${relatedEntityAuthorizationRequest.resourceType.simpleName} with id '${relatedEntityAuthorizationRequest.relatedResourceId}' could not be found. Permission check will fail."  }
-                    }
+                    identifierToEntity(relatedEntityAuthorizationRequest.relatedResourceId)
                 ).apply {
                     relatedEntityAuthorizationRequest.context?.let { context -> this.withContext(context) }
                 }
@@ -147,7 +143,7 @@ abstract class AuthorizationSpecification<T : Any>(
         )
     }
 
-    protected abstract fun identifierToEntity(identifier: String): T?
+    protected abstract fun identifierToEntity(identifier: String): T
 
     /**
      * Creates a WHERE clause for a query of the referenced entity in form of a Predicate for the given Root and
@@ -183,8 +179,4 @@ abstract class AuthorizationSpecification<T : Any>(
         query: AbstractQuery<*>,
         criteriaBuilder: CriteriaBuilder
     ): Predicate
-
-    companion object {
-        private val logger: KLogger = KotlinLogging.logger {}
-    }
 }
