@@ -16,6 +16,9 @@
 
 package com.valtimo.keycloak.liquibase.changelog
 
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField.USERID
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField.USERNAME
 import liquibase.change.custom.CustomTaskChange
 import liquibase.database.Database
 import liquibase.database.jvm.JdbcConnection
@@ -33,6 +36,8 @@ import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.Environment
 
 class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, EnvironmentPostProcessor {
+
+    private val identifierField by lazy { IdentifierField.fromString(environment.getProperty("valtimo.oauth.identifier-field", USERID.toString())) }
 
     override fun postProcessEnvironment(environment: ConfigurableEnvironment, application: SpringApplication) {
         Companion.environment = environment
@@ -82,15 +87,19 @@ class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, Envi
         return ValidationErrors()
     }
 
-    fun getKeycloakUserIdByEmail(email: String): String {
-        val userList = keycloak().use { keycloak ->
+    private fun getKeycloakUserIdByEmail(email: String): String {
+        val user = keycloak().use { keycloak ->
             keycloak.realm(getProperty(KEYCLOAK_REALM_PROPERTY)).users()
                 .search(null, null, null, email, 0, 1, true, true)
-        }
-        check(userList.isNotEmpty() && userList[0].email == email) {
+        }.firstOrNull { it.email == email }
+
+        checkNotNull(user) {
             "Failed to migrate task assignee. No Keycloak user found with email: '$email'"
         }
-        return userList[0].id
+        return when(identifierField) {
+            USERID -> user.id
+            USERNAME -> user.username
+        }
     }
 
     private fun keycloak(): Keycloak {

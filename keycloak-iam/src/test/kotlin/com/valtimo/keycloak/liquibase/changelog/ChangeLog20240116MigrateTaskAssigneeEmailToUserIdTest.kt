@@ -16,8 +16,7 @@
 
 package com.valtimo.keycloak.liquibase.changelog
 
-import java.sql.PreparedStatement
-import java.sql.ResultSet
+import com.ritense.valtimo.contract.config.ValtimoProperties
 import liquibase.database.Database
 import liquibase.database.jvm.JdbcConnection
 import okhttp3.mockwebserver.Dispatcher
@@ -31,13 +30,17 @@ import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.core.env.ConfigurableEnvironment
+import org.springframework.mock.env.MockEnvironment
+import java.sql.PreparedStatement
+import java.sql.ResultSet
 
 internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
 
     lateinit var server: MockWebServer
 
     lateinit var changeLog: ChangeLog20240116MigrateTaskAssigneeEmailToUserId
+    lateinit var environment: MockEnvironment
+
 
     @BeforeEach
     internal fun setUp() {
@@ -45,13 +48,14 @@ internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
         setupMockKeycloakApiServer()
         server.start()
 
-        val configurableEnvironment: ConfigurableEnvironment = mock()
+        environment = MockEnvironment().apply {
+            this.setProperty("keycloak.auth-server-url", server.url("/").toString())
+            this.setProperty("keycloak.realm", "example-realm")
+            this.setProperty("keycloak.resource", "example-resource")
+            this.setProperty("keycloak.credentials.secret", "example-secret")
+        }
 
-        ChangeLog20240116MigrateTaskAssigneeEmailToUserId().postProcessEnvironment(configurableEnvironment, mock())
-        whenever(configurableEnvironment.getProperty("keycloak.auth-server-url")).thenReturn(server.url("/").toString())
-        whenever(configurableEnvironment.getProperty("keycloak.realm")).thenReturn("example-realm")
-        whenever(configurableEnvironment.getProperty("keycloak.resource")).thenReturn("example-resource")
-        whenever(configurableEnvironment.getProperty("keycloak.credentials.secret")).thenReturn("example-secret")
+        ChangeLog20240116MigrateTaskAssigneeEmailToUserId().postProcessEnvironment(environment, mock())
 
         changeLog = ChangeLog20240116MigrateTaskAssigneeEmailToUserId()
     }
@@ -62,7 +66,7 @@ internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
     }
 
     @Test
-    fun `should execute changelog`() {
+    fun `should execute changelog for USERID`() {
         val database = mock<Database>()
         val connection = mock<JdbcConnection>(defaultAnswer = RETURNS_DEEP_STUBS)
         val resultSet = mock<ResultSet>()
@@ -79,6 +83,28 @@ internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
         changeLog.execute(database)
 
         verify(updateTaskTable).setString(1, "user-id-1")
+        verify(updateTaskTable).setString(2, "my-task-id-1")
+    }
+
+    @Test
+    fun `should execute changelog for USERNAME`() {
+        environment.setProperty("valtimo.oauth.identifier-field", ValtimoProperties.IdentifierField.USERNAME.toString())
+        val database = mock<Database>()
+        val connection = mock<JdbcConnection>(defaultAnswer = RETURNS_DEEP_STUBS)
+        val resultSet = mock<ResultSet>()
+        val updateTaskTable = mock<PreparedStatement>()
+        whenever(database.connection).thenReturn(connection)
+        whenever(connection.prepareStatement("SELECT id_,assignee_ FROM act_ru_task").executeQuery())
+            .thenReturn(resultSet)
+        whenever(resultSet.next()).thenReturn(true).thenReturn(false)
+        whenever(resultSet.getString("id_")).thenReturn("my-task-id-1")
+        whenever(resultSet.getString("assignee_")).thenReturn("user@ritense.com")
+        whenever(connection.prepareStatement("UPDATE act_ru_task SET assignee_ = ? WHERE id_ = ?"))
+            .thenReturn(updateTaskTable)
+
+        changeLog.execute(database)
+
+        verify(updateTaskTable).setString(1, "user-name-1")
         verify(updateTaskTable).setString(2, "my-task-id-1")
     }
 
@@ -102,6 +128,7 @@ internal class ChangeLog20240116MigrateTaskAssigneeEmailToUserIdTest {
             [
                 {
                     "id": "user-id-1",
+                    "username": "user-name-1",
                     "email": "user@ritense.com"
                 }
             ]
