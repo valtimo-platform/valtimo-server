@@ -37,4 +37,8 @@ class ResourceStorageDelegate(
     fun getResourceContentAsInputStream(id: String): InputStream {
         return service.getResourceContentAsInputStream(id)
     }
+
+    fun deleteResource(resourceStorageFileId: String): Boolean {
+        return service.deleteResource(resourceStorageFileId)
+    }
 }
