@@ -94,7 +94,8 @@ class FormViewModelResourceTest : BaseTest() {
                 formName = anyOrNull(),
                 taskInstanceId = anyOrNull(),
                 submission = anyOrNull(),
-                page = anyOrNull()
+                page = anyOrNull(),
+                isWizard = anyOrNull()
             )
         ).thenReturn(TestViewModel())
 
@@ -196,7 +197,8 @@ class FormViewModelResourceTest : BaseTest() {
                 formName = anyOrNull(),
                 submission = anyOrNull(),
                 processDefinitionKey = anyOrNull(),
-                page = anyOrNull()
+                page = anyOrNull(),
+                isWizard = anyOrNull()
             )
         ).thenReturn(TestViewModel())
         mockMvc.perform(

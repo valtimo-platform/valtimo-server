@@ -82,7 +82,8 @@ class FormViewModelServiceTest : BaseTest() {
             formName = "formName",
             taskInstanceId = "taskInstanceId",
             submission = objectMapper.valueToTree(TestViewModel()),
-            page = 1
+            page = 1,
+            isWizard = true
         )
 
         assertThat(updatedViewModel).isNotNull()

@@ -74,13 +74,15 @@ class FormViewModelResource(
         @RequestParam formName: String,
         @RequestParam processDefinitionKey: String,
         @RequestParam page: Int? = null,
+        @RequestParam isWizard: Boolean? = null,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateStartFormViewModel(
             formName = formName,
             processDefinitionKey = processDefinitionKey,
             page = page,
-            submission = submission,
+            isWizard = isWizard,
+            submission = submission
         )?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
@@ -91,12 +93,14 @@ class FormViewModelResource(
         @RequestParam formName: String,
         @RequestParam taskInstanceId: String,
         @RequestParam page: Int? = null,
+        @RequestParam isWizard: Boolean? = null,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateUserTaskFormViewModel(
             formName = formName,
             taskInstanceId = taskInstanceId,
             page = page,
+            isWizard = isWizard,
             submission = submission
         )?.let {
             ResponseEntity.ok(it)
