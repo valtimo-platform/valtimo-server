@@ -62,18 +62,23 @@ class FormViewModelService(
         formName: String,
         processDefinitionKey: String,
         page: Int?,
+        isWizard: Boolean?,
         submission: ObjectNode
     ): ViewModel? {
         processAuthorizationService.checkAuthorization(processDefinitionKey)
         val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
         val viewModelType = viewModelLoader.getViewModelType()
-        return parseViewModel(submission, viewModelType).update(page = page)
+        if (isWizard == true) {
+            return parseViewModel(submission, viewModelType).update(page = page)
+        }
+        return parseViewModel(submission, viewModelType).update()
     }
 
     fun updateUserTaskFormViewModel(
         formName: String,
         taskInstanceId: String,
         page: Int?,
+        isWizard: Boolean?,
         submission: ObjectNode
     ): ViewModel? {
         val task = camundaTaskService.findTaskById(taskInstanceId)
@@ -82,7 +87,10 @@ class FormViewModelService(
         )
         val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
         val viewModelType = viewModelLoader.getViewModelType()
-        return parseViewModel(submission, viewModelType).update(task, page)
+        if (isWizard == true) {
+            return parseViewModel(submission, viewModelType).update(page = page)
+        }
+        return parseViewModel(submission, viewModelType).update(task)
     }
 
     fun <T : ViewModel> parseViewModel(

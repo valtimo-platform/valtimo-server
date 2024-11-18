@@ -21,10 +21,11 @@ import com.ritense.valtimo.camunda.domain.CamundaTask
 interface ViewModel {
 
     fun update(task: CamundaTask? = null): ViewModel {
-        return update(task, null)
-    }
-
-    fun update(task: CamundaTask? = null, page: Int? = null): ViewModel {
         return this
     }
+
+    fun update(task: CamundaTask? = null, page: Int?): ViewModel {
+        return this
+    }
+
 }
