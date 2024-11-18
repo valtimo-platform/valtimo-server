@@ -88,7 +88,7 @@ class FormViewModelService(
         val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
         val viewModelType = viewModelLoader.getViewModelType()
         if (isWizard == true) {
-            return parseViewModel(submission, viewModelType).update(page = page)
+            return parseViewModel(submission, viewModelType).update(task = task, page = page)
         }
         return parseViewModel(submission, viewModelType).update(task)
     }
