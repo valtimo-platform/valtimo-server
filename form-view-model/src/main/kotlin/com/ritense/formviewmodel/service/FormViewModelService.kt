@@ -58,6 +58,18 @@ class FormViewModelService(
         return viewModelLoaderFactory.getViewModelLoader(formName)?.load(task)
     }
 
+    @Deprecated("Use method with page support instead")
+    fun updateStartFormViewModel(
+        formName: String,
+        processDefinitionKey: String,
+        submission: ObjectNode
+    ): ViewModel? {
+        processAuthorizationService.checkAuthorization(processDefinitionKey)
+        val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
+        val viewModelType = viewModelLoader.getViewModelType()
+        return parseViewModel(submission, viewModelType).update()
+    }
+
     fun updateStartFormViewModel(
         formName: String,
         processDefinitionKey: String,
@@ -72,6 +84,21 @@ class FormViewModelService(
             return parseViewModel(submission, viewModelType).update(page = page)
         }
         return parseViewModel(submission, viewModelType).update()
+    }
+
+    @Deprecated("Use method with page support instead")
+    fun updateUserTaskFormViewModel(
+        formName: String,
+        taskInstanceId: String,
+        submission: ObjectNode
+    ): ViewModel? {
+        val task = camundaTaskService.findTaskById(taskInstanceId)
+        authorizationService.requirePermission(
+            EntityAuthorizationRequest(CamundaTask::class.java, VIEW, task)
+        )
+        val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
+        val viewModelType = viewModelLoader.getViewModelType()
+        return parseViewModel(submission, viewModelType).update(task)
     }
 
     fun updateUserTaskFormViewModel(
