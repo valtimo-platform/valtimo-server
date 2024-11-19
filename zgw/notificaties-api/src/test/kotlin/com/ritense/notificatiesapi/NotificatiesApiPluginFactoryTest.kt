@@ -18,6 +18,7 @@ package com.ritense.notificatiesapi
 
 import com.ritense.notificatiesapi.client.NotificatiesApiClient
 import com.ritense.notificatiesapi.repository.NotificatiesApiAbonnementLinkRepository
+import com.ritense.objectmanagement.service.ObjectManagementService
 import com.ritense.plugin.domain.PluginConfiguration
 import com.ritense.plugin.domain.PluginConfigurationId
 import com.ritense.plugin.domain.PluginDefinition
@@ -37,13 +38,14 @@ internal class NotificatiesApiPluginFactoryTest {
         val pluginService = mock<PluginService>()
         val client = mock<NotificatiesApiClient>()
         val abonnementLinkRepository = mock<NotificatiesApiAbonnementLinkRepository>()
-
+        val objectManagementService = mock<ObjectManagementService>()
         whenever(pluginService.getObjectMapper()).thenReturn(MapperSingleton.get())
 
         val factory = NotificatiesApiPluginFactory(
             pluginService,
             client,
-            abonnementLinkRepository
+            abonnementLinkRepository,
+            objectManagementService
         )
 
         val notificatiesApiPluginProperties: String = """

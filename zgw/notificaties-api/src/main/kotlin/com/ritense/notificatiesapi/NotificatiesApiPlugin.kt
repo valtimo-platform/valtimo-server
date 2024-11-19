@@ -23,12 +23,15 @@ import com.ritense.notificatiesapi.domain.Kanaal
 import com.ritense.notificatiesapi.domain.NotificatiesApiAbonnementLink
 import com.ritense.notificatiesapi.domain.NotificatiesApiConfigurationId
 import com.ritense.notificatiesapi.repository.NotificatiesApiAbonnementLinkRepository
+import com.ritense.objectmanagement.service.ObjectManagementService
+import com.ritense.objecttypenapi.ObjecttypenApiPlugin
 import com.ritense.plugin.annotation.Plugin
 import com.ritense.plugin.annotation.PluginEvent
 import com.ritense.plugin.annotation.PluginProperty
 import com.ritense.plugin.domain.EventType
 import com.ritense.plugin.domain.PluginConfiguration
 import com.ritense.plugin.domain.PluginConfigurationId
+import com.ritense.plugin.service.PluginService
 import com.ritense.valtimo.contract.validation.Url
 import mu.KotlinLogging
 import org.springframework.data.repository.findByIdOrNull
@@ -42,9 +45,11 @@ import java.util.Base64
     description = "Enable interfacing with Notificaties API specification compliant APIs"
 )
 class NotificatiesApiPlugin(
+    private val pluginService: PluginService,
     pluginConfigurationId: PluginConfigurationId,
     private val client: NotificatiesApiClient,
-    private val notificatiesApiAbonnementLinkRepository: NotificatiesApiAbonnementLinkRepository
+    private val notificatiesApiAbonnementLinkRepository: NotificatiesApiAbonnementLinkRepository,
+    private val objectManagementService: ObjectManagementService
 ) {
     val notificatiesApiConfigurationId = NotificatiesApiConfigurationId(pluginConfigurationId.id)
 
@@ -67,15 +72,17 @@ class NotificatiesApiPlugin(
         logger.debug { "Creating new abonnement for Notificaties API plugin configuration with id '${notificatiesApiConfigurationId.id}'" }
 
         ensureKanalenExist(DEFAULT_KANALEN_NAMES)
+
         val abonnement = client.createAbonnement(
             authenticationPluginConfiguration,
             url,
             Abonnement(
                 callbackUrl = callbackUrl.toASCIIString(),
                 auth = authKey,
-                kanalen = DEFAULT_KANALEN_NAMES.map { Abonnement.Kanaal(naam = it) }
+                kanalen = generateFilteredKanalen()
             )
         )
+
         notificatiesApiAbonnementLinkRepository.save(
             NotificatiesApiAbonnementLink(
                 notificatiesApiConfigurationId = notificatiesApiConfigurationId,
@@ -139,6 +146,22 @@ class NotificatiesApiPlugin(
         val bytes = ByteArray(32)
         random.nextBytes(bytes)
         return Base64.getEncoder().encodeToString(bytes)
+    }
+
+    private fun generateFilteredKanalen(): List<Abonnement.Kanaal> {
+        return DEFAULT_KANALEN_NAMES.flatMap { kanaal ->
+
+            objectManagementService.getAll().map {
+
+                val objecttypenApiPlugin = pluginService
+                    .createInstance(PluginConfigurationId(it.objecttypenApiPluginConfigurationId)) as ObjecttypenApiPlugin
+
+                Abonnement.Kanaal(
+                    filters = mapOf("object_type" to "${objecttypenApiPlugin.getObjectTypesUrl()}/${it.objecttypeId}"),
+                    naam = kanaal
+                )
+            }
+        }
     }
 
     companion object {

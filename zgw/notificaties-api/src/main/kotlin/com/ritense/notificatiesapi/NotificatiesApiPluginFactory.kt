@@ -19,17 +19,25 @@ package com.ritense.notificatiesapi
 
 import com.ritense.notificatiesapi.client.NotificatiesApiClient
 import com.ritense.notificatiesapi.repository.NotificatiesApiAbonnementLinkRepository
+import com.ritense.objectmanagement.service.ObjectManagementService
 import com.ritense.plugin.PluginFactory
 import com.ritense.plugin.service.PluginService
 
 class NotificatiesApiPluginFactory(
     pluginService: PluginService,
     private val client: NotificatiesApiClient,
-    private val abonnementLinkRepository: NotificatiesApiAbonnementLinkRepository
+    private val abonnementLinkRepository: NotificatiesApiAbonnementLinkRepository,
+    private val objectManagementService: ObjectManagementService
 ) : PluginFactory<NotificatiesApiPlugin>(pluginService) {
 
     override fun create(): NotificatiesApiPlugin {
         val pluginConfigurationId = super.pluginConfigurationId
-        return NotificatiesApiPlugin(pluginConfigurationId, client, abonnementLinkRepository)
+        return NotificatiesApiPlugin(
+            pluginService,
+            pluginConfigurationId,
+            client,
+            abonnementLinkRepository,
+            objectManagementService
+        )
     }
 }

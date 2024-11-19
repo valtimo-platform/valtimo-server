@@ -22,7 +22,7 @@ import com.ritense.notificatiesapi.repository.NotificatiesApiAbonnementLinkRepos
 import com.ritense.notificatiesapi.security.config.NotificatiesApiHttpSecurityConfigurer
 import com.ritense.notificatiesapi.service.NotificatiesApiService
 import com.ritense.notificatiesapi.web.rest.NotificatiesApiResource
-import com.ritense.plugin.repository.PluginConfigurationRepository
+import com.ritense.objectmanagement.service.ObjectManagementService
 import com.ritense.plugin.service.PluginService
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -47,14 +47,15 @@ class NotificatiesApiAutoConfiguration {
     @ConditionalOnMissingBean(NotificatiesApiPluginFactory::class)
     fun notificatiesApiPluginFactory(
         pluginService: PluginService,
-        pluginConfigurationRepository: PluginConfigurationRepository,
         client: NotificatiesApiClient,
-        abonnementLinkRepository: NotificatiesApiAbonnementLinkRepository
+        abonnementLinkRepository: NotificatiesApiAbonnementLinkRepository,
+        objectManagementService: ObjectManagementService
     ): NotificatiesApiPluginFactory {
         return NotificatiesApiPluginFactory(
             pluginService,
             client,
-            abonnementLinkRepository
+            abonnementLinkRepository,
+            objectManagementService
         )
     }
 

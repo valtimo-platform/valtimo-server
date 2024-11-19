@@ -22,7 +22,9 @@ import com.ritense.notificatiesapi.domain.Kanaal
 import com.ritense.notificatiesapi.domain.NotificatiesApiAbonnementLink
 import com.ritense.notificatiesapi.domain.NotificatiesApiConfigurationId
 import com.ritense.notificatiesapi.repository.NotificatiesApiAbonnementLinkRepository
+import com.ritense.objectmanagement.service.ObjectManagementService
 import com.ritense.plugin.domain.PluginConfigurationId
+import com.ritense.plugin.service.PluginService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -45,16 +47,25 @@ internal class NotificatiesApiPluginTest {
     lateinit var plugin: NotificatiesApiPlugin
     lateinit var pluginConfigurationId: PluginConfigurationId
     lateinit var notificatiesApiConfigurationId: NotificatiesApiConfigurationId
+    lateinit var pluginService: PluginService
+    lateinit var objectManagementService: ObjectManagementService
 
     @BeforeEach
     fun setup() {
+        pluginService = mock()
         notificatiesApiClient = mock()
         abonnementLinkRepository = mock()
         pluginConfigurationId = PluginConfigurationId(UUID.randomUUID())
         notificatiesApiConfigurationId = NotificatiesApiConfigurationId(pluginConfigurationId.id)
+        objectManagementService = mock()
 
-        plugin = NotificatiesApiPlugin(pluginConfigurationId, notificatiesApiClient, abonnementLinkRepository)
-            .apply {
+        plugin = NotificatiesApiPlugin(
+            pluginService,
+            pluginConfigurationId,
+            notificatiesApiClient,
+            abonnementLinkRepository,
+            objectManagementService
+        ).apply {
                 url = URI("http://example.com")
                 callbackUrl = URI("http://example.com/callback")
                 authenticationPluginConfiguration = mock()
