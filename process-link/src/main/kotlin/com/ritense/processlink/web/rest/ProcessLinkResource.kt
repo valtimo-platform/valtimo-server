@@ -30,7 +30,6 @@ import com.ritense.processlink.web.rest.dto.ProcessLinkUpdateRequestDto
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE
-import java.util.UUID
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -42,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @SkipComponentScan
@@ -54,10 +54,13 @@ class ProcessLinkResource(
     @GetMapping("/v1/process-link")
     fun getProcessLinks(
         @LoggableResource(resourceType = CamundaProcessDefinition::class) @RequestParam("processDefinitionId") processDefinitionId: String,
-        @RequestParam("activityId") activityId: String
+        @RequestParam("activityId") activityId: String?
     ): ResponseEntity<List<ProcessLinkResponseDto>> {
-        val list = processLinkService.getProcessLinks(processDefinitionId, activityId)
-            .map { getProcessLinkMapper(it.processLinkType).toProcessLinkResponseDto(it) }
+        val list = if (activityId.isNullOrEmpty()) {
+            processLinkService.getProcessLinks(processDefinitionId)
+        } else {
+            processLinkService.getProcessLinks(processDefinitionId, activityId)
+        }.map { getProcessLinkMapper(it.processLinkType).toProcessLinkResponseDto(it) }
 
         return ResponseEntity.ok(list)
     }
