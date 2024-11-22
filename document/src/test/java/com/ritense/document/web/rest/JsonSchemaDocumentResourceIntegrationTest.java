@@ -22,10 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -37,9 +39,11 @@ import com.ritense.document.domain.Document;
 import com.ritense.document.domain.impl.JsonDocumentContent;
 import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.document.domain.impl.request.AssignToDocumentsRequest;
+import com.ritense.document.exception.DocumentNotFoundException;
 import com.ritense.document.repository.DocumentRepository;
 import com.ritense.document.web.rest.impl.JsonSchemaDocumentResource;
 import com.ritense.outbox.domain.BaseEvent;
+import com.ritense.valtimo.contract.event.DocumentDeletedEvent;
 import java.util.List;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
@@ -272,5 +276,26 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
         assertEquals("com.ritense.document.domain.impl.JsonSchemaDocument", event.getResultType());
         assertEquals(document.id().toString(), event.getResultId());
         assertEquals(objectMapper.valueToTree(document), event.getResult());
+    }
+
+    @Test
+    @WithMockUser(username = USER_EMAIL, authorities = {FULL_ACCESS_ROLE})
+    void shouldDeleteDocumentAndSendEvent() throws Exception {
+        mockMvc.perform(delete("/api/v1/document/{documentId}", document.id().getId().toString()))
+            .andDo(print())
+            .andExpect(status().isOk());
+
+        assertThrows(DocumentNotFoundException.class, () -> documentService.get(document.id().getId().toString()));
+
+        assertEquals(1, events.stream(DocumentDeletedEvent.class).count());
+        var applicationEvent = events.stream(DocumentDeletedEvent.class).findFirst().orElseThrow();
+        assertEquals(document.id().getId(), applicationEvent.getDocumentId());
+
+        ArgumentCaptor<Supplier<BaseEvent>> outboxEventCaptor = ArgumentCaptor.forClass(Supplier.class);
+        verify(outboxService, times(1)).send(outboxEventCaptor.capture());
+        var outboxEvent = outboxEventCaptor.getValue().get();
+        assertEquals("com.ritense.valtimo.document.deleted", outboxEvent.getType());
+        assertEquals("com.ritense.document.domain.impl.JsonSchemaDocument", outboxEvent.getResultType());
+        assertEquals(document.id().toString(), outboxEvent.getResultId());
     }
 }

@@ -35,6 +35,7 @@ import com.ritense.processdocument.service.CorrelationService
 import com.ritense.processdocument.service.CorrelationServiceImpl
 import com.ritense.processdocument.service.DocumentDelegateService
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
+import com.ritense.processdocument.service.ProcessDocumentDeletedEventListener
 import com.ritense.processdocument.service.ProcessDocumentDeploymentService
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.processdocument.service.ProcessDocumentsService
@@ -289,6 +290,16 @@ class ProcessDocumentsAutoConfiguration {
         return TaskSearchFieldImporter(
             taskSearchFieldDeployer,
             changelogDeployer,
+        )
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ProcessDocumentDeletedEventListener::class)
+    fun processDocumentDeletedEventListener(
+        runtimeService: RuntimeService
+    ): ProcessDocumentDeletedEventListener {
+        return ProcessDocumentDeletedEventListener(
+            runtimeService
         )
     }
 }
