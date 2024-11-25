@@ -28,6 +28,7 @@ import com.ritense.authorization.AuthorizationContext;
 import com.ritense.authorization.AuthorizationService;
 import com.ritense.authorization.request.EntityAuthorizationRequest;
 import com.ritense.valtimo.camunda.authorization.CamundaExecutionActionProvider;
+import com.ritense.valtimo.camunda.domain.CamundaDeploymentSource;
 import com.ritense.valtimo.camunda.domain.CamundaExecution;
 import com.ritense.valtimo.camunda.domain.CamundaHistoricProcessInstance;
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
@@ -59,6 +60,8 @@ import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
+import org.camunda.bpm.engine.repository.DeploymentWithDefinitions;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -144,6 +147,22 @@ public class CamundaProcessService {
             .createProcessInstanceQuery()
             .processInstanceId(processInstanceId)
             .singleResult());
+    }
+
+    public ProcessDefinition getLatestProcessDefinitionByDeploymentId(String deploymentId) {
+        denyAuthorization();
+
+        return AuthorizationContext.runWithoutAuthorization(() -> {
+            var processDefinition = repositoryService.createProcessDefinitionQuery()
+                .deploymentId(deploymentId)
+                .singleResult();
+
+            if (processDefinition == null) {
+                throw new ProcessDefinitionNotFoundException("No process definition found for deployment ID: " + deploymentId);
+            }
+
+            return processDefinition;
+        });
     }
 
     @Nullable
@@ -288,6 +307,15 @@ public class CamundaProcessService {
         String fileName,
         ByteArrayInputStream fileInput
     ) throws ProcessNotDeployableException, FileExtensionNotSupportedException, NoFileExtensionFoundException {
+        deploy(fileName, fileInput, false);
+    }
+
+    @Transactional
+    public DeploymentWithDefinitions deploy(
+        String fileName,
+        ByteArrayInputStream fileInput,
+        boolean skipProcessLinksCopy
+    ) throws ProcessNotDeployableException, FileExtensionNotSupportedException, NoFileExtensionFoundException {
 
         denyAuthorization();
 
@@ -300,11 +328,17 @@ public class CamundaProcessService {
 
             setProcessesExecutable(bpmnModel);
 
-            repositoryService.createDeployment().addModelInstance(fileName, bpmnModel).deploy();
+            var deploymentBuilder = repositoryService.createDeployment().addModelInstance(fileName, bpmnModel);
+
+            if (skipProcessLinksCopy) {
+                deploymentBuilder.source(CamundaDeploymentSource.SKIP_PROCESS_LINKS_COPY.toString());
+            }
+
+            return deploymentBuilder.deployWithResult();
         } else if (fileName.endsWith(".dmn")) {
             DmnModelInstance dmnModel = Dmn.readModelFromStream(fileInput);
 
-            repositoryService.createDeployment().addModelInstance(fileName, dmnModel).deploy();
+            return repositoryService.createDeployment().addModelInstance(fileName, dmnModel).deployWithResult();
         } else {
             String[] splitFileName = fileName.split("\\.");
 

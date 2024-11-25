@@ -30,8 +30,13 @@ import com.ritense.processlink.web.rest.dto.ProcessLinkUpdateRequestDto
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE
+import com.ritense.valtimo.exception.BpmnParseException
+import com.ritense.valtimo.service.CamundaProcessService
+import org.camunda.bpm.engine.ParseException
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -40,8 +45,13 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
+import java.io.ByteArrayInputStream
 import java.util.UUID
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
 
 @RestController
 @SkipComponentScan
@@ -49,6 +59,7 @@ import java.util.UUID
 class ProcessLinkResource(
     private var processLinkService: ProcessLinkService,
     private val processLinkMappers: List<ProcessLinkMapper>,
+    private val camundaProcessService: CamundaProcessService
 ) {
 
     @GetMapping("/v1/process-link")
@@ -112,6 +123,63 @@ class ProcessLinkResource(
         }
 
         return ResponseEntity.ok(list)
+    }
+
+    @PostMapping(
+        value = ["/v1/process/definition/deployment/process-link"],
+        consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    @Transactional // Ensure atomicity
+    fun deployProcessDefinitionAndProcessLinks(
+        @RequestPart(name = "file") bpmn: MultipartFile,
+        @RequestPart(name = "processLinks") processLinks: List<ProcessLinkCreateRequestDto>
+    ): ResponseEntity<Any> {
+        val correctFileExtension = bpmn.originalFilename?.endsWith(".bpmn") == true ||
+            bpmn.originalFilename?.endsWith(".dmn") == true
+
+        if (!correctFileExtension) {
+            return ResponseEntity.badRequest().body("Invalid file name. Must have '.bpmn' or '.dmn' suffix.")
+        }
+
+        val deployedProcessDefinitionId: String
+
+        try {
+            val deployment = runWithoutAuthorization {
+                camundaProcessService.deploy(bpmn.originalFilename, ByteArrayInputStream(bpmn.bytes), true)
+            }
+            val deployedProcessDefinition = runWithoutAuthorization {
+                camundaProcessService.getLatestProcessDefinitionByDeploymentId(deployment.id)
+            }
+            deployedProcessDefinitionId = deployedProcessDefinition.id
+        } catch (e: ParseException) {
+            throw BpmnParseException(e)
+        }
+
+        try {
+            processLinks.map { originalLink ->
+                copyWithNewProcessDefinitionId(originalLink, deployedProcessDefinitionId)
+            }.forEach { runWithoutAuthorization { processLinkService.createProcessLink(it) } }
+        } catch (e: Exception) {
+            throw RuntimeException("Failed to create process links. Rolling back deployment.", e)
+        }
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    }
+
+    private fun copyWithNewProcessDefinitionId(
+        original: ProcessLinkCreateRequestDto,
+        newProcessDefinitionId: String
+    ): ProcessLinkCreateRequestDto {
+        val originalClass = original::class
+        val properties = originalClass.memberProperties
+        val constructor = originalClass.primaryConstructor
+
+        val args = properties.associate { prop ->
+            prop.name to if (prop.name == "processDefinitionId") newProcessDefinitionId else prop.getter.call(original)
+        }
+
+        return constructor?.callBy(constructor.parameters.associateWith { args[it.name] }) as ProcessLinkCreateRequestDto
     }
 
     private fun getProcessLinkMapper(processLinkType: String): ProcessLinkMapper {
