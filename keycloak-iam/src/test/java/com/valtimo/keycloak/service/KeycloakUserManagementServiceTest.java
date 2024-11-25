@@ -51,6 +51,7 @@ class KeycloakUserManagementServiceTest {
 
     private KeycloakService keycloakService;
     private KeycloakUserManagementService userManagementService;
+    private RequestScopeUserCache requestScopeUserCache;
 
     private UserRepresentation jamesVance;
     private UserRepresentation johnDoe;
@@ -64,7 +65,8 @@ class KeycloakUserManagementServiceTest {
     @BeforeEach
     public void before() {
         keycloakService = mock(KeycloakService.class, RETURNS_DEEP_STUBS);
-        userManagementService = new KeycloakUserManagementService(keycloakService, "clientName");
+        requestScopeUserCache = new RequestScopeUserCache();
+        userManagementService = new KeycloakUserManagementService(keycloakService, "clientName", requestScopeUserCache);
 
         jamesVance = newUser("James", "Vance", List.of(USER));
         johnDoe = newUser("John", "Doe", List.of(USER, ADMIN));

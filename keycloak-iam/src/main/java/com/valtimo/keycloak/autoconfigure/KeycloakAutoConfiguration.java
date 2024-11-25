@@ -27,6 +27,7 @@ import com.valtimo.keycloak.security.jwt.authentication.KeycloakTokenAuthenticat
 import com.valtimo.keycloak.security.jwt.provider.KeycloakSecretKeyProvider;
 import com.valtimo.keycloak.service.KeycloakService;
 import com.valtimo.keycloak.service.KeycloakUserManagementService;
+import com.valtimo.keycloak.service.RequestScopeUserCache;
 import javax.sql.DataSource;
 import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.annotation.Order;
 
 @AutoConfiguration
@@ -77,9 +80,10 @@ public class KeycloakAutoConfiguration {
     @ConditionalOnWebApplication
     public KeycloakUserManagementService keycloakUserManagementService(
         final KeycloakService keycloakService,
-        @Value("#{'${spring.security.oauth2.client.registration.keycloakjwt.client-id:${valtimo.keycloak.client:}}'}") final String keycloakClientName
+        @Value("#{'${spring.security.oauth2.client.registration.keycloakjwt.client-id:${valtimo.keycloak.client:}}'}") final String keycloakClientName,
+        final RequestScopeUserCache requestScopeUserCache
     ) {
-        return new KeycloakUserManagementService(keycloakService, keycloakClientName);
+        return new KeycloakUserManagementService(keycloakService, keycloakClientName, requestScopeUserCache);
     }
 
     @Bean
@@ -120,6 +124,12 @@ public class KeycloakAutoConfiguration {
         final ApplicationContext applicationContext
     ) {
         return new ValtimoKeycloakPropertyResolver(properties, applicationContext);
+    }
+
+    @Bean
+    @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "request")
+    public RequestScopeUserCache requestScopeUserCache() {
+        return new RequestScopeUserCache();
     }
 
 }
