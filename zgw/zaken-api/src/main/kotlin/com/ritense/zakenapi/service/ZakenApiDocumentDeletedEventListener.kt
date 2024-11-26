@@ -19,19 +19,23 @@ package com.ritense.zakenapi.service
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.logging.withLoggingContext
 import com.ritense.plugin.service.PluginService
+import com.ritense.valtimo.contract.annotation.AllOpen
 import com.ritense.valtimo.contract.event.DocumentDeletedEvent
 import com.ritense.zakenapi.ZakenApiPlugin
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
 import mu.KLogger
 import mu.KotlinLogging
-import org.springframework.transaction.event.TransactionalEventListener
+import org.springframework.context.event.EventListener
+import org.springframework.transaction.annotation.Transactional
 
+@AllOpen
 class ZakenApiDocumentDeletedEventListener(
     private val zaakInstanceService: ZaakInstanceLinkService,
     private val zaakDocumentService: ZaakDocumentService,
     private val pluginService: PluginService
 ) {
-    @TransactionalEventListener(DocumentDeletedEvent::class)
+    @Transactional
+    @EventListener(DocumentDeletedEvent::class)
     fun handle(event: DocumentDeletedEvent) {
         withLoggingContext(JsonSchemaDocument::class, event.documentId) {
             val link = try {

@@ -270,6 +270,7 @@ class ZakenApiAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ZakenApiDocumentDeletedEventListener::class)
+    @Order(200)
     fun zakenApiDocumentDeletedEventListener(
         zaakInstanceService: ZaakInstanceLinkService,
         zaakDocumentService: ZaakDocumentService,

@@ -17,7 +17,11 @@
 package com.ritense.processdocument.service
 
 import com.ritense.document.domain.impl.JsonSchemaDocument
+import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.logging.withLoggingContext
+import com.ritense.processdocument.domain.ProcessDocumentInstance
+import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstanceId
 import com.ritense.valtimo.contract.event.DocumentDeletedEvent
 import mu.KLogger
 import mu.KotlinLogging
@@ -25,7 +29,8 @@ import org.camunda.bpm.engine.RuntimeService
 import org.springframework.context.event.EventListener
 
 class ProcessDocumentDeletedEventListener(
-    private val runtimeService: RuntimeService
+    private val runtimeService: RuntimeService,
+    private val processDocumentAssociationService: ProcessDocumentAssociationService
 ) {
     @EventListener(DocumentDeletedEvent::class)
     fun handle(event: DocumentDeletedEvent) {
@@ -37,6 +42,16 @@ class ProcessDocumentDeletedEventListener(
                 .list()
                 .forEach {
                     runtimeService.deleteProcessInstance(it.processInstanceId, "Document deleted", false, true)
+                    processDocumentAssociationService.getProcessDocumentInstanceResult(
+                        CamundaProcessJsonSchemaDocumentInstanceId.existingId(CamundaProcessInstanceId(it.processInstanceId), JsonSchemaDocumentId.existingId(event.documentId))
+                    )?.let { processDocumentInstance ->
+                        if (processDocumentInstance.isError) {
+                            logger.debug { "Document ${event.documentId} is not related to process ${it.processInstanceId}. No ProcessDocumentInstance to delete." }
+                        } else {
+                            processDocumentInstance.resultingValue().map(ProcessDocumentInstance::processDocumentInstanceId)
+                                .ifPresent(processDocumentAssociationService::deleteProcessDocumentInstance)
+                        }
+                    }
                 }
         }
     }

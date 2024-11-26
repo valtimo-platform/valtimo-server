@@ -65,6 +65,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
+import org.springframework.core.annotation.Order
 
 @AutoConfiguration
 class ProcessDocumentsAutoConfiguration {
@@ -295,11 +296,14 @@ class ProcessDocumentsAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ProcessDocumentDeletedEventListener::class)
+    @Order(100)
     fun processDocumentDeletedEventListener(
-        runtimeService: RuntimeService
+        runtimeService: RuntimeService,
+        processDocumentAssociationService: ProcessDocumentAssociationService
     ): ProcessDocumentDeletedEventListener {
         return ProcessDocumentDeletedEventListener(
-            runtimeService
+            runtimeService,
+            processDocumentAssociationService
         )
     }
 }
