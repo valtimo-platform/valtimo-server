@@ -149,7 +149,7 @@ public class CamundaProcessService {
             .singleResult());
     }
 
-    public ProcessDefinition getLatestProcessDefinitionByDeploymentId(String deploymentId) {
+    public ProcessDefinition getProcessDefinitionByDeploymentId(String deploymentId) {
         denyAuthorization();
 
         return AuthorizationContext.runWithoutAuthorization(() -> {

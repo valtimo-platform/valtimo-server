@@ -130,7 +130,7 @@ class ProcessLinkResource(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    @Transactional // Ensure atomicity
+    @Transactional
     fun deployProcessDefinitionAndProcessLinks(
         @RequestPart(name = "file") bpmn: MultipartFile,
         @RequestPart(name = "processLinks") processLinks: List<ProcessLinkCreateRequestDto>
@@ -149,7 +149,7 @@ class ProcessLinkResource(
                 camundaProcessService.deploy(bpmn.originalFilename, ByteArrayInputStream(bpmn.bytes), true)
             }
             val deployedProcessDefinition = runWithoutAuthorization {
-                camundaProcessService.getLatestProcessDefinitionByDeploymentId(deployment.id)
+                camundaProcessService.getProcessDefinitionByDeploymentId(deployment.id)
             }
             deployedProcessDefinitionId = deployedProcessDefinition.id
         } catch (e: ParseException) {
