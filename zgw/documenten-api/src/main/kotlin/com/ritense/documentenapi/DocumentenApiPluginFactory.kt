@@ -26,7 +26,7 @@ import com.ritense.resource.service.TemporaryResourceStorageService
 import org.springframework.context.ApplicationEventPublisher
 
 class DocumentenApiPluginFactory(
-    pluginService: PluginService,
+    private val pluginService: PluginService,
     private val client: DocumentenApiClient,
     private val storageService: TemporaryResourceStorageService,
     private val applicationEventPublisher: ApplicationEventPublisher,

@@ -88,7 +88,7 @@ class PluginService(
     private val applicationEventPublisher: ApplicationEventPublisher,
     private val encryptionService: EncryptionService,
     private val environment: Environment
-) {
+) : PluginInstanceCreator {
 
     fun getObjectMapper(): ObjectMapper {
         return objectMapper
@@ -596,7 +596,7 @@ class PluginService(
         return createInstance(PluginConfigurationId.existingId(pluginConfigurationId)) as T
     }
 
-    fun createInstance(
+    override fun createInstance(
         @LoggableResource(resourceType = PluginConfiguration::class) pluginConfigurationId: PluginConfigurationId
     ): Any {
         val configuration = pluginConfigurationRepository.getReferenceById(pluginConfigurationId)
