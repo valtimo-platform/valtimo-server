@@ -46,6 +46,7 @@ import com.ritense.valtimo.service.util.FormUtils;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -303,26 +304,26 @@ public class CamundaProcessService {
     }
 
     @Transactional
-    public void deploy(
+    public DeploymentWithDefinitions deploy(
         String fileName,
         ByteArrayInputStream fileInput
     ) throws ProcessNotDeployableException, FileExtensionNotSupportedException, NoFileExtensionFoundException {
-        deploy(fileName, fileInput, false);
+        return deploy(fileName, fileInput, false, false);
     }
 
     @Transactional
     public DeploymentWithDefinitions deploy(
         String fileName,
         ByteArrayInputStream fileInput,
-        boolean skipProcessLinksCopy
+        boolean skipProcessLinksCopy,
+        boolean skipIsDeployableCheck
     ) throws ProcessNotDeployableException, FileExtensionNotSupportedException, NoFileExtensionFoundException {
-
         denyAuthorization();
 
         if (fileName.endsWith(".bpmn")) {
             BpmnModelInstance bpmnModel = Bpmn.readModelFromStream(fileInput);
 
-            if (!isDeployable(bpmnModel)) {
+            if (!isDeployable(bpmnModel) && !skipIsDeployableCheck) {
                 throw new ProcessNotDeployableException(fileName);
             }
 
@@ -349,6 +350,50 @@ public class CamundaProcessService {
                 throw new NoFileExtensionFoundException(fileName);
             }
         }
+    }
+
+    @Transactional
+    public DeploymentWithDefinitions duplicateProcessDefinitionById(
+        String processDefinitionId,
+        boolean skipProcessLinksCopy,
+        boolean skipIsDeployableCheck
+    )
+        throws ProcessNotDeployableException, FileExtensionNotSupportedException, NoFileExtensionFoundException {
+        denyAuthorization();
+
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+            .processDefinitionId(processDefinitionId)
+            .singleResult();
+
+        if (processDefinition == null) {
+            throw new ProcessDefinitionNotFoundException("No process definition found for ID: " + processDefinitionId);
+        }
+
+        String deploymentId = processDefinition.getDeploymentId();
+
+        if (deploymentId == null) {
+            throw new ProcessDefinitionNotFoundException(
+                "No deployment ID found for process definition ID: " + processDefinitionId
+            );
+        }
+
+        List<String> resourceNames = repositoryService.getDeploymentResourceNames(deploymentId);
+
+        if (resourceNames.isEmpty()) {
+            throw new ProcessNotDeployableException("No resources found for deployment ID: " + deploymentId);
+        }
+
+        String fileName = resourceNames.get(0);
+
+        try (ByteArrayInputStream fileInput = new ByteArrayInputStream(
+            repositoryService.getResourceAsStream(deploymentId, fileName).readAllBytes())) {
+            return deploy(fileName, fileInput, skipProcessLinksCopy, skipIsDeployableCheck);
+
+        } catch (IOException e) {
+            logger.error("Error reading resource stream for file: {}", fileName, e);
+            throw new ProcessNotDeployableException("Error reading resource stream for file: " + fileName);
+        }
+
     }
 
     private void setProcessesExecutable(BpmnModelInstance bpmnModel) {

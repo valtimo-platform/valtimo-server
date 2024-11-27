@@ -132,28 +132,44 @@ class ProcessLinkResource(
     )
     @Transactional
     fun deployProcessDefinitionAndProcessLinks(
-        @RequestPart(name = "file") bpmn: MultipartFile,
-        @RequestPart(name = "processLinks") processLinks: List<ProcessLinkCreateRequestDto>
+        @RequestPart(name = "file") bpmn: MultipartFile?,
+        @RequestPart(name = "processLinks") processLinks: List<ProcessLinkCreateRequestDto>,
+        @RequestPart(name = "processDefinitionId") processDefinitionId: String
     ): ResponseEntity<Any> {
-        val correctFileExtension = bpmn.originalFilename?.endsWith(".bpmn") == true ||
-            bpmn.originalFilename?.endsWith(".dmn") == true
-
-        if (!correctFileExtension) {
-            return ResponseEntity.badRequest().body("Invalid file name. Must have '.bpmn' or '.dmn' suffix.")
-        }
-
         val deployedProcessDefinitionId: String
 
-        try {
-            val deployment = runWithoutAuthorization {
-                camundaProcessService.deploy(bpmn.originalFilename, ByteArrayInputStream(bpmn.bytes), true)
+        if (bpmn !== null) {
+            val correctFileExtension = bpmn.originalFilename?.endsWith(".bpmn") == true
+
+            if (!correctFileExtension) {
+                return ResponseEntity.badRequest().body("Invalid file name. Must have '.bpmn' or '.dmn' suffix.")
             }
-            val deployedProcessDefinition = runWithoutAuthorization {
-                camundaProcessService.getProcessDefinitionByDeploymentId(deployment.id)
+
+            try {
+                val deployment = runWithoutAuthorization {
+                    camundaProcessService.deploy(bpmn.originalFilename, ByteArrayInputStream(bpmn.bytes), true, false)
+                }
+                val deployedProcessDefinition = runWithoutAuthorization {
+                    camundaProcessService.getProcessDefinitionByDeploymentId(deployment.id)
+                }
+
+                deployedProcessDefinitionId = deployedProcessDefinition.id
+            } catch (e: ParseException) {
+                throw BpmnParseException(e)
             }
-            deployedProcessDefinitionId = deployedProcessDefinition.id
-        } catch (e: ParseException) {
-            throw BpmnParseException(e)
+        } else {
+            try {
+                val deployment = runWithoutAuthorization {
+                    camundaProcessService.duplicateProcessDefinitionById(processDefinitionId, true, true)
+                }
+                val deployedProcessDefinition = runWithoutAuthorization {
+                    camundaProcessService.getProcessDefinitionByDeploymentId(deployment.id)
+                }
+
+                deployedProcessDefinitionId = deployedProcessDefinition.id
+            } catch (e: Exception) {
+                throw RuntimeException("Failed to duplicate process definition. Rolling back deployment.", e)
+            }
         }
 
         try {
