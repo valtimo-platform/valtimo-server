@@ -25,10 +25,15 @@ import com.ritense.processlink.service.ProcessLinkActivityHandler
 import com.ritense.processlink.web.rest.dto.ProcessLinkActivityResult
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.formflow.domain.FormFlowProcessLink
 import org.camunda.bpm.engine.RuntimeService
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
+@Component
+@SkipComponentScan
 class FormFlowProcessLinkActivityHandler(
     private val formFlowService: FormFlowService,
     private val repositoryService: CamundaRepositoryService,
@@ -42,6 +47,7 @@ class FormFlowProcessLinkActivityHandler(
         return processLink is FormFlowProcessLink
     }
 
+    @Transactional
     override fun openTask(
         task: CamundaTask,
         processLink: ProcessLink
@@ -51,8 +57,7 @@ class FormFlowProcessLinkActivityHandler(
         val instances = formFlowService.findInstances(mapOf("taskInstanceId" to task.id))
         val instance = when (instances.size) {
             0 -> createFormFlowInstance(task, processLink)
-            1 -> instances[0]
-            else -> throw IllegalStateException("Multiple form flow instances linked to task: ${task.id}")
+            else -> instances[0]
         }
         return ProcessLinkActivityResult(
             processLink.id,
