@@ -16,6 +16,7 @@
 
 package com.ritense.processdocument.service
 
+import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.logging.withLoggingContext
@@ -37,22 +38,25 @@ class ProcessDocumentDeletedEventListener(
         withLoggingContext(JsonSchemaDocument::class, event.documentId) {
             logger.info { "Deleting all process instances for deleted document ${event.documentId}" }
 
-            runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(event.documentId.toString())
-                .list()
-                .forEach {
-                    runtimeService.deleteProcessInstance(it.processInstanceId, "Document deleted", false, true)
-                    processDocumentAssociationService.getProcessDocumentInstanceResult(
-                        CamundaProcessJsonSchemaDocumentInstanceId.existingId(CamundaProcessInstanceId(it.processInstanceId), JsonSchemaDocumentId.existingId(event.documentId))
-                    )?.let { processDocumentInstance ->
-                        if (processDocumentInstance.isError) {
-                            logger.debug { "Document ${event.documentId} is not related to process ${it.processInstanceId}. No ProcessDocumentInstance to delete." }
-                        } else {
-                            processDocumentInstance.resultingValue().map(ProcessDocumentInstance::processDocumentInstanceId)
-                                .ifPresent(processDocumentAssociationService::deleteProcessDocumentInstance)
+            runWithoutAuthorization {
+                runtimeService.createProcessInstanceQuery()
+                    .processInstanceBusinessKey(event.documentId.toString())
+                    .list()
+                    .forEach {
+                        runtimeService.deleteProcessInstance(it.processInstanceId, "Document deleted", false, true)
+                        processDocumentAssociationService.getProcessDocumentInstanceResult(
+                            CamundaProcessJsonSchemaDocumentInstanceId.existingId(CamundaProcessInstanceId(it.processInstanceId), JsonSchemaDocumentId.existingId(event.documentId))
+                        )?.let { processDocumentInstance ->
+                            if (processDocumentInstance.isError) {
+                                logger.debug { "Document ${event.documentId} is not related to process ${it.processInstanceId}. No ProcessDocumentInstance to delete." }
+                            } else {
+                                processDocumentInstance.resultingValue().map(ProcessDocumentInstance::processDocumentInstanceId)
+                                    .ifPresent(processDocumentAssociationService::deleteProcessDocumentInstance)
+                            }
                         }
                     }
-                }
+
+            }
         }
     }
 

@@ -60,12 +60,9 @@ import org.springframework.transaction.annotation.Transactional;
 class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
     private static final String USER_EMAIL = "user@valtimo.nl";
 
-    private Document document;
+    private JsonSchemaDocument document;
     private JsonSchemaDocumentResource jsonSchemaDocumentResource;
     private MockMvc mockMvc;
-
-    @Autowired
-    private DocumentRepository documentRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -285,15 +282,16 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
             .andDo(print())
             .andExpect(status().isOk());
 
-        assertThrows(DocumentNotFoundException.class, () -> documentService.get(document.id().getId().toString()));
+        verify(documentRepository, times(1)).delete(document);
 
         assertEquals(1, events.stream(DocumentDeletedEvent.class).count());
         var applicationEvent = events.stream(DocumentDeletedEvent.class).findFirst().orElseThrow();
         assertEquals(document.id().getId(), applicationEvent.getDocumentId());
 
         ArgumentCaptor<Supplier<BaseEvent>> outboxEventCaptor = ArgumentCaptor.forClass(Supplier.class);
-        verify(outboxService, times(1)).send(outboxEventCaptor.capture());
-        var outboxEvent = outboxEventCaptor.getValue().get();
+        verify(outboxService, times(2)).send(outboxEventCaptor.capture());
+        //first event is the viewed event, so we get the second one
+        var outboxEvent = outboxEventCaptor.getAllValues().get(1).get();
         assertEquals("com.ritense.valtimo.document.deleted", outboxEvent.getType());
         assertEquals("com.ritense.document.domain.impl.JsonSchemaDocument", outboxEvent.getResultType());
         assertEquals(document.id().toString(), outboxEvent.getResultId());

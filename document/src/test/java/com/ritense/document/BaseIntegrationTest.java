@@ -84,7 +84,7 @@ public abstract class BaseIntegrationTest extends BaseTest {
     @Inject
     protected DocumentService documentService;
 
-    @Inject
+    @SpyBean
     protected JsonSchemaDocumentRepository documentRepository;
 
     @Inject
