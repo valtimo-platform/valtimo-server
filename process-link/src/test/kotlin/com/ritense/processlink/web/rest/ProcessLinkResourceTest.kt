@@ -59,6 +59,7 @@ internal class ProcessLinkResourceTest {
     fun init() {
         objectMapper = MapperSingleton.get()
         processLinkService = mock()
+        camdunaProcessService = mock()
         processLinkMappers = listOf(CustomProcessLinkMapper(objectMapper))
         processLinkResource = ProcessLinkResource(processLinkService, processLinkMappers, camdunaProcessService)
 
