@@ -141,7 +141,8 @@ class JsonSchemaDocumentResourceTest extends BaseTest {
         UUID documentId = UUID.randomUUID();
 
         mockMvc.perform(
-                delete("/api/v1/document/$documentId")
+                delete("/api/v1/document/{id}", documentId)
+                    .contentType(APPLICATION_JSON_VALUE)
             )
             .andDo(print())
             .andExpect(status().isOk())
