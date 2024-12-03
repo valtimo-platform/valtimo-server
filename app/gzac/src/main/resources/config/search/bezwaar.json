@@ -1,13 +1,12 @@
 {
     "searchFields": [
         {
-            "ownerId": "8a541c40-5a61-47d6-ac17-8597620be976",
-            "ownerType": "Legacy",
-            "key": "achternaamMelder",
-            "title": "Achternaam melder",
-            "path": "object:/achternaamMelder",
+            "key": "voornaam",
+            "path": "doc:voornaam",
             "dataType": "text",
-            "fieldType": "single"
+            "fieldType": "single",
+            "matchType": "like",
+            "title": "Voornaam"
         },
         {
             "key": "achternaam",
