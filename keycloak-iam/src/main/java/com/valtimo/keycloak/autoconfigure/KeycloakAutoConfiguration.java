@@ -42,9 +42,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.context.annotation.RequestScope;
 
 @AutoConfiguration
 @EnableConfigurationProperties(KeycloakSpringBootProperties.class)
@@ -127,7 +126,7 @@ public class KeycloakAutoConfiguration {
     }
 
     @Bean
-    @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = "request")
+    @RequestScope
     public RequestScopeUserCache requestScopeUserCache() {
         return new RequestScopeUserCache();
     }

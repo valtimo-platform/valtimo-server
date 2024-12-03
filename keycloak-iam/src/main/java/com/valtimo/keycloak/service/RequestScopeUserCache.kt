@@ -21,7 +21,7 @@ import com.ritense.valtimo.contract.authentication.model.ValtimoUser
 import mu.KotlinLogging
 import kotlin.reflect.KClass
 
-class RequestScopeUserCache(
+open class RequestScopeUserCache(
     private val currentUserCache: MutableMap<CacheType, MutableMap<String, Any?>> = mutableMapOf(),
 ) {
     @Suppress("UNCHECKED_CAST")
