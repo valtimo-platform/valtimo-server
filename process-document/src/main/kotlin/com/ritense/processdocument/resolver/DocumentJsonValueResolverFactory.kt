@@ -36,6 +36,8 @@ import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valtimo.contract.json.patch.JsonPatchBuilder
 import com.ritense.valueresolver.ValueResolverFactory
+import com.ritense.valueresolver.ValueResolverOption
+import com.ritense.valueresolver.ValueResolverOptionType
 import com.ritense.valueresolver.exception.ValueResolverValidationException
 import org.camunda.bpm.engine.delegate.VariableScope
 import java.util.UUID
@@ -129,14 +131,32 @@ class DocumentJsonValueResolverFactory(
         return emptyDocumentContent
     }
 
+    @Deprecated("Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
     override fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
         val documentDefinition = documentDefinitionService.findByNameAndVersion(documentDefinitionName, version).orElseThrow()
         return documentDefinitionService.getPropertyNames(documentDefinition)
     }
 
+    @Deprecated("Use getResolvableKeyOptions(documentDefinitionName: String) instead")
     override fun getResolvableKeys(documentDefinitionName: String): List<String> {
         val documentDefinition = documentDefinitionService.findLatestByName(documentDefinitionName).orElseThrow()
         return documentDefinitionService.getPropertyNames(documentDefinition)
+    }
+
+    override fun getResolvableKeyOptions(documentDefinitionName: String, version: Long): List<ValueResolverOption> {
+        val documentDefinition = documentDefinitionService.findByNameAndVersion(documentDefinitionName, version).orElseThrow()
+        val propertiesObjectNode = documentDefinition.getSchema()
+            .asJson()
+            .get("properties") as ObjectNode
+        return getPropertyNamesFromObjectNode(documentDefinition, propertiesObjectNode, "$PREFIX:/")
+    }
+
+    override fun getResolvableKeyOptions(documentDefinitionName: String): List<ValueResolverOption> {
+        val documentDefinition = documentDefinitionService.findLatestByName(documentDefinitionName).orElseThrow()
+        val propertiesObjectNode = documentDefinition.getSchema()
+            .asJson()
+            .get("properties") as ObjectNode
+        return getPropertyNamesFromObjectNode(documentDefinition, propertiesObjectNode, "$PREFIX:/")
     }
 
     private fun buildJsonPatch(jsonNode: JsonNode, values: Map<String, Any?>) {
@@ -213,6 +233,53 @@ class DocumentJsonValueResolverFactory(
 
     companion object {
         const val PREFIX = "doc"
+    }
+
+    private fun getPropertyNamesFromObjectNode(
+        definition: JsonSchemaDocumentDefinition,
+        node: ObjectNode,
+        parent: String
+    ): List<ValueResolverOption> {
+        val options: MutableList<ValueResolverOption> = mutableListOf()
+        node.fields().forEach { jsonNode: Map.Entry<String, JsonNode> ->
+            if (jsonNode.value.has("type")) {
+                val propertyType = jsonNode.value["type"].asText()
+                if (isSimpleObject(propertyType)) {
+                    options += ValueResolverOption("$parent${jsonNode.key}", ValueResolverOptionType.FIELD)
+                } else if (propertyType == "object") {
+                    val objectNode = jsonNode.value as ObjectNode
+                    options += getPropertyNamesFromObjectNode(
+                        definition,
+                        objectNode["properties"] as ObjectNode,
+                        "$parent${jsonNode.key}/"
+                    )
+                } else if (propertyType == "array") {
+                    val arrayItemProperties = jsonNode.value["items"]["properties"]
+                    options += ValueResolverOption(
+                        "$parent${jsonNode.key}",
+                        ValueResolverOptionType.COLLECTION,
+                        arrayItemProperties?.let { getPropertyNamesFromObjectNode(definition, it as ObjectNode, "/") }
+                    )
+                }
+            } else if (jsonNode.value.has("\$ref")) {
+                val internalDefinition = jsonNode.value["\$ref"].asText().substring(1)
+                if (internalDefinition.startsWith("/")) {
+                    val referencedNode = definition.schema().at(internalDefinition)["properties"] as ObjectNode
+                    options += getPropertyNamesFromObjectNode(
+                        definition,
+                        referencedNode,
+                        "$parent${jsonNode.key}/"
+                    )
+                }
+            }
+        }
+
+        return options
+    }
+
+    private fun isSimpleObject(propertyType: String): Boolean {
+        val simpleTypes = listOf("string", "boolean", "integer", "number")
+        return simpleTypes.contains(propertyType)
     }
 
 }
