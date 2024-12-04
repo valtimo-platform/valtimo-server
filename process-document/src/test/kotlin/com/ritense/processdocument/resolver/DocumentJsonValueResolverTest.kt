@@ -512,6 +512,22 @@ internal class DocumentJsonValueResolverTest {
         assertEquals("/object3/object4/text1", options[0].children?.get(0)?.path)
     }
 
+    @Test
+    fun `should get array property with nested properties when using reference`() {
+        val definitionName = "nested-array-reference-example"
+        mockDefinition(definitionName)
+
+        val options = documentValueResolver.getResolvableKeyOptions(definitionName)
+
+        assertEquals(1, options.size)
+        assertEquals(ValueResolverOptionType.COLLECTION, options[0].type)
+        assertEquals("doc:/object1/object2/array1", options[0].path)
+        assertNotNull(options[0].children)
+        assertEquals(1, options[0].children?.size)
+        assertEquals(ValueResolverOptionType.FIELD, options[0].children?.get(0)?.type)
+        assertEquals("/object3/object4/text1", options[0].children?.get(0)?.path)
+    }
+
     private fun mockDefinition(definitionName: String?): JsonSchemaDocumentDefinition {
         val definition: JsonSchemaDocumentDefinition = definitionOf(definitionName)
         whenever(documentDefinitionService.findLatestByName(definitionName)).thenReturn(Optional.of(definition))
