@@ -236,24 +236,24 @@ class DocumentJsonValueResolverFactory(
     private fun getPropertyNamesFromObjectNode(
         definition: JsonSchemaDocumentDefinition,
         node: ObjectNode,
-        parent: String
+        path: String
     ): List<ValueResolverOption> {
         val options: MutableList<ValueResolverOption> = mutableListOf()
         if (node.has("type")) {
             val propertyType = node["type"].asText()
             if (isSimpleObject(propertyType)) {
-                options += ValueResolverOption(parent, ValueResolverOptionType.FIELD)
+                options += ValueResolverOption(path, ValueResolverOptionType.FIELD)
             } else if (propertyType == "object") {
                 node["properties"].fields().forEach { jsonNode ->
                     options += getPropertyNamesFromObjectNode(
                         definition,
                         jsonNode.value as ObjectNode,
-                        "$parent/${jsonNode.key}"
+                        "$path/${jsonNode.key}"
                     )
                 }
             } else if (propertyType == "array") {
                 options += ValueResolverOption(
-                    parent,
+                    path,
                     ValueResolverOptionType.COLLECTION,
                     node["items"]?.let { getPropertyNamesFromObjectNode(definition, it as ObjectNode, "") }
                 )
@@ -265,7 +265,7 @@ class DocumentJsonValueResolverFactory(
                 options += getPropertyNamesFromObjectNode(
                     definition,
                     referencedNode,
-                    parent
+                    path
                 )
             }
         }
