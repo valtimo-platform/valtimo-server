@@ -26,7 +26,7 @@ import com.ritense.exporter.request.DocumentDefinitionExportRequest
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional(readOnly = true)
-class CaseDefinitionSettingsExporter(
+class CaseDefinitionExporter(
     private val objectMapper: ObjectMapper,
     private val caseDefinitionService: CaseDefinitionService
 ) : Exporter<DocumentDefinitionExportRequest> {

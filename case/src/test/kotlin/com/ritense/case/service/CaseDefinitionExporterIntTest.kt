@@ -29,9 +29,9 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.util.StreamUtils
 
 @Transactional(readOnly = true)
-class CaseDefinitionSettingsExporterIntTest @Autowired constructor(
+class CaseDefinitionExporterIntTest @Autowired constructor(
     private val resourceLoader: ResourceLoader,
-    private val caseDefinitionSettingsExporter: CaseDefinitionSettingsExporter
+    private val caseDefinitionExporter: CaseDefinitionExporter
 ) : BaseIntegrationTest() {
 
     @Test
@@ -39,7 +39,7 @@ class CaseDefinitionSettingsExporterIntTest @Autowired constructor(
         val caseDefinitionName = "some-case-type"
 
         val request = DocumentDefinitionExportRequest(caseDefinitionName, 1)
-        val exportResult = caseDefinitionSettingsExporter.export(request)
+        val exportResult = caseDefinitionExporter.export(request)
 
         val path = PATH.format(caseDefinitionName)
         val caseTabsExport = exportResult.exportFiles.singleOrNull {

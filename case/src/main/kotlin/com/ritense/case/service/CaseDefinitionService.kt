@@ -32,6 +32,9 @@ import com.ritense.case.service.validations.UpdateCaseListColumnValidator
 import com.ritense.case.web.rest.dto.CaseListColumnDto
 import com.ritense.case.web.rest.dto.CaseSettingsDto
 import com.ritense.case.web.rest.mapper.CaseListColumnMapper
+import com.ritense.case_.domain.definition.CaseDefinition
+import com.ritense.case_.domain.definition.CaseDefinitionId
+import com.ritense.case_.repository.CaseDefinitionRepository
 import com.ritense.document.domain.DocumentDefinition
 import com.ritense.document.exception.UnknownDocumentDefinitionException
 import com.ritense.document.service.DocumentDefinitionService
@@ -48,6 +51,7 @@ class CaseDefinitionService(
     private val caseDefinitionSettingsRepository: CaseDefinitionSettingsRepository,
     private val caseDefinitionListColumnRepository: CaseDefinitionListColumnRepository,
     private val documentDefinitionService: DocumentDefinitionService,
+    private val caseDefinitionRepository: CaseDefinitionRepository,
     valueResolverService: ValueResolverService,
     private val authorizationService: AuthorizationService
 ) {
@@ -64,24 +68,19 @@ class CaseDefinitionService(
         )
     )
 
-    @Throws(UnknownDocumentDefinitionException::class)
-    fun getCaseSettings(caseDefinitionName: String): CaseDefinitionSettings {
-        // TODO: Implement PBAC:
-        // It currently relies on the VIEW check in findLatestByName via assertDocumentDefinitionExists.
-        // Doing a check here forces this class to be a JsonSchemaDocument implementation, which is undesirable.
-        assertDocumentDefinitionExists(caseDefinitionName)
-
-        return caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
+    fun getCaseDefinition(caseDefinitionId: CaseDefinitionId): CaseDefinition {
+        return caseDefinitionRepository.getReferenceById(caseDefinitionId)
     }
 
     @Throws(UnknownDocumentDefinitionException::class)
-    fun updateCaseSettings(caseDefinitionName: String, newSettings: CaseSettingsDto): CaseDefinitionSettings {
+    fun updateCaseSettings(caseDefinitionId: CaseDefinitionId, newSettings: CaseSettingsDto): CaseDefinition {
         denyManagementOperation()
 
-        runWithoutAuthorization { assertDocumentDefinitionExists(caseDefinitionName) }
-        val caseDefinitionSettings = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
-        val updatedCaseDefinition = newSettings.update(caseDefinitionSettings)
-        return caseDefinitionSettingsRepository.save(updatedCaseDefinition)
+        val caseDefinition = newSettings.update(
+            runWithoutAuthorization { getCaseDefinition(caseDefinitionId) }
+        )
+
+        return caseDefinitionRepository.save(caseDefinition)
     }
 
     @Throws(InvalidListColumnException::class)
