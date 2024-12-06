@@ -17,23 +17,15 @@
 package com.ritense.case.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.ritense.case.domain.CaseDefinitionSettings
-import com.ritense.case.repository.CaseDefinitionSettingsRepository
-import com.ritense.document.domain.event.DocumentDefinitionDeployedEvent
-import com.ritense.logging.withLoggingContext
+import com.ritense.case_.domain.definition.CaseDefinition
+import com.ritense.case_.repository.CaseDefinitionRepository
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import mu.KotlinLogging
-import org.springframework.context.event.EventListener
 import org.springframework.core.io.ResourceLoader
-import org.springframework.core.io.support.ResourcePatternUtils
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.util.StreamUtils
-import java.nio.charset.StandardCharsets
 
 @Transactional
 @Service
@@ -41,43 +33,24 @@ import java.nio.charset.StandardCharsets
 class CaseDefinitionDeploymentService(
     private val resourceLoader: ResourceLoader,
     private val objectMapper: ObjectMapper,
-    private val caseDefinitionSettingsRepository: CaseDefinitionSettingsRepository
+    private val caseDefinitionRepository: CaseDefinitionRepository
 ) {
+    fun deploy(fileContent: String, forceDeploy: Boolean = false) {
+        val caseDefinition = objectMapper.readValue<CaseDefinition>(fileContent)
 
-    @EventListener(DocumentDefinitionDeployedEvent::class)
-    fun conditionalCreateCase(event: DocumentDefinitionDeployedEvent) {
-        val documentDefinitionName = event.documentDefinition().id().name()
-        withLoggingContext("jsonSchemaDocumentName" to documentDefinitionName) {
-            val caseDefinitionSettings = caseDefinitionSettingsRepository.findByIdOrNull(documentDefinitionName)
-            if (caseDefinitionSettings == null) {
-                val resource = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-                    .getResource("classpath:config/case/definition/$documentDefinitionName.json")
 
-                if (resource.exists()) {
-                    deploy(
-                        resource.filename!!.substringBeforeLast("."),
-                        StreamUtils.copyToString(resource.inputStream, StandardCharsets.UTF_8)
-                    )
-                } else {
-                    caseDefinitionSettingsRepository.save(CaseDefinitionSettings(documentDefinitionName))
-                }
-            }
-        }
-    }
-
-    fun deploy(caseDefinitionName: String, settingsJson: String, forceDeploy: Boolean = false) {
-        logger.debug { "Deploying case definition $caseDefinitionName" }
-        val caseDefinitionSettings = caseDefinitionSettingsRepository.findByIdOrNull(caseDefinitionName)
+        logger.debug { "Deploying case definition ${caseDefinition.name}" }
+        val caseDefinitionSettings = caseDefinitionRepository.findByIdOrNull(caseDefinition.id)
 
         if (caseDefinitionSettings == null || forceDeploy) {
-            val settingsToDeploy = objectMapper.readValue<ObjectNode>(settingsJson)
+/*            val settingsToDeploy = objectMapper.readValue<ObjectNode>(settingsJson)
                 .put("name", caseDefinitionName)
-            val createdCaseDefinitionSettings: CaseDefinitionSettings = objectMapper.convertValue(settingsToDeploy)
+            val createdCaseDefinitionSettings: CaseDefinitionSettings = objectMapper.convertValue(settingsToDeploy)*/
 
-            caseDefinitionSettingsRepository.save(createdCaseDefinitionSettings)
-            logger.debug { "Case definition $caseDefinitionName was created" }
+            caseDefinitionRepository.save(caseDefinition)
+            logger.debug { "Case definition ${caseDefinition.name} was created" }
         } else {
-            logger.debug { "Attempted to update settings for case that already exist $caseDefinitionName" }
+            logger.debug { "Attempted to update settings for case that already exist ${caseDefinition.name}" }
         }
     }
 

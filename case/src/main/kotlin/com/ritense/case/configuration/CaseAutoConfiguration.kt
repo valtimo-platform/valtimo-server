@@ -34,7 +34,7 @@ import com.ritense.case.security.config.CaseHttpSecurityConfigurer
 import com.ritense.case.service.CaseDefinitionDeploymentService
 import com.ritense.case.service.CaseDefinitionService
 import com.ritense.case.service.CaseDefinitionExporter
-import com.ritense.case.service.CaseDefinitionSettingsImporter
+import com.ritense.case.service.CaseDefinitionImporter
 import com.ritense.case.service.CaseInstanceService
 import com.ritense.case.service.CaseListDeploymentService
 import com.ritense.case.service.CaseListExporter
@@ -81,7 +81,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @EnableJpaRepositories(
     basePackageClasses = [
         CaseDefinitionSettingsRepository::class,
-        CaseDefinitionRepository::class,
     ]
 )
 @EntityScan(basePackages = ["com.ritense.case.domain"])
@@ -135,7 +134,6 @@ class CaseAutoConfiguration {
 
     @Bean
     fun caseDefinitionService(
-        repository: CaseDefinitionSettingsRepository,
         caseDefinitionListColumnRepository: CaseDefinitionListColumnRepository,
         documentDefinitionService: DocumentDefinitionService,
         caseDefinitionRepository: CaseDefinitionRepository,
@@ -143,7 +141,6 @@ class CaseAutoConfiguration {
         authorizationService: AuthorizationService
     ): CaseDefinitionService {
         return CaseDefinitionService(
-            repository,
             caseDefinitionListColumnRepository,
             documentDefinitionService,
             caseDefinitionRepository,
@@ -206,12 +203,12 @@ class CaseAutoConfiguration {
     fun caseDefinitionDeploymentService(
         resourceLoader: ResourceLoader,
         objectMapper: ObjectMapper,
-        caseDefinitionSettingsRepository: CaseDefinitionSettingsRepository
+        caseDefinitionRepository: CaseDefinitionRepository
     ): CaseDefinitionDeploymentService {
         return CaseDefinitionDeploymentService(
             resourceLoader,
             objectMapper,
-            caseDefinitionSettingsRepository
+            caseDefinitionRepository
         )
     }
 
@@ -379,10 +376,10 @@ class CaseAutoConfiguration {
     )
 
     @Bean
-    @ConditionalOnMissingBean(CaseDefinitionSettingsImporter::class)
+    @ConditionalOnMissingBean(CaseDefinitionImporter::class)
     fun caseDefinitionSettingsImporter(
         deploymentService: CaseDefinitionDeploymentService
-    ) = CaseDefinitionSettingsImporter(
+    ) = CaseDefinitionImporter(
         deploymentService
     )
 

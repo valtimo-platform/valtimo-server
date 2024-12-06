@@ -41,7 +41,7 @@ class CaseDefinitionDeploymentServiceIntTest @Autowired constructor(
     fun `should deploy settings caseDefinitionName and json content`() {
         val caseDefinitionName = "by-case-definition-name-and-json"
 
-        caseDefinitionDeploymentService.deploy(caseDefinitionName, """
+        caseDefinitionDeploymentService.deploy("""
             {
                 "canHaveAssignee": true,
                 "autoAssignTasks": false

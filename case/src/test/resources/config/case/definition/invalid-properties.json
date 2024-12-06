@@ -1,4 +1,7 @@
 {
+    "key": "invalid-properties",
+    "name": "Case with invalid properties",
+    "version-tag": "1.0.0",
     "canHaveAssignee": false,
     "autoAssignTasks": true
 }

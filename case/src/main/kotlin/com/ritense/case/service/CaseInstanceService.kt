@@ -74,10 +74,11 @@ class CaseInstanceService(
         }.toMutableList()
 
         if (items.none { it.key == "assigneeFullName" }) {
-            val caseSettings = caseDefinitionService.getCaseSettings(document.definitionId().name())
+            //TODO: where to get the case definition id from?
+/*            val caseSettings = caseDefinitionService.getCaseSettings(document.definitionId().name())
             if (caseSettings.canHaveAssignee) {
                 items.add(CaseListRowDto.CaseListItemDto("assigneeFullName", document.assigneeFullName()))
-            }
+            }*/
         }
 
         return CaseListRowDto(document.id().toString(), items)

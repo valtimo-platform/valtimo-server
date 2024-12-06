@@ -48,7 +48,6 @@ import kotlin.jvm.optionals.getOrNull
 @Service
 @SkipComponentScan
 class CaseDefinitionService(
-    private val caseDefinitionSettingsRepository: CaseDefinitionSettingsRepository,
     private val caseDefinitionListColumnRepository: CaseDefinitionListColumnRepository,
     private val documentDefinitionService: DocumentDefinitionService,
     private val caseDefinitionRepository: CaseDefinitionRepository,

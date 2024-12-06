@@ -18,6 +18,7 @@ package com.ritense.case.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.case.web.rest.dto.CaseSettingsDto
+import com.ritense.case_.domain.definition.CaseDefinitionId
 import com.ritense.exporter.ExportFile
 import com.ritense.exporter.ExportPrettyPrinter
 import com.ritense.exporter.ExportResult
@@ -35,7 +36,7 @@ class CaseDefinitionExporter(
 
     override fun export(request: DocumentDefinitionExportRequest): ExportResult {
         val caseName = request.name
-        val settings = caseDefinitionService.getCaseSettings(caseName)
+        val settings = caseDefinitionService.getCaseDefinition(CaseDefinitionId("test", "1.0.0"))
 
         val caseTabExport = ExportFile(
             PATH.format(caseName),

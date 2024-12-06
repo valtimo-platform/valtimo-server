@@ -25,7 +25,8 @@ import jakarta.persistence.Table
 @Table(name = "case_definition")
 data class CaseDefinition(
     @EmbeddedId
-    val id: CaseDefinitionId, // TODO: Determine if we want to enforce semver for the version tag
+    val id: CaseDefinitionId, // TODO: Determine if we want to enforce semver for the version tag https://github.com/semver4j/semver4j
+    val name: String,
     @Column(name = "can_have_assignee")
     val canHaveAssignee: Boolean = false,
     @Column(name = "auto_assign_tasks")
