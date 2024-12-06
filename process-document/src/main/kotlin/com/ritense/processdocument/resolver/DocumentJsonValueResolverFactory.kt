@@ -131,13 +131,13 @@ class DocumentJsonValueResolverFactory(
         return emptyDocumentContent
     }
 
-    @Deprecated("Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
     override fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
         val documentDefinition = documentDefinitionService.findByNameAndVersion(documentDefinitionName, version).orElseThrow()
         return documentDefinitionService.getPropertyNames(documentDefinition)
     }
 
-    @Deprecated("Use getResolvableKeyOptions(documentDefinitionName: String) instead")
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String) instead")
     override fun getResolvableKeys(documentDefinitionName: String): List<String> {
         val documentDefinition = documentDefinitionService.findLatestByName(documentDefinitionName).orElseThrow()
         return documentDefinitionService.getPropertyNames(documentDefinition)

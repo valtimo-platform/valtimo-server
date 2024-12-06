@@ -97,10 +97,10 @@ interface ValueResolverService {
 
     fun getValueResolvers(): List<String>
 
-    @Deprecated("Use getResolvableKeys with ValueResolverOptionRequest object instead")
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeys with ValueResolverOptionRequest object instead")
     fun getResolvableKeys(prefixes: List<String>, documentDefinitionName: String, version: Long): List<String>
 
-    @Deprecated("Use getResolvableKeys with ValueResolverOptionRequest object instead")
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeys with ValueResolverOptionRequest object instead")
     fun getResolvableKeys(prefixes: List<String>, documentDefinitionName: String): List<String>
 
     fun getResolvableKeys(request: ValueResolverOptionRequest, documentDefinitionName: String, version: Long): List<ValueResolverOption>

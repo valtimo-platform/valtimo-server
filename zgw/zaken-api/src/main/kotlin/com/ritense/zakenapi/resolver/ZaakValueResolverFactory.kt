@@ -46,12 +46,12 @@ class ZaakValueResolverFactory(
         TODO()
     }
 
-    @Deprecated("Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
     override fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
         return ZAAK_FIELD_LIST
     }
 
-    @Deprecated("Use getResolvableKeyOptions(documentDefinitionName: String) instead")
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String) instead")
     override fun getResolvableKeys(documentDefinitionName: String): List<String> {
         return ZAAK_FIELD_LIST
     }

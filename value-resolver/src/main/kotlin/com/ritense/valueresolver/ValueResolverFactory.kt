@@ -112,12 +112,12 @@ interface ValueResolverFactory {
         return values
     }
 
-    @Deprecated("Use getResolvableKeyOptions instead", ReplaceWith("getResolvableKeyOptions(documentDefinitionName, version)"))
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions instead", ReplaceWith("getResolvableKeyOptions(documentDefinitionName, version)"))
     fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
         return emptyList()
     }
 
-    @Deprecated("Use getResolvableKeyOptions instead", ReplaceWith("getResolvableKeyOptions(documentDefinitionName)"))
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions instead", ReplaceWith("getResolvableKeyOptions(documentDefinitionName)"))
     fun getResolvableKeys(documentDefinitionName: String): List<String> {
         return emptyList()
     }
