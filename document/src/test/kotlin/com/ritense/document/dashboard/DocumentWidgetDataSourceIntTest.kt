@@ -25,16 +25,29 @@ import com.ritense.document.service.result.CreateDocumentResult
 import com.ritense.valtimo.contract.Constants
 import com.ritense.valtimo.contract.repository.ExpressionOperator
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
 import org.springframework.transaction.annotation.Transactional
-import java.util.Collections
 
 @Transactional
 class DocumentWidgetDataSourceIntTest @Autowired constructor(
     private val documentWidgetDataSource: DocumentWidgetDataSource
 ) : BaseIntegrationTest() {
+
+    @BeforeEach
+    fun setup() {
+        whenever(userManagementService.currentUser.id)
+            .thenReturn(mockedUserId)
+
+        whenever(userManagementService.currentUser.email)
+            .thenReturn(mockedUserEmail)
+
+        whenever(userManagementService.currentUser.userIdentifier)
+            .thenReturn(mockedUserIdentifier)
+    }
 
     @Test
     fun `should count by documentDefinitionName`() {
@@ -50,7 +63,12 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
         assertThat(result.value).isGreaterThanOrEqualTo(expectedCount.toLong())
 
         //There might be remnants of other tests (should not be), so were checking against the documentService as well.
-        val allByName = runWithoutAuthorization { documentService.getAllByDocumentDefinitionName(Pageable.unpaged(), documentDefinitionName) }
+        val allByName = runWithoutAuthorization {
+            documentService.getAllByDocumentDefinitionName(
+                Pageable.unpaged(),
+                documentDefinitionName
+            )
+        }
         assertThat(result.value).isEqualTo(allByName.totalElements)
     }
 
@@ -196,29 +214,35 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
             queryItems = listOf(
                 DocumentCountsQueryItem(
                     livingOnSesameStreet,
-                    listOf(QueryCondition(
-                        "doc:street",
-                        ExpressionOperator.EQUAL_TO,
-                        street1
-                    ))
+                    listOf(
+                        QueryCondition(
+                            "doc:street",
+                            ExpressionOperator.EQUAL_TO,
+                            street1
+                        )
+                    )
 
                 ),
                 DocumentCountsQueryItem(
                     livingOnMainStreet,
-                    listOf(QueryCondition(
-                        "doc:street",
-                        ExpressionOperator.EQUAL_TO,
-                        street2
-                    ))
+                    listOf(
+                        QueryCondition(
+                            "doc:street",
+                            ExpressionOperator.EQUAL_TO,
+                            street2
+                        )
+                    )
 
                 ),
                 DocumentCountsQueryItem(
                     livingOn3rdStreet,
-                    listOf(QueryCondition(
-                        "doc:street",
-                        ExpressionOperator.EQUAL_TO,
-                        street3
-                    ))
+                    listOf(
+                        QueryCondition(
+                            "doc:street",
+                            ExpressionOperator.EQUAL_TO,
+                            street3
+                        )
+                    )
 
                 )
             )
@@ -325,8 +349,41 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
         assertThat(result.values.size).isEqualTo(2)
     }
 
-    private fun createDocument(documentDefinition: JsonSchemaDocumentDefinition, street: String = "Funenpark"): CreateDocumentResult? {
-        val content = JsonDocumentContent("""{"street": "$street", "housenumber": 1}""")
+    @Test
+    fun `should support permission conditions in criteria`() {
+        documentRepository.deleteAll()
+
+        val definition = definition()
+
+        createDocument(definition, "", mockedUserId)
+
+        val documentDefinitionName = definition.id().name()
+
+        val properties = DocumentCountDataSourceProperties(
+            documentDefinitionName,
+            listOf(
+                QueryCondition(
+                    "doc:userInfo",
+                    ExpressionOperator.EQUAL_TO,
+                    "\${currentUserId}"
+                ),
+            )
+        )
+
+        val documents = documentService.getAllByDocumentDefinitionName(Pageable.ofSize(10), documentDefinitionName)
+
+        val result1 = documentWidgetDataSource.getCaseCount(properties)
+
+        assertThat(result1.total).isEqualTo(1)
+    }
+
+
+    private fun createDocument(
+        documentDefinition: JsonSchemaDocumentDefinition,
+        street: String = "Funenpark",
+        userInfo: String = "",
+    ): CreateDocumentResult? {
+        val content = JsonDocumentContent("""{"street": "$street", "housenumber": 1, "userInfo": "$userInfo"}""")
         return runWithoutAuthorization {
             documentService.createDocument(
                 NewDocumentRequest(
@@ -347,5 +404,11 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
                 )
             )
         }
+    }
+
+    companion object {
+        private val mockedUserId = "mockUserId"
+        private val mockedUserEmail = "mockUserEmail"
+        private val mockedUserIdentifier = "mockUserIdentifier"
     }
 }
