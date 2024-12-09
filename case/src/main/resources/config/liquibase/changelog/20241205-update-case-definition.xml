@@ -83,13 +83,4 @@
         </addColumn>
     </changeSet>
 
-    <changeSet id="8" author="Ritense">
-        <addForeignKeyConstraint
-            baseTableName="task_list_column"
-            baseColumnNames="case_definition_key, case_definition_version_tag"
-            constraintName="fk_task_list_column_case_definition"
-            referencedTableName="case_definition"
-            referencedColumnNames="case_definition_key, case_definition_version_tag" />
-    </changeSet>
-
 </databaseChangeLog>
