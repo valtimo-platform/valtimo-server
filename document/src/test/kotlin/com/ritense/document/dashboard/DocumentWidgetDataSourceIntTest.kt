@@ -350,7 +350,7 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
     }
 
     @Test
-    fun `should support permission conditions in criteria`() {
+    fun `should support current user id in criteria`() {
         documentRepository.deleteAll()
 
         val definition = definition()
@@ -370,11 +370,101 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
             )
         )
 
-        val documents = documentService.getAllByDocumentDefinitionName(Pageable.ofSize(10), documentDefinitionName)
+        val properties2 = DocumentCountDataSourceProperties(
+            documentDefinitionName,
+            listOf(
+                QueryCondition(
+                    "doc:userInfo",
+                    ExpressionOperator.NOT_EQUAL_TO,
+                    "\${currentUserId}"
+                ),
+            )
+        )
 
-        val result1 = documentWidgetDataSource.getCaseCount(properties)
+        val result = documentWidgetDataSource.getCaseCount(properties)
+        val result2 = documentWidgetDataSource.getCaseCount(properties2)
 
-        assertThat(result1.total).isEqualTo(1)
+        assertThat(result.value).isEqualTo(1)
+        assertThat(result2.value).isEqualTo(0)
+    }
+
+    @Test
+    fun `should support current user email in criteria`() {
+        documentRepository.deleteAll()
+
+        val definition = definition()
+
+        createDocument(definition, "", mockedUserEmail)
+
+        val documentDefinitionName = definition.id().name()
+
+        val properties = DocumentCountDataSourceProperties(
+            documentDefinitionName,
+            listOf(
+                QueryCondition(
+                    "doc:userInfo",
+                    ExpressionOperator.EQUAL_TO,
+                    "\${currentUserEmail}"
+                ),
+            )
+        )
+
+        val properties2 = DocumentCountDataSourceProperties(
+            documentDefinitionName,
+            listOf(
+                QueryCondition(
+                    "doc:userInfo",
+                    ExpressionOperator.NOT_EQUAL_TO,
+                    "\${currentUserEmail}"
+                ),
+            )
+        )
+
+        val result = documentWidgetDataSource.getCaseCount(properties)
+        val result2 = documentWidgetDataSource.getCaseCount(properties2)
+
+        assertThat(result.value).isEqualTo(1)
+        assertThat(result2.value).isEqualTo(0)
+    }
+
+
+    @Test
+    fun `should support current user identifier in criteria`() {
+        documentRepository.deleteAll()
+
+        val definition = definition()
+
+        createDocument(definition, "", mockedUserIdentifier)
+
+        val documentDefinitionName = definition.id().name()
+
+        val properties = DocumentCountDataSourceProperties(
+            documentDefinitionName,
+            listOf(
+                QueryCondition(
+                    "doc:userInfo",
+                    ExpressionOperator.EQUAL_TO,
+                    "\${currentUserIdentifier}"
+                ),
+            )
+        )
+
+        val properties2 = DocumentCountDataSourceProperties(
+            documentDefinitionName,
+            listOf(
+                QueryCondition(
+                    "doc:userInfo",
+                    ExpressionOperator.NOT_EQUAL_TO,
+                    "\${currentUserIdentifier}"
+                ),
+            )
+        )
+
+        val result = documentWidgetDataSource.getCaseCount(properties)
+        val result2 = documentWidgetDataSource.getCaseCount(properties2)
+
+        assertThat(result.value).isEqualTo(1)
+        assertThat(result2.value).isEqualTo(0)
     }
 
 
