@@ -75,4 +75,21 @@
         </sql>
     </changeSet>
 
+    <changeSet id="7" author="Ritense">
+        <addColumn tableName="task_list_column">
+            <column name="case_definition_version_tag" type="VARCHAR(256)" defaultValue="1.0.0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="8" author="Ritense">
+        <addForeignKeyConstraint
+            baseTableName="task_list_column"
+            baseColumnNames="case_definition_key, case_definition_version_tag"
+            constraintName="fk_task_list_column_case_definition"
+            referencedTableName="case_definition"
+            referencedColumnNames="case_definition_key, case_definition_version_tag" />
+    </changeSet>
+
 </databaseChangeLog>

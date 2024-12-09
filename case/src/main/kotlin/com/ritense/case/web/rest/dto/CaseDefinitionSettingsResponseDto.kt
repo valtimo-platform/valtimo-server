@@ -28,7 +28,7 @@ data class CaseDefinitionSettingsResponseDto(
         fun of(caseDefinition: CaseDefinition) =
             CaseDefinitionSettingsResponseDto(
                 caseDefinition.id.key,
-                caseDefinition.id.versionTag,
+                caseDefinition.id.versionTag.version,
                 caseDefinition.canHaveAssignee,
                 caseDefinition.autoAssignTasks
             )
