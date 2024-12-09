@@ -71,6 +71,11 @@ class CaseDefinitionService(
         return caseDefinitionRepository.getReferenceById(caseDefinitionId)
     }
 
+    fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition {
+        // TODO update this to find the latest case definition
+        return caseDefinitionRepository.getReferenceById(CaseDefinitionId.of(caseDefinitionKey, "1.0.0"))
+    }
+
     @Throws(UnknownDocumentDefinitionException::class)
     fun updateCaseSettings(caseDefinitionId: CaseDefinitionId, newSettings: CaseSettingsDto): CaseDefinition {
         denyManagementOperation()

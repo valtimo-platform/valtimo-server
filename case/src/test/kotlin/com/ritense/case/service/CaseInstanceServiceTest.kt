@@ -23,6 +23,8 @@ import com.ritense.case.domain.ColumnDefaultSort
 import com.ritense.case.domain.DisplayType
 import com.ritense.case.domain.EmptyDisplayTypeParameter
 import com.ritense.case.repository.CaseDefinitionListColumnRepository
+import com.ritense.case_.domain.definition.CaseDefinition
+import com.ritense.case_.domain.definition.CaseDefinitionId
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
@@ -79,9 +81,13 @@ class CaseInstanceServiceTest {
         val pageable = Pageable.ofSize(10)
         whenever(documentSearchService.search(CASE_DEFINITION_NAME, searchRequest, pageable))
             .thenReturn(PageImpl(listOf(DOCUMENT)))
-        //TODO: Enable
-/*        whenever(caseDefinitionService.getCaseSettings(CASE_DEFINITION_NAME))
-            .thenReturn(CaseDefinitionSettings(CASE_DEFINITION_NAME, false))*/
+        whenever(caseDefinitionService.getLatestCaseDefinition(CASE_DEFINITION_NAME))
+            .thenReturn(
+                CaseDefinition(CaseDefinitionId.of(CASE_DEFINITION_NAME, "1.0.0"),
+                    CASE_DEFINITION_NAME,
+                    false
+                )
+            )
 
         val documentsPage = service.search(CASE_DEFINITION_NAME, searchRequest, pageable)
 
@@ -97,9 +103,13 @@ class CaseInstanceServiceTest {
         val pageable = PageRequest.of(0, 1, Sort.by("\$.some.jsonPath"))
         whenever(documentSearchService.search(CASE_DEFINITION_NAME, searchRequest, pageable))
             .thenReturn(PageImpl(listOf(DOCUMENT)))
-        //TODO: Enable
-/*        whenever(caseDefinitionService.getCaseSettings(CASE_DEFINITION_NAME))
-            .thenReturn(CaseDefinitionSettings(CASE_DEFINITION_NAME, false))*/
+        whenever(caseDefinitionService.getLatestCaseDefinition(CASE_DEFINITION_NAME))
+            .thenReturn(
+                CaseDefinition(CaseDefinitionId.of(CASE_DEFINITION_NAME, "1.0.0"),
+                    CASE_DEFINITION_NAME,
+                    false
+                )
+            )
 
         val documentsPage = service.search(CASE_DEFINITION_NAME, searchRequest, pageable)
 
