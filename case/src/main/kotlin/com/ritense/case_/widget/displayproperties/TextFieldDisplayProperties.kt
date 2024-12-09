@@ -14,19 +14,11 @@
  * limitations under the License.
  */
 
-package com.ritense.plugin
+package com.ritense.case_.widget.displayproperties
 
-import com.ritense.valtimo.contract.authentication.UserManagementService
-import org.junit.jupiter.api.Tag
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
+import com.fasterxml.jackson.annotation.JsonTypeName
 
-@SpringBootTest
-@ExtendWith(SpringExtension::class)
-@Tag("integration")
-class BaseIntegrationTest {
-    @MockBean
-    lateinit var userManagementService: UserManagementService
-}
+@JsonTypeName("text")
+data class TextFieldDisplayProperties(
+    val ellipsisCharacterLimit: Int? = null
+) : FieldDisplayProperties

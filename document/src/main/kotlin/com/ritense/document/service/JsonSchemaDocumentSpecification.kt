@@ -15,24 +15,26 @@
  */
 package com.ritense.document.service
 
-import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.authorization.permission.Permission
 import com.ritense.authorization.request.AuthorizationRequest
 import com.ritense.authorization.specification.AuthorizationSpecification
 import com.ritense.authorization.utils.QueryUtils
 import com.ritense.document.domain.impl.JsonSchemaDocument
-import com.ritense.document.service.impl.JsonSchemaDocumentService
+import com.ritense.document.domain.impl.JsonSchemaDocumentId
+import com.ritense.document.repository.impl.JsonSchemaDocumentRepository
 import com.ritense.valtimo.contract.database.QueryDialectHelper
+import jakarta.persistence.EntityNotFoundException
 import jakarta.persistence.criteria.AbstractQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import org.hibernate.query.sqm.function.SelfRenderingSqmAggregateFunction
+import org.springframework.data.repository.findByIdOrNull
+import java.util.UUID
 
 class JsonSchemaDocumentSpecification(
         authRequest: AuthorizationRequest<JsonSchemaDocument>,
         permissions: List<Permission>,
-        private val documentService: JsonSchemaDocumentService,
+        private val documentRepository: JsonSchemaDocumentRepository,
         private val queryDialectHelper: QueryDialectHelper
 ) : AuthorizationSpecification<JsonSchemaDocument>(authRequest, permissions) {
 
@@ -64,9 +66,7 @@ class JsonSchemaDocumentSpecification(
         return combinePredicates(criteriaBuilder, predicates)
     }
 
-    override fun identifierToEntity(identifier: String): JsonSchemaDocument {
-        return runWithoutAuthorization {
-            documentService.get(identifier)
-        }
-    }
+    override fun identifierToEntity(identifier: String) = documentRepository.findByIdOrNull(
+        JsonSchemaDocumentId.existingId(UUID.fromString(identifier))
+    ) ?: throw EntityNotFoundException("Document with id $identifier not found!")
 }

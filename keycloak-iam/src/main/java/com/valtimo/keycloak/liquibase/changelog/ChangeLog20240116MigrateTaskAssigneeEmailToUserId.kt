@@ -16,6 +16,9 @@
 
 package com.valtimo.keycloak.liquibase.changelog
 
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField.USERID
+import com.ritense.valtimo.contract.config.ValtimoProperties.IdentifierField.USERNAME
 import liquibase.change.custom.CustomTaskChange
 import liquibase.database.Database
 import liquibase.database.jvm.JdbcConnection
@@ -33,6 +36,8 @@ import org.springframework.core.env.ConfigurableEnvironment
 import org.springframework.core.env.Environment
 
 class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, EnvironmentPostProcessor {
+
+    private val identifierField by lazy { IdentifierField.fromString(environment.getProperty("valtimo.oauth.identifier-field", USERID.toString())) }
 
     override fun postProcessEnvironment(environment: ConfigurableEnvironment, application: SpringApplication) {
         Companion.environment = environment
@@ -52,14 +57,16 @@ class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, Envi
                 if (!EmailValidationUtil.isValidEmail(taskAssigneeEmail)) {
                     logger.error { "Failed to migrate task assignee. Invalid email: '$taskAssigneeEmail' for task '$taskId'" }
                 } else {
-                    var taskAssigneeUserId: String? = null
                     try {
-                        taskAssigneeUserId = getKeycloakUserIdByEmail(taskAssigneeEmail)
-                    } catch (_: Exception) {
+                        val assigneeValue = getKeycloakUserIdByEmail(taskAssigneeEmail)
+                        updateTaskInDatabase(connection, taskId, assigneeValue)
+                    } catch (_: KeycloakUserNotFoundException) {
                         logger.error { "Could not find user for task '$taskId'. Unknown email: '$taskAssigneeEmail'." +
                             "Unassigning user from task." }
+                        updateTaskInDatabase(connection, taskId, null)
+                    } catch (ex: Exception) {
+                        logger.error(ex) { "Something went wrong when updating assignee for task '$taskId'. Aborting task update."}
                     }
-                    updateTaskInDatabase(connection, taskId, taskAssigneeUserId)
                 }
             }
         }
@@ -82,15 +89,20 @@ class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, Envi
         return ValidationErrors()
     }
 
-    fun getKeycloakUserIdByEmail(email: String): String {
-        val userList = keycloak().use { keycloak ->
+    private fun getKeycloakUserIdByEmail(email: String): String {
+        val user = keycloak().use { keycloak ->
             keycloak.realm(getProperty(KEYCLOAK_REALM_PROPERTY)).users()
                 .search(null, null, null, email, 0, 1, true, true)
+        }.firstOrNull { it.email == email }
+
+        if(user == null) {
+            throw KeycloakUserNotFoundException(email)
         }
-        check(userList.isNotEmpty() && userList[0].email == email) {
-            "Failed to migrate task assignee. No Keycloak user found with email: '$email'"
+
+        return when(identifierField) {
+            USERID -> user.id
+            USERNAME -> user.username
         }
-        return userList[0].id
     }
 
     private fun keycloak(): Keycloak {
@@ -117,6 +129,8 @@ class ChangeLog20240116MigrateTaskAssigneeEmailToUserId : CustomTaskChange, Envi
     private fun getProperty(name: String): String {
         return environment.getProperty(name)!!
     }
+
+    private class KeycloakUserNotFoundException(email: String) : RuntimeException("No Keycloak user found with email: '$email'")
 
 
     companion object {

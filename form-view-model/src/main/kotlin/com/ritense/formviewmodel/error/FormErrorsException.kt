@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package com.ritense.plugin
+package com.ritense.formviewmodel.error
 
-import com.ritense.valtimo.contract.authentication.UserManagementService
-import org.junit.jupiter.api.Tag
-import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.test.context.junit.jupiter.SpringExtension
-
-@SpringBootTest
-@ExtendWith(SpringExtension::class)
-@Tag("integration")
-class BaseIntegrationTest {
-    @MockBean
-    lateinit var userManagementService: UserManagementService
+class FormErrorsException(
+    val componentErrors: List<ComponentError> = emptyList()
+) : Exception() {
+    data class ComponentError(
+        val component: String?,
+        val message: String
+    )
 }

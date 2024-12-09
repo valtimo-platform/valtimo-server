@@ -18,6 +18,7 @@ package com.ritense.processlink.configuration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.authorization.AuthorizationService
+import com.ritense.document.service.DocumentService
 import com.ritense.processlink.autodeployment.ProcessLinkDeploymentApplicationReadyEventListener
 import com.ritense.processlink.domain.SupportedProcessLinkTypeHandler
 import com.ritense.processlink.exporter.ProcessLinkExporter
@@ -34,6 +35,7 @@ import com.ritense.processlink.web.rest.ProcessLinkTaskResource
 import com.ritense.valtimo.autoconfiguration.ValtimoCamundaAutoConfiguration
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
 import com.ritense.valtimo.event.ProcessDefinitionDeployedEvent
+import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -82,14 +84,20 @@ class ProcessLinkAutoConfiguration {
         taskService: CamundaTaskService,
         processLinkActivityHandlers: List<ProcessLinkActivityHandler<*>>,
         authorizationService: AuthorizationService,
-        camundaRepositoryService: CamundaRepositoryService
+        camundaRepositoryService: CamundaRepositoryService,
+        documentService: DocumentService,
+        camundaTaskService: CamundaTaskService,
+        camundaProcessService: CamundaProcessService
     ): ProcessLinkActivityService {
         return ProcessLinkActivityService(
             processLinkService,
             taskService,
             processLinkActivityHandlers,
             authorizationService,
-            camundaRepositoryService
+            camundaRepositoryService,
+            documentService,
+            camundaTaskService,
+            camundaProcessService
         )
     }
 
