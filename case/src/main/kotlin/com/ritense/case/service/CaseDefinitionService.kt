@@ -72,8 +72,11 @@ class CaseDefinitionService(
     }
 
     fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition {
-        // TODO update this to find the latest case definition
-        return caseDefinitionRepository.getReferenceById(CaseDefinitionId.of(caseDefinitionKey, "1.0.0"))
+        val caseDefinitions = caseDefinitionRepository.findAllByIdKey(caseDefinitionKey)
+
+        return caseDefinitions.maxByOrNull {
+            it.id.versionTag
+        }!!
     }
 
     @Throws(UnknownDocumentDefinitionException::class)
