@@ -464,6 +464,28 @@ class ZakenApiClient(
             .toBodilessEntity()
     }
 
+    fun deleteZaakObject(authentication: ZakenApiAuthentication, baseUrl: URI, zaakObjectUrl: URI) {
+        require(zaakObjectUrl.toString().startsWith(baseUrl.toString())) {
+            "zaakObjectUrl '$zaakObjectUrl' does not start with baseUrl '$baseUrl'"
+        }
+        buildRestClient(authentication)
+            .delete()
+            .uri(zaakObjectUrl)
+            .retrieve()
+            .toBodilessEntity()
+    }
+
+    fun deleteZaak(authentication: ZakenApiAuthentication, baseUrl: URI, zaakUrl: URI) {
+        require(zaakUrl.toString().startsWith(baseUrl.toString())) {
+            "zaakUrl '$zaakUrl' does not start with baseUrl '$baseUrl'"
+        }
+        buildRestClient(authentication)
+            .delete()
+            .uri(zaakUrl)
+            .retrieve()
+            .toBodilessEntity()
+    }
+
     fun createZaakObject(
         authentication: ZakenApiAuthentication,
         baseUrl: URI,
