@@ -16,9 +16,10 @@
 
 package com.ritense.case_.domain.definition
 
-import com.ritense.document.domain.InternalCaseStatusId
+import com.ritense.case_.repository.SemverConverter
 import com.ritense.valtimo.contract.domain.AbstractId
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
 import org.semver4j.Semver
 
@@ -26,6 +27,7 @@ import org.semver4j.Semver
 data class CaseDefinitionId(
     @Column(name = "case_definition_key", nullable = false, updatable = false)
     val key: String,
+    @Convert(converter = SemverConverter::class)
     @Column(name = "case_definition_version_tag", nullable = false, updatable = true)
     val versionTag: Semver
 ) : AbstractId<CaseDefinitionId>() {
