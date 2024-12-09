@@ -16,24 +16,35 @@
 
 package com.ritense.case_.domain.definition
 
-import com.ritense.document.domain.InternalCaseStatusId
+import com.ritense.case_.repository.SemverConverter
 import com.ritense.valtimo.contract.domain.AbstractId
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
+import org.semver4j.Semver
 
 @Embeddable
 data class CaseDefinitionId(
     @Column(name = "case_definition_key", nullable = false, updatable = false)
     val key: String,
+    @Convert(converter = SemverConverter::class)
     @Column(name = "case_definition_version_tag", nullable = false, updatable = true)
-    val versionTag: String
+    val versionTag: Semver
 ) : AbstractId<CaseDefinitionId>() {
+
+    constructor(
+        key: String,
+        versionTag: String
+    ) : this(
+        key,
+        Semver.parse(versionTag) ?: throw IllegalArgumentException("Given version '$versionTag' is not a valid Semver version")
+    )
+
     init {
         require(key.isNotBlank()) { "[caseDefinitionId.key] was blank!" }
         require(key.matches(Regex("^[a-zA-Z0-9\\-]+$"))) {
             "[caseDefinitionId.key] contains characters that are not allowed (only alphanumeric characters and dashes)"
         }
-        require(versionTag.isNotBlank()) { "[caseDefinitionId.version] tag was blank!" }
     }
 
     companion object {

@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package com.ritense.case.web.rest.dto
+package com.ritense.case_.repository
 
-import com.ritense.case_.domain.definition.CaseDefinition
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Converter
+import org.semver4j.Semver
 
-data class CaseDefinitionSettingsResponseDto(
-    val caseDefinitionKey: String,
-    val caseDefinitionVersionTag: String,
-    val canHaveAssignee: Boolean,
-    val autoAssignTasks: Boolean,
-) {
-    companion object {
-        fun of(caseDefinition: CaseDefinition) =
-            CaseDefinitionSettingsResponseDto(
-                caseDefinition.id.key,
-                caseDefinition.id.versionTag.version,
-                caseDefinition.canHaveAssignee,
-                caseDefinition.autoAssignTasks
-            )
+@Converter
+class SemverConverter(): AttributeConverter<Semver?, String?> {
+    override fun convertToDatabaseColumn(attribute: Semver?): String? {
+        return attribute?.version
+    }
+
+    override fun convertToEntityAttribute(dbData: String?): Semver? {
+        return Semver.parse(dbData)
     }
 }

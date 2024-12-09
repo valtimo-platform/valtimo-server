@@ -75,4 +75,12 @@
         </sql>
     </changeSet>
 
+    <changeSet id="7" author="Ritense">
+        <addColumn tableName="task_list_column">
+            <column name="case_definition_version_tag" type="VARCHAR(256)" defaultValue="1.0.0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
 </databaseChangeLog>
