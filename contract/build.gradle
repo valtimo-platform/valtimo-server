@@ -34,8 +34,6 @@ dockerCompose {
 }
 
 dependencies {
-    implementation project(":case")
-
     api "org.apache.commons:commons-lang3:${commonsLangVersion}"
     api "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     api "org.zalando:problem-spring-web:${problemSpringWebVersion}"
