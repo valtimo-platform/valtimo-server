@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.ritense.case_.domain.definition
+package com.ritense.valtimo.contract.case_
 
-import com.ritense.case_.repository.SemverConverter
 import com.ritense.valtimo.contract.domain.AbstractId
+import com.ritense.valtimo.contract.repository.SemverConverter
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
@@ -37,7 +37,8 @@ data class CaseDefinitionId(
         versionTag: String
     ) : this(
         key,
-        Semver.parse(versionTag) ?: throw IllegalArgumentException("Given version '$versionTag' is not a valid Semver version")
+        Semver.parse(versionTag)
+            ?: throw IllegalArgumentException("Given version '$versionTag' is not a valid Semver version")
     )
 
     init {

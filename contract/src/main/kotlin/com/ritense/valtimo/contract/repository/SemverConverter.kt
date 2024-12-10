@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.case_.repository
+package com.ritense.valtimo.contract.repository
 
 import jakarta.persistence.AttributeConverter
 import jakarta.persistence.Converter
@@ -29,4 +29,5 @@ class SemverConverter(): AttributeConverter<Semver?, String?> {
     override fun convertToEntityAttribute(dbData: String?): Semver? {
         return Semver.parse(dbData)
     }
+
 }

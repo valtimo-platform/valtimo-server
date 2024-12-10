@@ -17,11 +17,11 @@
 package com.ritense.case_.repository
 
 import com.ritense.case_.domain.definition.CaseDefinition
-import com.ritense.case_.domain.definition.CaseDefinitionId
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 interface CaseDefinitionRepository
     : JpaRepository<CaseDefinition, CaseDefinitionId>, JpaSpecificationExecutor<CaseDefinition> {
-        fun findAllByIdKey(key: String): List<CaseDefinition>
-    }
+    fun findAllByIdKey(key: String): List<CaseDefinition>
+}

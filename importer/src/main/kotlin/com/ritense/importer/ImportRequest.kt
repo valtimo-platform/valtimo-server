@@ -18,7 +18,8 @@ package com.ritense.importer
 
 data class ImportRequest(
     val fileName: String,
-    val content: ByteArray
+    val content: ByteArray,
+    val caseDefinitionId: CaseDefinitionId
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -34,6 +34,8 @@ dockerCompose {
 }
 
 dependencies {
+    implementation project(":case")
+
     api "org.apache.commons:commons-lang3:${commonsLangVersion}"
     api "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     api "org.zalando:problem-spring-web:${problemSpringWebVersion}"
@@ -47,6 +49,7 @@ dependencies {
     api "org.springframework.boot:spring-boot"
     api "org.springframework.data:spring-data-commons"
     api "jakarta.inject:jakarta.inject-api:${jakartaInjectVersion}"
+    api "org.semver4j:semver4j:${semver4jVersion}"
 
     implementation "org.springframework.boot:spring-boot-starter"
     implementation "org.springframework.boot:spring-boot-starter-web"

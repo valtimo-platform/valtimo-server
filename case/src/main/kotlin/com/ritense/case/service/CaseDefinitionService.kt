@@ -20,11 +20,9 @@ import com.ritense.authorization.Action
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.request.EntityAuthorizationRequest
-import com.ritense.case.domain.CaseDefinitionSettings
 import com.ritense.case.exception.InvalidListColumnException
 import com.ritense.case.exception.UnknownCaseDefinitionException
 import com.ritense.case.repository.CaseDefinitionListColumnRepository
-import com.ritense.case.repository.CaseDefinitionSettingsRepository
 import com.ritense.case.service.validations.CreateCaseListColumnValidator
 import com.ritense.case.service.validations.ListColumnValidator
 import com.ritense.case.service.validations.Operation
@@ -33,12 +31,12 @@ import com.ritense.case.web.rest.dto.CaseListColumnDto
 import com.ritense.case.web.rest.dto.CaseSettingsDto
 import com.ritense.case.web.rest.mapper.CaseListColumnMapper
 import com.ritense.case_.domain.definition.CaseDefinition
-import com.ritense.case_.domain.definition.CaseDefinitionId
 import com.ritense.case_.repository.CaseDefinitionRepository
 import com.ritense.document.domain.DocumentDefinition
 import com.ritense.document.exception.UnknownDocumentDefinitionException
 import com.ritense.document.service.DocumentDefinitionService
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import com.ritense.valueresolver.ValueResolverService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -73,7 +71,7 @@ class CaseDefinitionService(
 
     fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition {
         val caseDefinitions = caseDefinitionRepository.findAllByIdKey(caseDefinitionKey)
-
+        //TODO: change this to be done on database level as that should be faster
         return caseDefinitions.maxByOrNull {
             it.id.versionTag
         }!!

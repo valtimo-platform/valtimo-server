@@ -21,7 +21,6 @@ import com.ritense.case.service.CaseDefinitionService
 import com.ritense.case.web.rest.dto.CaseDefinitionSettingsResponseDto
 import com.ritense.case.web.rest.dto.CaseListColumnDto
 import com.ritense.case.web.rest.dto.CaseSettingsDto
-import com.ritense.case_.domain.definition.CaseDefinitionId
 import com.ritense.document.exception.UnknownDocumentDefinitionException
 import com.ritense.exporter.ExportService
 import com.ritense.exporter.request.DocumentDefinitionExportRequest
@@ -29,6 +28,7 @@ import com.ritense.importer.ImportService
 import com.ritense.importer.exception.ImportServiceException
 import com.ritense.logging.LoggableResource
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE
 import mu.KotlinLogging
 import org.springframework.http.MediaType
@@ -145,7 +145,8 @@ class CaseDefinitionResource(
         return ResponseEntity.noContent().build()
     }
 
-    @GetMapping("/management/v1/case/{caseDefinitionName}/{caseDefinitionVersion}/export",
+    @GetMapping(
+        "/management/v1/case/{caseDefinitionName}/{caseDefinitionVersion}/export",
         produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]
     )
     @RunWithoutAuthorization

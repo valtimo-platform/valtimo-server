@@ -79,7 +79,6 @@ dependencies {
     implementation "com.flipkart.zjsonpatch:zjsonpatch:${zjsonpatchVersion}"
     implementation "com.jayway.jsonpath:json-path:${jaywayJsonpathVersion}"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
-    implementation "org.semver4j:semver4j:${semver4jVersion}"
 
     implementation "io.hypersistence:hypersistence-utils-hibernate-62:${hypersistenceUtilsVersion}"
     implementation "org.hibernate.orm:hibernate-core:${hibernateCoreVersion}"
