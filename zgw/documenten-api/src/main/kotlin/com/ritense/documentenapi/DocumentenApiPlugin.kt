@@ -399,13 +399,13 @@ class DocumentenApiPlugin(
         return getUploadField<String?>(metadata, field)?.let { LocalDate.parse(it) }
     }
 
-    private fun getStatusFromMetaData(metadata: Map<String, Any?>): DocumentStatusType {
+    private fun getStatusFromMetaData(metadata: Map<String, Any?>): DocumentStatusType? {
         val status: String? = getUploadField(metadata, STATUS_FIELD)
         return if (status != null) {
             DocumentStatusType.fromKey(status)
                 ?: throw IllegalStateException("Failed to store document. Invalid status '$status' found in metadata.")
         } else {
-            DocumentStatusType.DEFINITIEF
+            null
         }
     }
 
