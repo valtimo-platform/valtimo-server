@@ -37,7 +37,8 @@ data class CaseDefinitionId(
         versionTag: String
     ) : this(
         key,
-        Semver.parse(versionTag) ?: throw IllegalArgumentException("Given version '$versionTag' is not a valid Semver version")
+        Semver.parse(versionTag)
+            ?: throw IllegalArgumentException("Given version '$versionTag' is not a valid Semver version")
     )
 
     init {
@@ -45,6 +46,11 @@ data class CaseDefinitionId(
         require(key.matches(Regex("^[a-zA-Z0-9\\-]+$"))) {
             "[caseDefinitionId.key] contains characters that are not allowed (only alphanumeric characters and dashes)"
         }
+    }
+
+
+    override fun toString(): String {
+        return "${key}-${versionTag}"
     }
 
     companion object {

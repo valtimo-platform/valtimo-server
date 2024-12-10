@@ -16,13 +16,11 @@
 
 package com.ritense.case.service
 
+import CaseDefinitionDto
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.ritense.case_.domain.definition.CaseDefinition
 import com.ritense.case_.repository.CaseDefinitionRepository
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import mu.KotlinLogging
-import org.springframework.core.io.ResourceLoader
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,26 +29,27 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @SkipComponentScan
 class CaseDefinitionDeploymentService(
-    private val resourceLoader: ResourceLoader,
     private val objectMapper: ObjectMapper,
     private val caseDefinitionRepository: CaseDefinitionRepository
 ) {
     fun deploy(fileContent: String, forceDeploy: Boolean = false) {
-        val caseDefinition = objectMapper.readValue<CaseDefinition>(fileContent)
+        val caseDefinitionDto = try {
+            objectMapper.readValue(fileContent, CaseDefinitionDto::class.java)
+        } catch (e: Exception) {
+            throw IllegalArgumentException("Failed to parse file content as a valid case definition: ${e.message}", e)
+        }
 
+        val caseDefinition = caseDefinitionDto.toEntity()
 
-        logger.debug { "Deploying case definition ${caseDefinition.name}" }
-        val caseDefinitionSettings = caseDefinitionRepository.findByIdOrNull(caseDefinition.id)
+        logger.debug { "Deploying case definition with id '${caseDefinition.id}'" }
 
-        if (caseDefinitionSettings == null || forceDeploy) {
-/*            val settingsToDeploy = objectMapper.readValue<ObjectNode>(settingsJson)
-                .put("name", caseDefinitionName)
-            val createdCaseDefinitionSettings: CaseDefinitionSettings = objectMapper.convertValue(settingsToDeploy)*/
+        val existingCaseDefinition = caseDefinitionRepository.findByIdOrNull(caseDefinition.id)
 
+        if (existingCaseDefinition == null || forceDeploy) {
             caseDefinitionRepository.save(caseDefinition)
-            logger.debug { "Case definition ${caseDefinition.name} was created" }
+            logger.debug { "Case definition with id '${caseDefinition.id}' was saved" }
         } else {
-            logger.debug { "Attempted to update settings for case that already exist ${caseDefinition.name}" }
+            logger.debug { "Not deploying case definition with '${caseDefinition.id}', it already exists" }
         }
     }
 

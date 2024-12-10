@@ -26,6 +26,7 @@ import jakarta.persistence.Table
 data class CaseDefinition(
     @EmbeddedId
     val id: CaseDefinitionId, // TODO: Determine if we want to enforce semver for the version tag https://github.com/semver4j/semver4j
+    @Column(name = "case_definition_name")
     val name: String,
     @Column(name = "can_have_assignee")
     val canHaveAssignee: Boolean = false,
