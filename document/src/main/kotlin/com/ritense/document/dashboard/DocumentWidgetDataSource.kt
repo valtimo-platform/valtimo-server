@@ -225,13 +225,14 @@ class DocumentWidgetDataSource(
         criteriaBuilder: CriteriaBuilder
     ): Predicate {
         val valueClass = String::class.java
-
         val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
+        val permissionConditionKey = PermissionConditionKey.fromKey(it.queryValue)?.key
+        val resolvedValue = PermissionConditionValueResolver.resolveValue(permissionConditionKey) as? String ?: ""
 
         return it.queryOperator.toPredicate(
             criteriaBuilder,
             expression,
-            PermissionConditionValueResolver.resolveValue(PermissionConditionKey.fromKey(it.queryValue)?.key) as String
+            resolvedValue
         )
     }
 

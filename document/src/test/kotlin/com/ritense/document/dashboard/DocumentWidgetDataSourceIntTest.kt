@@ -17,6 +17,7 @@
 package com.ritense.document.dashboard
 
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
+import com.ritense.authorization.UserManagementServiceHolder
 import com.ritense.document.BaseIntegrationTest
 import com.ritense.document.domain.impl.JsonDocumentContent
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition
@@ -39,6 +40,8 @@ class DocumentWidgetDataSourceIntTest @Autowired constructor(
 
     @BeforeEach
     fun setup() {
+        UserManagementServiceHolder(userManagementService)
+
         whenever(userManagementService.currentUser.id)
             .thenReturn(mockedUserId)
 
