@@ -1,7 +1,0 @@
-{
-    "key": "all-properties-present",
-    "name": "Case type with all properties",
-    "version-tag": "1.0.0",
-    "canHaveAssignee": true,
-    "autoAssignTasks": true
-}

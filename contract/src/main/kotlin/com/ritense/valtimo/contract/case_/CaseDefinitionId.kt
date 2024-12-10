@@ -48,6 +48,11 @@ data class CaseDefinitionId(
         }
     }
 
+
+    override fun toString(): String {
+        return "${key}-${versionTag}"
+    }
+
     companion object {
         @JvmStatic
         fun of(key: String, versionTag: String): CaseDefinitionId {
