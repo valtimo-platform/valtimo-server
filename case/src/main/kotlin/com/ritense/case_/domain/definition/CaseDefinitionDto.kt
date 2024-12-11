@@ -1,5 +1,5 @@
 import com.ritense.case_.domain.definition.CaseDefinition
-import com.ritense.case_.domain.definition.CaseDefinitionId
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 
 /*
  * Copyright 2015-2024 Ritense BV, the Netherlands.
