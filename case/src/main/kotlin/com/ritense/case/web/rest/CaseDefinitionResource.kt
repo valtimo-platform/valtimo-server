@@ -23,6 +23,7 @@ import com.ritense.case.web.rest.dto.CaseDefinitionSettingsResponseDto
 import com.ritense.case.web.rest.dto.CaseListColumnDto
 import com.ritense.case.web.rest.dto.CaseSettingsDto
 import com.ritense.exporter.ExportService
+import com.ritense.exporter.request.CaseDefinitionExportRequest
 import com.ritense.exporter.request.DocumentDefinitionExportRequest
 import com.ritense.importer.ImportService
 import com.ritense.importer.exception.ImportServiceException
@@ -146,18 +147,18 @@ class CaseDefinitionResource(
     }
 
     @GetMapping(
-        "/management/v1/case/{caseDefinitionName}/{caseDefinitionVersion}/export",
+        "/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/export",
         produces = [MediaType.APPLICATION_OCTET_STREAM_VALUE]
     )
     @RunWithoutAuthorization
     fun getExport(
-        @LoggableResource("documentDefinitionName") @PathVariable caseDefinitionName: String,
-        @PathVariable caseDefinitionVersion: Long,
+        @LoggableResource("caseDefinitionKey") @PathVariable caseDefinitionKey: String,
+        @LoggableResource("caseDefinitionVersionTag") @PathVariable caseDefinitionVersionTag: String,
     ): ResponseEntity<ByteArray> {
         val baos = exportService
-            .export(DocumentDefinitionExportRequest(caseDefinitionName, caseDefinitionVersion))
+            .export(CaseDefinitionExportRequest(caseDefinitionKey, caseDefinitionVersionTag))
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm"))
-        val fileName = "${caseDefinitionName}_${caseDefinitionVersion}_$timestamp.valtimo.zip"
+        val fileName = "${caseDefinitionKey}_${caseDefinitionVersionTag}_$timestamp.valtimo.zip"
         return ResponseEntity
             .ok()
             .header("Content-Disposition", "attachment;filename=$fileName")

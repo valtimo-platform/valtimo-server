@@ -17,6 +17,7 @@
 package com.ritense.case.service
 
 import com.ritense.importer.ImportRequest
+import com.ritense.importer.ValtimoImportTypes.Companion.CASE_DEFINITION
 import com.ritense.importer.ValtimoImportTypes.Companion.DOCUMENT_DEFINITION
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -40,12 +41,12 @@ class CaseDefinitionImporterTest(
 
     @Test
     fun `should be of type 'casesettings'`() {
-        assertThat(importer.type()).isEqualTo("casesettings")
+        assertThat(importer.type()).isEqualTo("casedefinition")
     }
 
     @Test
-    fun `should depend on 'documentdefinition' type`() {
-        assertThat(importer.dependsOn()).isEqualTo(setOf(DOCUMENT_DEFINITION))
+    fun `should not depend on any type`() {
+        assertThat(importer.dependsOn()).isEqualTo(emptySet<String>())
     }
 
     @Test
@@ -74,6 +75,6 @@ class CaseDefinitionImporterTest(
     }
 
     private companion object {
-        const val FILENAME = "config/case/definition/my-case-list.json"
+        const val FILENAME = "config/my-case-list/1-2-3/case/definition/my-case-list.json"
     }
 }

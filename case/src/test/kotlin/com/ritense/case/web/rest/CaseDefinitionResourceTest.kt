@@ -75,7 +75,7 @@ class CaseDefinitionResourceTest {
             .perform(
                 MockMvcRequestBuilders
                     .patch(
-                        "/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/settings",
+                        "/api/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/settings",
                         caseDefinitionId.key,
                         caseDefinitionId.versionTag
                     )
@@ -84,7 +84,9 @@ class CaseDefinitionResourceTest {
             )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("name"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.caseDefinitionKey").value(caseDefinitionId.key))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.caseDefinitionVersionTag")
+                .value(caseDefinitionId.versionTag.version))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(false))
 
@@ -103,7 +105,7 @@ class CaseDefinitionResourceTest {
             .perform(
                 MockMvcRequestBuilders
                     .patch(
-                        "/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/settings",
+                        "/api/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/settings",
                         caseDefinitionId.key,
                         caseDefinitionId.versionTag
                     )
@@ -112,7 +114,9 @@ class CaseDefinitionResourceTest {
             )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("name"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.caseDefinitionKey").value(caseDefinitionId.key))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.caseDefinitionVersionTag")
+                .value(caseDefinitionId.versionTag.version))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(false))
 

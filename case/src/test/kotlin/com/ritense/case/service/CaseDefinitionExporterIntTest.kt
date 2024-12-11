@@ -18,7 +18,11 @@ package com.ritense.case.service
 
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.case.BaseIntegrationTest
+import com.ritense.case_.domain.definition.CaseDefinition
+import com.ritense.case_.repository.CaseDefinitionRepository
+import com.ritense.exporter.request.CaseDefinitionExportRequest
 import com.ritense.exporter.request.DocumentDefinitionExportRequest
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import org.junit.jupiter.api.Test
 import org.skyscreamer.jsonassert.JSONAssert
 import org.skyscreamer.jsonassert.JSONCompareMode
@@ -31,24 +35,38 @@ import org.springframework.util.StreamUtils
 @Transactional(readOnly = true)
 class CaseDefinitionExporterIntTest @Autowired constructor(
     private val resourceLoader: ResourceLoader,
-    private val caseDefinitionExporter: CaseDefinitionExporter
+    private val caseDefinitionExporter: CaseDefinitionExporter,
+    private val caseDefinitionRepository: CaseDefinitionRepository
 ) : BaseIntegrationTest() {
 
     @Test
     fun `should export tabs for case definition`(): Unit = runWithoutAuthorization {
-        val caseDefinitionName = "some-case-type"
+        val caseDefinitionKey = "some-case-type"
+        val caseDefinitionVersionTag = "1.2.3"
 
-        val request = DocumentDefinitionExportRequest(caseDefinitionName, 1)
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    caseDefinitionVersionTag
+                ),
+                "Some case type",
+                true,
+                true
+            )
+        )
+
+        val request = CaseDefinitionExportRequest(caseDefinitionKey, caseDefinitionVersionTag)
         val exportResult = caseDefinitionExporter.export(request)
 
-        val path = PATH.format(caseDefinitionName)
+        val path = PATH.format(caseDefinitionKey, caseDefinitionKey)
         val caseTabsExport = exportResult.exportFiles.singleOrNull {
             it.path == path
         }
         requireNotNull(caseTabsExport)
         val exportJson = caseTabsExport.content.toString(Charsets.UTF_8)
         val expectedJson = ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-            .getResource("classpath:config/case/definition/$caseDefinitionName.json")
+            .getResource("classpath:config/case/definition/$caseDefinitionKey.json")
             .inputStream
             .use { inputStream ->
                 StreamUtils.copyToString(inputStream, Charsets.UTF_8)
@@ -61,6 +79,6 @@ class CaseDefinitionExporterIntTest @Autowired constructor(
     }
 
     companion object {
-        private const val PATH = "config/case/definition/%s.json"
+        private const val PATH = "config/%s/1-2-3/case/definition/%s.json"
     }
 }

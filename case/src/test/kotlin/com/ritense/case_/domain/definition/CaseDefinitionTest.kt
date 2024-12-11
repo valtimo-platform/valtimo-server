@@ -17,29 +17,23 @@
 package com.ritense.case_.domain.definition
 
 import com.ritense.valtimo.contract.case_.CaseDefinitionId
-import jakarta.persistence.Column
-import jakarta.persistence.EmbeddedId
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
-@Entity
-@Table(name = "case_definition")
-data class CaseDefinition(
-    @EmbeddedId
-    val id: CaseDefinitionId,
-    @Column(name = "case_definition_name")
-    val name: String,
-    @Column(name = "can_have_assignee")
-    val canHaveAssignee: Boolean = false,
-    @Column(name = "auto_assign_tasks")
-    val autoAssignTasks: Boolean = false,
-) {
-    init {
-        require(
-            when (autoAssignTasks) {
-                true -> canHaveAssignee
-                else -> true
-            }
-        ) { "Case property [autoAssignTasks] can only be true when [canHaveAssignee] is true." }
+
+class CaseDefinitionTest {
+    @Test
+    fun `should set autoAssignTasks to false when canHaveAssignee is set to false`() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            CaseDefinition(
+                CaseDefinitionId("key", "1.0.0"),
+                "name",
+                canHaveAssignee = false,
+                autoAssignTasks = true
+            )
+        }
+
+        assertEquals(IllegalArgumentException::class.java, exception::class.java)
     }
 }

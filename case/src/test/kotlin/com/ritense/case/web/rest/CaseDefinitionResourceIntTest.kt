@@ -1124,12 +1124,25 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
     fun `should export case definitions as an admin`() {
-        val caseDefinitionName = "house"
-        val caseDefinitionVersion = 1
+        val caseDefinitionKey = "house"
+        val caseDefinitionVersionTag = "1.0.0"
+
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    caseDefinitionVersionTag
+                ),
+                "Name",
+                false,
+                false
+            )
+        )
+
         val result = mockMvc.perform(
             MockMvcRequestBuilders.get(
-                "/api/management/v1/case/{caseDefinitionName}/{caseDefinitionVersion}/export",
-                caseDefinitionName, caseDefinitionVersion
+                "/api/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/export",
+                caseDefinitionKey, caseDefinitionVersionTag
             )
         ).andExpect(status().isOk)
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_OCTET_STREAM_VALUE))
