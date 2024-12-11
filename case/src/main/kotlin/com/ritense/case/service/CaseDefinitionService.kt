@@ -72,7 +72,7 @@ class CaseDefinitionService(
     }
 
     fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition? {
-        return caseDefinitionRepository.findByIdKeyOrderByIdVersionTag(caseDefinitionKey)
+        return caseDefinitionRepository.findFirstByIdKeyOrderByIdVersionTagDesc(caseDefinitionKey)
     }
 
     @Throws(UnknownDocumentDefinitionException::class)
