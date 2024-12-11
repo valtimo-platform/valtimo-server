@@ -1,12 +1,11 @@
 package com.ritense.case.web.rest
 
-import com.ritense.case.domain.CaseDefinitionSettings
 import com.ritense.case.service.CaseDefinitionService
 import com.ritense.case.web.rest.dto.CaseSettingsDto
 import com.ritense.case_.domain.definition.CaseDefinition
-import com.ritense.case_.domain.definition.CaseDefinitionId
 import com.ritense.exporter.ExportService
 import com.ritense.importer.ImportService
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import com.ritense.valtimo.contract.json.MapperSingleton
 import com.ritense.valtimo.contract.utils.TestUtil
 import org.junit.jupiter.api.BeforeEach
@@ -39,36 +38,36 @@ class CaseDefinitionResourceTest {
     }
 
     //TODO: something
-/*    @Test
-    fun `should get case settings`() {
-        val caseDefinitionName = "name"
-        val caseDefinitionSettings = CaseDefinitionSettings(caseDefinitionName, true, false)
+    /*    @Test
+        fun `should get case settings`() {
+            val caseDefinitionName = "name"
+            val caseDefinitionSettings = CaseDefinitionSettings(caseDefinitionName, true, false)
 
-        whenever(service.getCaseSettings(caseDefinitionName)).thenReturn(caseDefinitionSettings)
+            whenever(service.getCaseSettings(caseDefinitionName)).thenReturn(caseDefinitionSettings)
 
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders
-                    .get(
-                        "/api/v1/case/{caseDefinitionName}/settings",
-                        caseDefinitionName
-                    )
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(false))
+            mockMvc
+                .perform(
+                    MockMvcRequestBuilders
+                        .get(
+                            "/api/v1/case/{caseDefinitionName}/settings",
+                            caseDefinitionName
+                        )
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk)
+                .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(false))
 
-        verify(service).getCaseSettings(caseDefinitionName)
-    }*/
+            verify(service).getCaseSettings(caseDefinitionName)
+        }*/
 
     @Test
     fun `should update case settings`() {
         val caseDefinitionId = CaseDefinitionId("key", "1.0.0")
         val caseDefinition = CaseDefinition(caseDefinitionId, "name", true, false)
-        val caseSettingsDto = CaseSettingsDto(false,false)
+        val caseSettingsDto = CaseSettingsDto(false, false)
 
         whenever(service.updateCaseSettings(caseDefinitionId, caseSettingsDto)).thenReturn(caseDefinition)
 
@@ -77,8 +76,8 @@ class CaseDefinitionResourceTest {
                 MockMvcRequestBuilders
                     .patch(
                         "/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/settings",
-                            caseDefinitionId.key,
-                            caseDefinitionId.versionTag
+                        caseDefinitionId.key,
+                        caseDefinitionId.versionTag
                     )
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .content(TestUtil.convertObjectToJsonBytes(caseSettingsDto))

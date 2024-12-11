@@ -16,7 +16,6 @@
 
 package com.ritense.case.web.rest.dto
 
-import com.ritense.case.domain.CaseDefinitionSettings
 import com.ritense.case_.domain.definition.CaseDefinition
 
 data class CaseSettingsDto(

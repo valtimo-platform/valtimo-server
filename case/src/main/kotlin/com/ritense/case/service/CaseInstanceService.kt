@@ -75,7 +75,7 @@ class CaseInstanceService(
 
         if (items.none { it.key == "assigneeFullName" }) {
             val case = caseDefinitionService.getLatestCaseDefinition(document.definitionId().name())
-            if (case.canHaveAssignee) {
+            if (case?.canHaveAssignee == true) {
                 items.add(CaseListRowDto.CaseListItemDto("assigneeFullName", document.assigneeFullName()))
             }
         }
