@@ -16,13 +16,13 @@
 
 package com.ritense.case.service
 
+import CaseDefinitionDto
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.case.web.rest.dto.CaseSettingsDto
 import com.ritense.exporter.ExportFile
 import com.ritense.exporter.ExportPrettyPrinter
 import com.ritense.exporter.ExportResult
 import com.ritense.exporter.Exporter
-import com.ritense.exporter.request.DocumentDefinitionExportRequest
+import com.ritense.exporter.request.CaseDefinitionExportRequest
 import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import org.springframework.transaction.annotation.Transactional
 
@@ -30,30 +30,36 @@ import org.springframework.transaction.annotation.Transactional
 class CaseDefinitionExporter(
     private val objectMapper: ObjectMapper,
     private val caseDefinitionService: CaseDefinitionService
-) : Exporter<DocumentDefinitionExportRequest> {
+) : Exporter<CaseDefinitionExportRequest> {
 
-    override fun supports() = DocumentDefinitionExportRequest::class.java
+    override fun supports() = CaseDefinitionExportRequest::class.java
 
-    override fun export(request: DocumentDefinitionExportRequest): ExportResult {
-        val caseName = request.name
-        val settings = caseDefinitionService.getCaseDefinition(CaseDefinitionId("test", "1.0.0"))
+    override fun export(request: CaseDefinitionExportRequest): ExportResult {
+        val caseDefinitionKey = request.key
+        val caseDefinition = caseDefinitionService.getCaseDefinition(CaseDefinitionId(request.key, request.versionTag))
+        val formattedCaseDefinitionVersion = caseDefinition.id.versionTag.let {
+            "" + it.major + "-" + it.minor + "-" + it.patch
+        }
 
-        val caseTabExport = ExportFile(
-            PATH.format(caseName),
+        val caseDefinitionExport = ExportFile(
+            PATH.format(caseDefinitionKey, formattedCaseDefinitionVersion, caseDefinitionKey),
             objectMapper
                 .writer(ExportPrettyPrinter())
                 .writeValueAsBytes(
-                    CaseSettingsDto(
-                        settings.canHaveAssignee,
-                        settings.autoAssignTasks
+                    CaseDefinitionDto(
+                        caseDefinition.id.key,
+                        caseDefinition.id.versionTag.version,
+                        caseDefinition.name,
+                        caseDefinition.canHaveAssignee,
+                        caseDefinition.autoAssignTasks
                     )
                 )
         )
 
-        return ExportResult(caseTabExport)
+        return ExportResult(caseDefinitionExport) // TODO: Add other files that should be exported too
     }
 
     companion object {
-        private const val PATH = "config/case/definition/%s.json"
+        private const val PATH = "config/%s/%s/case/definition/%s.json"
     }
 }
