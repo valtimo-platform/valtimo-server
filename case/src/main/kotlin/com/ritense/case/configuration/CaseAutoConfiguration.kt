@@ -25,7 +25,6 @@ import com.ritense.case.domain.BooleanDisplayTypeParameter
 import com.ritense.case.domain.DateFormatDisplayTypeParameter
 import com.ritense.case.domain.EnumDisplayTypeParameter
 import com.ritense.case.repository.CaseDefinitionListColumnRepository
-import com.ritense.case.repository.CaseDefinitionSettingsRepository
 import com.ritense.case.repository.CaseTabDocumentDefinitionMapper
 import com.ritense.case.repository.CaseTabRepository
 import com.ritense.case.repository.CaseTabSpecificationFactory
@@ -80,7 +79,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @AutoConfiguration
 @EnableJpaRepositories(
     basePackageClasses = [
-        CaseDefinitionSettingsRepository::class,
+        CaseTabRepository::class,
     ]
 )
 @EntityScan(basePackages = ["com.ritense.case.domain"])

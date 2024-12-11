@@ -69,12 +69,8 @@ class CaseDefinitionService(
         return caseDefinitionRepository.getReferenceById(caseDefinitionId)
     }
 
-    fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition {
-        val caseDefinitions = caseDefinitionRepository.findAllByIdKey(caseDefinitionKey)
-        //TODO: change this to be done on database level as that should be faster
-        return caseDefinitions.maxByOrNull {
-            it.id.versionTag
-        }!!
+    fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition? {
+        return caseDefinitionRepository.findByCaseDefinitionIdKeyOrderByIdVersionTag(caseDefinitionKey)
     }
 
     @Throws(UnknownDocumentDefinitionException::class)

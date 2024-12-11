@@ -23,5 +23,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 interface CaseDefinitionRepository
     : JpaRepository<CaseDefinition, CaseDefinitionId>, JpaSpecificationExecutor<CaseDefinition> {
+    fun findByCaseDefinitionIdKeyOrderByIdVersionTag(key: String): CaseDefinition?
     fun findAllByIdKey(key: String): List<CaseDefinition>
 }
