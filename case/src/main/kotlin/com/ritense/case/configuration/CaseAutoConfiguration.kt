@@ -205,6 +205,7 @@ class CaseAutoConfiguration {
         caseDefinitionRepository: CaseDefinitionRepository
     ): CaseDefinitionDeploymentService {
         return CaseDefinitionDeploymentService(
+            resourceLoader,
             objectMapper,
             caseDefinitionRepository
         )

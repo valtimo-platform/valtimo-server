@@ -38,6 +38,7 @@ import com.ritense.document.service.DocumentDefinitionService
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import com.ritense.valueresolver.ValueResolverService
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.jvm.optionals.getOrNull
@@ -66,11 +67,12 @@ class CaseDefinitionService(
     )
 
     fun getCaseDefinition(caseDefinitionId: CaseDefinitionId): CaseDefinition {
-        return caseDefinitionRepository.getReferenceById(caseDefinitionId)
+        return caseDefinitionRepository.findByIdOrNull(caseDefinitionId)
+            ?: throw UnknownCaseDefinitionException(caseDefinitionId)
     }
 
     fun getLatestCaseDefinition(caseDefinitionKey: String): CaseDefinition? {
-        return caseDefinitionRepository.findByCaseDefinitionIdKeyOrderByIdVersionTag(caseDefinitionKey)
+        return caseDefinitionRepository.findByIdKeyOrderByIdVersionTag(caseDefinitionKey)
     }
 
     @Throws(UnknownDocumentDefinitionException::class)

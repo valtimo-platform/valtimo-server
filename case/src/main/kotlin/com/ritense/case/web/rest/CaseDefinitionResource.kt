@@ -17,11 +17,11 @@
 package com.ritense.case.web.rest
 
 import com.ritense.authorization.annotation.RunWithoutAuthorization
+import com.ritense.case.exception.UnknownCaseDefinitionException
 import com.ritense.case.service.CaseDefinitionService
 import com.ritense.case.web.rest.dto.CaseDefinitionSettingsResponseDto
 import com.ritense.case.web.rest.dto.CaseListColumnDto
 import com.ritense.case.web.rest.dto.CaseSettingsDto
-import com.ritense.document.exception.UnknownDocumentDefinitionException
 import com.ritense.exporter.ExportService
 import com.ritense.exporter.request.DocumentDefinitionExportRequest
 import com.ritense.importer.ImportService
@@ -69,7 +69,7 @@ class CaseDefinitionResource(
                     )
                 )
             )
-        } catch (exception: UnknownDocumentDefinitionException) {
+        } catch (exception: UnknownCaseDefinitionException) {
             ResponseEntity.notFound().build()
         }
     }
@@ -81,7 +81,7 @@ class CaseDefinitionResource(
         @LoggableResource("caseDefinitionVersionTag") @PathVariable caseDefinitionVersionTag: String,
     ): ResponseEntity<CaseDefinitionSettingsResponseDto> = getCaseSettings(caseDefinitionKey, caseDefinitionVersionTag)
 
-    @PatchMapping("/management/v1/case/{caseDefinitionName}/version/{caseDefinitionVersionTag}/settings")
+    @PatchMapping("/management/v1/case/{caseDefinitionKey}/version/{caseDefinitionVersionTag}/settings")
     @RunWithoutAuthorization
     fun updateCaseSettingsForManagement(
         @RequestBody caseSettingsDto: CaseSettingsDto,
@@ -97,7 +97,7 @@ class CaseDefinitionResource(
                     )
                 )
             )
-        } catch (exception: UnknownDocumentDefinitionException) {
+        } catch (exception: UnknownCaseDefinitionException) {
             ResponseEntity.notFound().build()
         }
     }
