@@ -38,7 +38,7 @@ class CaseDefinitionExporter(
         val caseDefinitionKey = request.key
         val caseDefinition = caseDefinitionService.getCaseDefinition(CaseDefinitionId(request.key, request.versionTag))
         val formattedCaseDefinitionVersion = caseDefinition.id.versionTag.let {
-            "" + it.major + "-" + it.minor + "-" + it.patch
+            "${it.major}-${it.minor}-${it.patch}"
         }
 
         val caseDefinitionExport = ExportFile(
