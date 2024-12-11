@@ -18,13 +18,14 @@ package com.ritense.case.web.rest
 
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.case.BaseIntegrationTest
-import com.ritense.case.domain.CaseDefinitionSettings
 import com.ritense.case.domain.ColumnDefaultSort
 import com.ritense.case.repository.CaseDefinitionListColumnRepository
-import com.ritense.case.repository.CaseDefinitionSettingsRepository
+import com.ritense.case_.domain.definition.CaseDefinition
+import com.ritense.case_.repository.CaseDefinitionRepository
 import com.ritense.document.service.DocumentDefinitionService
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.ADMIN
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.USER
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -60,7 +61,7 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
     lateinit var webApplicationContext: WebApplicationContext
 
     @Autowired
-    lateinit var caseDefinitionSettingsRepository: CaseDefinitionSettingsRepository
+    lateinit var caseDefinitionRepository: CaseDefinitionRepository
 
     @Autowired
     lateinit var caseDefinitionListColumnRepository: CaseDefinitionListColumnRepository
@@ -75,23 +76,26 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(username = "user@ritense.com", authorities = [USER])
     fun `should get case settings with default values`() {
-        runWithoutAuthorization {
-            documentDefinitionService.deploy(
-                "" +
-                    "{\n" +
-                    "    \"\$id\": \"resource-test-default.schema\",\n" +
-                    "    \"\$schema\": \"http://json-schema.org/draft-07/schema#\"\n" +
-                    "}\n"
+        val caseDefinitionKey = "resource-test-default"
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    "1.0.0"
+                ),
+                "Name",
+                false,
+                false
             )
-        }
-        val caseDefinitionName = "resource-test-default"
+        )
+
         mockMvc.perform(
             MockMvcRequestBuilders.get(
-                "/api/v1/case/{caseDefinitionName}/settings", caseDefinitionName
+                "/api/v1/case/{caseDefinitionName}/settings", caseDefinitionKey
             ).contentType(MediaType.APPLICATION_JSON_VALUE)
         ).andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionKey))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(false))
             .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(false))
     }
@@ -99,23 +103,25 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
     fun `should get case settings as an admin with default values`() {
-        runWithoutAuthorization {
-            documentDefinitionService.deploy(
-                "" +
-                    "{\n" +
-                    "    \"\$id\": \"resource-test-default.schema\",\n" +
-                    "    \"\$schema\": \"http://json-schema.org/draft-07/schema#\"\n" +
-                    "}\n"
+        val caseDefinitionKey = "resource-test-default"
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    "1.0.0"
+                ),
+                "Name",
+                false,
+                false
             )
-        }
-        val caseDefinitionName = "resource-test-default"
+        )
         mockMvc.perform(
             MockMvcRequestBuilders.get(
-                "/api/management/v1/case/{caseDefinitionName}/settings", caseDefinitionName
+                "/api/management/v1/case/{caseDefinitionName}/settings", caseDefinitionKey
             ).contentType(MediaType.APPLICATION_JSON_VALUE)
         ).andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionKey))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(false))
             .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(false))
     }
@@ -123,128 +129,145 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
     @Deprecated("Since 11.0.0")
     @Test
     fun `should update case settings`() {
-        runWithoutAuthorization {
-            documentDefinitionService.deploy(
-                "" +
-                    "{\n" +
-                    "    \"\$id\": \"resource-test-update.schema\",\n" +
-                    "    \"\$schema\": \"http://json-schema.org/draft-07/schema#\"\n" +
-                    "}\n"
+        val caseDefinitionKey = "resource-test-update"
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    "1.0.0"
+                ),
+                "Name",
+                false,
+                false
             )
-        }
+        )
 
-
-        val caseDefinitionName = "resource-test-update"
         mockMvc.perform(
             MockMvcRequestBuilders
                 .patch(
-                "/api/v1/case/{caseDefinitionName}/settings", caseDefinitionName
+                "/api/v1/case/{caseDefinitionName}/settings", caseDefinitionKey
                 )
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content("{\"canHaveAssignee\": true, \"autoAssignTasks\": true}")
         ).andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionKey))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
-        val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
+        val settingsInDatabase = caseDefinitionRepository.getReferenceById(
+            CaseDefinitionId(
+                caseDefinitionKey,
+                "1.0.0"
+            )
+        )
         assertEquals(true, settingsInDatabase.canHaveAssignee)
-        assertEquals(caseDefinitionName, settingsInDatabase.name)
+        assertEquals(caseDefinitionKey, settingsInDatabase.name)
     }
 
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
     fun `should update case settings as an admin`() {
-        runWithoutAuthorization {
-            documentDefinitionService.deploy(
-                "" +
-                    "{\n" +
-                    "    \"\$id\": \"resource-test-update.schema\",\n" +
-                    "    \"\$schema\": \"http://json-schema.org/draft-07/schema#\"\n" +
-                    "}\n"
+        val caseDefinitionKey = "resource-test-update"
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    "1.0.0"
+                ),
+                "Name",
+                false,
+                false
             )
-        }
+        )
 
-        val caseDefinitionName = "resource-test-update"
         mockMvc.perform(
             MockMvcRequestBuilders
                 .patch(
-                "/api/management/v1/case/{caseDefinitionName}/settings", caseDefinitionName
+                "/api/management/v1/case/{caseDefinitionName}/settings", caseDefinitionKey
                 )
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content("{\"canHaveAssignee\": true, \"autoAssignTasks\": true}")
         ).andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionKey))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
-        val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
+        val settingsInDatabase = caseDefinitionRepository.getReferenceById(
+            CaseDefinitionId(
+                caseDefinitionKey,
+                "1.0.0"
+            )
+        )
         assertEquals(true, settingsInDatabase.canHaveAssignee)
-        assertEquals(caseDefinitionName, settingsInDatabase.name)
+        assertEquals(caseDefinitionKey, settingsInDatabase.id.key)
     }
 
     @Deprecated("Since 11.0.0")
     @Test
     fun `should not update case settings property when it has not been submitted`() {
-        val caseDefinitionName = "resource-test-empty"
-        runWithoutAuthorization {
-            documentDefinitionService.deploy(
-                "{\n" +
-                    "    \"\$id\": \"$caseDefinitionName.schema\",\n" +
-                    "    \"\$schema\": \"http://json-schema.org/draft-07/schema#\"\n" +
-                    "}\n"
+        val caseDefinitionKey = "resource-test-empty"
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    "1.0.0"
+                ),
+                "Name",
+                true,
+                true
             )
-        }
-        val settings = CaseDefinitionSettings(
-            caseDefinitionName,
-            canHaveAssignee = true,
-            autoAssignTasks = true
         )
-        caseDefinitionSettingsRepository.save(settings)
         mockMvc.perform(
             MockMvcRequestBuilders.patch(
-                "/api/v1/case/{caseDefinitionName}/settings", caseDefinitionName
+                "/api/v1/case/{caseDefinitionName}/settings", caseDefinitionKey
             ).contentType(MediaType.APPLICATION_JSON_VALUE).content("{}")
         )
             .andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionKey))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(true))
-        val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
+        val settingsInDatabase = caseDefinitionRepository.getReferenceById(
+            CaseDefinitionId(
+                caseDefinitionKey,
+                "1.0.0"
+            )
+        )
         assertEquals(true, settingsInDatabase.canHaveAssignee)
-        assertEquals(caseDefinitionName, settingsInDatabase.name)
+        assertEquals(caseDefinitionKey, settingsInDatabase.id.key)
     }
 
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
     fun `should not update case settings property as an admin when it has not been submitted`() {
-        val caseDefinitionName = "resource-test-empty"
-        runWithoutAuthorization {
-            documentDefinitionService.deploy(
-                "{\n" +
-                    "    \"\$id\": \"$caseDefinitionName.schema\",\n" +
-                    "    \"\$schema\": \"http://json-schema.org/draft-07/schema#\"\n" +
-                    "}\n"
+        val caseDefinitionKey = "resource-test-empty"
+        caseDefinitionRepository.save(
+            CaseDefinition(
+                CaseDefinitionId(
+                    caseDefinitionKey,
+                    "1.0.0"
+                ),
+                "Name",
+                true,
+                true
             )
-        }
-        val settings = CaseDefinitionSettings(
-            caseDefinitionName,
-            canHaveAssignee = true,
-            autoAssignTasks = true
         )
-        caseDefinitionSettingsRepository.save(settings)
         mockMvc.perform(
             MockMvcRequestBuilders.patch(
-                "/api/management/v1/case/{caseDefinitionName}/settings", caseDefinitionName
+                "/api/management/v1/case/{caseDefinitionName}/settings", caseDefinitionKey
             ).contentType(MediaType.APPLICATION_JSON_VALUE).content("{}")
         )
             .andExpect(status().isOk)
             .andExpect(MockMvcResultMatchers.jsonPath("$").isNotEmpty)
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionName))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(caseDefinitionKey))
             .andExpect(MockMvcResultMatchers.jsonPath("$.canHaveAssignee").value(true))
             .andExpect(MockMvcResultMatchers.jsonPath("$.autoAssignTasks").value(true))
-        val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
+        val settingsInDatabase = caseDefinitionRepository.getReferenceById(
+            CaseDefinitionId(
+                caseDefinitionKey,
+                "1.0.0"
+            )
+        )
         assertEquals(true, settingsInDatabase.canHaveAssignee)
-        assertEquals(caseDefinitionName, settingsInDatabase.name)
+        assertEquals(caseDefinitionKey, settingsInDatabase.id.key)
     }
 
     @Test

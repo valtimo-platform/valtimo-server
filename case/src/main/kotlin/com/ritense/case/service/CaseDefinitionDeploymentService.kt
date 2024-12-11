@@ -21,17 +21,41 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.case_.repository.CaseDefinitionRepository
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import mu.KotlinLogging
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
+import org.springframework.core.io.Resource
+import org.springframework.core.io.ResourceLoader
+import org.springframework.core.io.support.ResourcePatternUtils
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.util.StreamUtils
+import java.nio.charset.StandardCharsets
+
 
 @Transactional
 @Service
 @SkipComponentScan
 class CaseDefinitionDeploymentService(
+    private val resourceLoader: ResourceLoader,
     private val objectMapper: ObjectMapper,
     private val caseDefinitionRepository: CaseDefinitionRepository
 ) {
+
+    @EventListener(ApplicationReadyEvent::class)
+    fun deployOnStartup() {
+        try {
+            loadResources().forEach { resource ->
+                if (resource.filename != null) {
+                    val fileContent = StreamUtils.copyToString(resource.inputStream, StandardCharsets.UTF_8)
+                    deploy(fileContent)
+                }
+            }
+        } catch (e: Exception) {
+            throw RuntimeException("Error deploying Case Definitions", e)
+        }
+    }
+
     fun deploy(fileContent: String, forceDeploy: Boolean = false) {
         val caseDefinitionDto = try {
             objectMapper.readValue(fileContent, CaseDefinitionDto::class.java)
@@ -53,7 +77,12 @@ class CaseDefinitionDeploymentService(
         }
     }
 
+    private fun loadResources(): Array<Resource> {
+        return ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(CASE_DEFINITION_PATH)
+    }
+
     companion object {
         val logger = KotlinLogging.logger {}
+        val CASE_DEFINITION_PATH = "classpath:config/case/definition/*.json"
     }
 }
