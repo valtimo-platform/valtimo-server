@@ -53,55 +53,14 @@ import java.time.LocalDate
 @Service
 @SkipComponentScan
 class DocumentObjectenApiSyncService(
-    private val documentObjectenApiSyncRepository: DocumentObjectenApiSyncRepository,
     private val objectObjectManagementInfoProvider: ObjectManagementInfoProvider,
     private val documentService: DocumentService,
     private val pluginService: PluginService,
-    private val objectSyncService: ObjectSyncService,
     private val zaakUrlProvider: ZaakUrlProvider,
-    private val zaakdetailsObjectService: ZaakdetailsObjectService
+    private val zaakdetailsObjectService: ZaakdetailsObjectService,
+    private val documentObjectenApiSyncManagementService: DocumentObjectenApiSyncManagementService,
+    private val linkZaakdetailsToZaakEnabled: Boolean
 ) {
-    fun getSyncConfiguration(
-        @LoggableResource(resourceType = JsonSchemaDocumentDefinition::class) documentDefinitionName: String,
-        documentDefinitionVersion: Long
-    ): DocumentObjectenApiSync? {
-        logger.debug { "Get sync configuration documentDefinitionName=$documentDefinitionName" }
-        return documentObjectenApiSyncRepository.findByDocumentDefinitionNameAndDocumentDefinitionVersion(
-            documentDefinitionName,
-            documentDefinitionVersion
-        )
-    }
-
-    fun saveSyncConfiguration(sync: DocumentObjectenApiSync) {
-        logger.info { "Save sync configuration documentDefinitionName=${sync.documentDefinitionName}" }
-        val modifiedSync = getSyncConfiguration(sync.documentDefinitionName, sync.documentDefinitionVersion)
-            ?.copy(
-                objectManagementConfigurationId = sync.objectManagementConfigurationId,
-                enabled = sync.enabled
-            )
-            ?: sync
-
-        // Remove old connector configuration
-        objectSyncService.getObjectSyncConfig(sync.documentDefinitionName).content
-            .forEach { objectSyncService.removeObjectSyncConfig(it.id.id) }
-
-        documentObjectenApiSyncRepository.save(modifiedSync)
-    }
-
-    fun deleteSyncConfigurationByDocumentDefinition(
-        @LoggableResource(resourceType = JsonSchemaDocumentDefinition::class) documentDefinitionName: String,
-        documentDefinitionVersion: Long
-    ) {
-        logger.info {
-            """Delete sync configuration documentDefinitionName=$documentDefinitionName
-                documentDefinitionVersion=$documentDefinitionVersion"""
-        }
-        documentObjectenApiSyncRepository.deleteByDocumentDefinitionNameAndDocumentDefinitionVersion(
-            documentDefinitionName,
-            documentDefinitionVersion
-        )
-    }
-
     @EventListener(DocumentCreatedEvent::class)
     fun handleDocumentCreatedEvent(event: DocumentCreatedEvent) {
         logger.info { "handle documentCreatedEvent documentId=${event.documentId()} definitionId=${event.definitionId()}" }
@@ -114,8 +73,23 @@ class DocumentObjectenApiSyncService(
         sync(documentService.get(event.documentId().id.toString()))
     }
 
+    @Deprecated("Since 12.6.0", ReplaceWith("com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncManagementServic.getSyncConfiguration"))
+    fun getSyncConfiguration(documentDefinitionName: String, documentDefinitionVersion: Long): DocumentObjectenApiSync? {
+        return documentObjectenApiSyncManagementService.getSyncConfiguration(documentDefinitionName, documentDefinitionVersion)
+    }
+
+    @Deprecated("Since 12.6.0", ReplaceWith("com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncManagementService.saveSyncConfiguration"))
+    fun saveSyncConfiguration(sync: DocumentObjectenApiSync) {
+        documentObjectenApiSyncManagementService.saveSyncConfiguration(sync)
+    }
+
+    @Deprecated("Since 12.6.0", ReplaceWith("com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncManagementService.deleteSyncConfigurationByDocumentDefinition"))
+    fun deleteSyncConfigurationByDocumentDefinition(documentDefinitionName: String, documentDefinitionVersion: Long) {
+        documentObjectenApiSyncManagementService.deleteSyncConfigurationByDocumentDefinition(documentDefinitionName, documentDefinitionVersion)
+    }
+
     private fun sync(document: Document) {
-        val syncConfiguration = getSyncConfiguration(document.definitionId().name(), document.definitionId().version())
+        val syncConfiguration = documentObjectenApiSyncManagementService.getSyncConfiguration(document.definitionId().name(), document.definitionId().version())
         if (syncConfiguration?.enabled == true) {
             logger.debug { "Sync configuration found for document ${document.id()}" }
             val objectManagementConfiguration =
@@ -167,7 +141,7 @@ class DocumentObjectenApiSyncService(
                 zaakdetailsObjectService.save(zaakdetailsObject)
             }
 
-            if(!zaakdetailsObject.linkedToZaak) {
+            if(!zaakdetailsObject.linkedToZaak && linkZaakdetailsToZaakEnabled) {
                 createZaakObjectIfNotExisting(zaakdetailsObject, checkExistingZaakObjectBeforeCreating)
             }
         }
@@ -229,7 +203,7 @@ class DocumentObjectenApiSyncService(
             }
 
             if(checkExistingZaakObjectBeforeCreating) {
-                val zaakobjectExists = zakenApiPlugin.getZaakObject(zaakUri, zaakdetailsObject.objectURI) == null
+                val zaakobjectExists = zakenApiPlugin.getZaakObject(zaakUri, zaakdetailsObject.objectURI) != null
                 if (!zaakobjectExists) {
                     logger.debug { "Zaakdetails object has not been linked to the Zaak yet" }
                     createZaakObject(zaakUri, zakenApiPlugin, zaakdetailsObject)

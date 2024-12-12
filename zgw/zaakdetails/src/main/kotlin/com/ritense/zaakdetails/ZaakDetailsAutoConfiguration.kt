@@ -22,12 +22,14 @@ import com.ritense.objectsapi.service.ObjectSyncService
 import com.ritense.plugin.service.PluginService
 import com.ritense.valtimo.contract.config.LiquibaseMasterChangeLogLocation
 import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncManagementResource
+import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncManagementService
 import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncRepository
 import com.ritense.zaakdetails.documentobjectenapisync.DocumentObjectenApiSyncService
 import com.ritense.zaakdetails.repository.ZaakdetailsObjectRepository
 import com.ritense.zaakdetails.security.ZaakDetailsHttpSecurityConfigurer
 import com.ritense.zaakdetails.service.ZaakdetailsObjectService
 import com.ritense.zakenapi.ZaakUrlProvider
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -52,35 +54,47 @@ class ZaakDetailsAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(DocumentObjectenApiSyncManagementService::class)
+    fun documentObjectenApiSyncManagementService(
+        documentObjectenApiSyncRepository: DocumentObjectenApiSyncRepository,
+        objectenSyncService: ObjectSyncService
+    ): DocumentObjectenApiSyncManagementService {
+        return DocumentObjectenApiSyncManagementService(
+            documentObjectenApiSyncRepository = documentObjectenApiSyncRepository,
+            objectSyncService = objectenSyncService,
+        )
+    }
+
+    @Bean
     @ConditionalOnMissingBean(DocumentObjectenApiSyncService::class)
     fun documentObjectenApiSyncService(
-        documentObjectenApiSyncRepository: DocumentObjectenApiSyncRepository,
         objectObjectManagementInfoProvider: ObjectManagementInfoProvider,
         documentService: DocumentService,
         pluginService: PluginService,
-        objectSyncService: ObjectSyncService,
         zaakUrlProvider: ZaakUrlProvider,
-        zaakdetailsObjectService: ZaakdetailsObjectService
+        zaakdetailsObjectService: ZaakdetailsObjectService,
+        documentObjectenApiSyncManagementService: DocumentObjectenApiSyncManagementService,
+        @Value("\${valtimo.zgw.zaakdetails.linktozaak.enabled:false}") linkZaakdetailsToZaakEnabled: Boolean
     ): DocumentObjectenApiSyncService {
         return DocumentObjectenApiSyncService(
-            documentObjectenApiSyncRepository,
             objectObjectManagementInfoProvider,
             documentService,
             pluginService,
-            objectSyncService,
             zaakUrlProvider,
-            zaakdetailsObjectService
+            zaakdetailsObjectService,
+            documentObjectenApiSyncManagementService,
+            linkZaakdetailsToZaakEnabled
         )
     }
 
     @Bean
     @ConditionalOnMissingBean(DocumentObjectenApiSyncManagementResource::class)
     fun documentObjectenApiSyncManagementResource(
-        documentObjectenApiSyncService: DocumentObjectenApiSyncService,
+        documentObjectenApiSyncManagementService: DocumentObjectenApiSyncManagementService,
         objectManagementInfoProvider: ObjectManagementInfoProvider,
     ): DocumentObjectenApiSyncManagementResource {
         return DocumentObjectenApiSyncManagementResource(
-            documentObjectenApiSyncService,
+            documentObjectenApiSyncManagementService,
             objectManagementInfoProvider,
         )
     }

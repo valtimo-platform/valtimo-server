@@ -15,6 +15,7 @@ import com.ritense.objectenapi.management.ObjectManagementInfoProvider
 import com.ritense.objectsapi.service.ObjectSyncService
 import com.ritense.objecttypenapi.ObjecttypenApiPlugin
 import com.ritense.plugin.service.PluginService
+import com.ritense.zaakdetails.domain.ZaakdetailsObject
 import com.ritense.zaakdetails.service.ZaakdetailsObjectService
 import com.ritense.zakenapi.ZaakUrlProvider
 import com.ritense.zakenapi.ZakenApiPlugin
@@ -28,6 +29,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import java.net.URI
 import java.util.*
@@ -41,6 +43,7 @@ internal class DocumentObjectenApiSyncServiceTest {
     lateinit var objectSyncService: ObjectSyncService
     lateinit var zaakUrlProvider: ZaakUrlProvider
     lateinit var zaakdetailsObjectService: ZaakdetailsObjectService
+    lateinit var documentObjectenApiSyncManagementService: DocumentObjectenApiSyncManagementService
     lateinit var objectMapper: ObjectMapper
 
     lateinit var objectenApiPlugin: ObjectenApiPlugin
@@ -59,14 +62,15 @@ internal class DocumentObjectenApiSyncServiceTest {
         objectSyncService = mock()
         zaakUrlProvider = mock()
         zaakdetailsObjectService = mock()
+        documentObjectenApiSyncManagementService = mock()
         service = DocumentObjectenApiSyncService(
-            documentObjectenApiSyncRepository = documentObjectenApiSyncRepository,
             objectObjectManagementInfoProvider = objectObjectManagementInfoProvider,
             documentService = documentService,
             pluginService = pluginService,
-            objectSyncService = objectSyncService,
             zaakUrlProvider = zaakUrlProvider,
-            zaakdetailsObjectService = zaakdetailsObjectService
+            zaakdetailsObjectService = zaakdetailsObjectService,
+            documentObjectenApiSyncManagementService = documentObjectenApiSyncManagementService,
+            linkZaakdetailsToZaakEnabled = true
         )
         objectMapper = ObjectMapper()
         objectenApiPlugin = mock()
@@ -86,7 +90,7 @@ internal class DocumentObjectenApiSyncServiceTest {
 
     @Test
     fun `should not sync when sync is not enabled`() {
-        whenever(documentObjectenApiSyncRepository.findByDocumentDefinitionNameAndDocumentDefinitionVersion(any(), any()))
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
             .thenReturn(null)
 
         service.handleDocumentCreatedEvent(documentCreatedEvent)
@@ -95,7 +99,7 @@ internal class DocumentObjectenApiSyncServiceTest {
 
     @Test
     fun `should create object and link to zaak when reference does not exist and object does not exist`() {
-        val documentenApiSync = setupDocumentObjectenApiSync(true)
+        val documentenApiSync = setupDocumentObjectenApiSync()
         val objectWrapper = ObjectWrapper(
             url = URI.create("http://localhost/"),
             uuid = UUID.randomUUID(),
@@ -103,7 +107,7 @@ internal class DocumentObjectenApiSyncServiceTest {
             record = mock<ObjectRecord>()
         )
 
-        whenever(documentObjectenApiSyncRepository.findByDocumentDefinitionNameAndDocumentDefinitionVersion(any(), any()))
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
             .thenReturn(documentenApiSync)
 
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
@@ -139,14 +143,8 @@ internal class DocumentObjectenApiSyncServiceTest {
     }
 
     @Test
-    fun `should update object when reference exists`() {}
-
-    @Test
-    fun `should update object when reference does not exist and object exists`() {}
-
-    @Test
-    fun `should not link to zaak when zaak does not exist`() {
-        val documentenApiSync = setupDocumentObjectenApiSync(true)
+    fun `should update object when reference exists`() {
+        val documentenApiSync = setupDocumentObjectenApiSync()
         val objectWrapper = ObjectWrapper(
             url = URI.create("http://localhost/"),
             uuid = UUID.randomUUID(),
@@ -154,7 +152,88 @@ internal class DocumentObjectenApiSyncServiceTest {
             record = mock<ObjectRecord>()
         )
 
-        whenever(documentObjectenApiSyncRepository.findByDocumentDefinitionNameAndDocumentDefinitionVersion(any(), any()))
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
+            .thenReturn(documentenApiSync)
+
+        whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
+            .thenReturn(URI.create("http://localhost/"))
+
+        whenever(zaakdetailsObjectService.findById(any()))
+            .thenReturn(Optional.of(ZaakdetailsObject(
+                id = UUID.randomUUID(),
+                URI.create("http://localhost/"),
+                linkedToZaak = true
+            )))
+
+        whenever(objectenApiPlugin.objectUpdate(any(), any()))
+            .thenReturn(objectWrapper)
+
+        service.handleDocumentCreatedEvent(documentCreatedEvent)
+        verify(objectenApiPlugin, times(1)).objectUpdate(any(), any())
+        verifyNoMoreInteractions(objectenApiPlugin)
+        verifyNoInteractions(zakenApiPlugin)
+    }
+
+    @Test
+    fun `should update object when reference does not exist and object exists`() {
+        val documentenApiSync = setupDocumentObjectenApiSync()
+        val objectWrapper = ObjectWrapper(
+            url = URI.create("http://localhost/"),
+            uuid = UUID.randomUUID(),
+            type = URI.create("http://localhost/"),
+            record = mock<ObjectRecord>()
+        )
+
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
+            .thenReturn(documentenApiSync)
+
+        whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
+            .thenReturn(URI.create("http://localhost/"))
+
+        whenever(zaakdetailsObjectService.findById(any()))
+            .thenReturn(Optional.empty())
+
+        whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(
+            objecttypesApiUrl = anyOrNull(),
+            objecttypeId = any(),
+            searchString = any(),
+            pageable = anyOrNull(),
+            ordering = anyOrNull()
+        ))
+            .thenReturn(ObjectsList(1, null, null, listOf(objectWrapper)))
+
+        whenever(objectenApiPlugin.objectUpdate(any(), any()))
+            .thenReturn(objectWrapper)
+
+        whenever(zaakUrlProvider.getZaakUrl(any()))
+            .thenReturn(URI.create("http://localhost/"))
+
+        whenever(pluginService.createInstance<ZakenApiPlugin>(any(), any()))
+            .thenReturn(zakenApiPlugin)
+
+        service.handleDocumentCreatedEvent(documentCreatedEvent)
+        verify(objectenApiPlugin, times(1)).getObjectsByObjectTypeIdWithSearchParams(
+            anyOrNull(), any(), any(), anyOrNull(), anyOrNull()
+        )
+        verify(objectenApiPlugin, times(1)).objectUpdate(any(), any())
+        verifyNoMoreInteractions(objectenApiPlugin)
+        verify(zaakdetailsObjectService, times(2)).save(any())
+        verify(zakenApiPlugin, times(1)).getZaakObject(any(), any())
+        verify(zakenApiPlugin, times(1)).createZaakObject(any(), any(), any(), any())
+        verifyNoMoreInteractions(zakenApiPlugin)
+    }
+
+    @Test
+    fun `should not link to zaak when zaak does not exist`() {
+        val documentenApiSync = setupDocumentObjectenApiSync()
+        val objectWrapper = ObjectWrapper(
+            url = URI.create("http://localhost/"),
+            uuid = UUID.randomUUID(),
+            type = URI.create("http://localhost/"),
+            record = mock<ObjectRecord>()
+        )
+
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
             .thenReturn(documentenApiSync)
 
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
@@ -185,7 +264,7 @@ internal class DocumentObjectenApiSyncServiceTest {
 
     @Test
     fun `should not link to zaak when plugin is not configured`() {
-        val documentenApiSync = setupDocumentObjectenApiSync(true)
+        val documentenApiSync = setupDocumentObjectenApiSync()
         val objectWrapper = ObjectWrapper(
             url = URI.create("http://localhost/"),
             uuid = UUID.randomUUID(),
@@ -193,7 +272,7 @@ internal class DocumentObjectenApiSyncServiceTest {
             record = mock<ObjectRecord>()
         )
 
-        whenever(documentObjectenApiSyncRepository.findByDocumentDefinitionNameAndDocumentDefinitionVersion(any(), any()))
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
             .thenReturn(documentenApiSync)
 
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
@@ -223,6 +302,50 @@ internal class DocumentObjectenApiSyncServiceTest {
         service.handleDocumentCreatedEvent(documentCreatedEvent)
         verify(objectenApiPlugin, times(1)).createObject(any())
         verifyNoInteractions(zakenApiPlugin)
+    }
+
+    @Test
+    fun `should not link to zaak when linking is disabled`() {
+        DocumentObjectenApiSyncService(
+            objectObjectManagementInfoProvider = objectObjectManagementInfoProvider,
+            documentService = documentService,
+            pluginService = pluginService,
+            zaakUrlProvider = zaakUrlProvider,
+            zaakdetailsObjectService = zaakdetailsObjectService,
+            documentObjectenApiSyncManagementService = documentObjectenApiSyncManagementService,
+            linkZaakdetailsToZaakEnabled = false
+        )
+
+        val documentenApiSync = setupDocumentObjectenApiSync()
+        val objectWrapper = ObjectWrapper(
+            url = URI.create("http://localhost/"),
+            uuid = UUID.randomUUID(),
+            type = URI.create("http://localhost/"),
+            record = mock<ObjectRecord>()
+        )
+
+        whenever(documentObjectenApiSyncManagementService.getSyncConfiguration(any(), any()))
+            .thenReturn(documentenApiSync)
+
+        whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
+            .thenReturn(URI.create("http://localhost/"))
+
+        whenever(zaakdetailsObjectService.findById(any()))
+            .thenReturn(Optional.empty())
+
+        whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(
+            objecttypesApiUrl = anyOrNull(),
+            objecttypeId = any(),
+            searchString = any(),
+            pageable = anyOrNull(),
+            ordering = anyOrNull()
+        ))
+            .thenReturn(ObjectsList(0, null, null, listOf()))
+
+        whenever(objectenApiPlugin.createObject(any()))
+            .thenReturn(objectWrapper)
+
+        verifyNoInteractions(zaakdetailsObjectService)
     }
 
     private fun setupDocumentCreatedEvent(): DocumentCreatedEvent {
@@ -256,12 +379,12 @@ internal class DocumentObjectenApiSyncServiceTest {
         return document
     }
 
-    private fun setupDocumentObjectenApiSync(enabled: Boolean): DocumentObjectenApiSync {
+    private fun setupDocumentObjectenApiSync(): DocumentObjectenApiSync {
         val documentObjectenApiSync = DocumentObjectenApiSync(
             documentDefinitionName = "test",
             documentDefinitionVersion = 1L,
             objectManagementConfigurationId = UUID.randomUUID(),
-            enabled = enabled
+            enabled = true
         )
 
         return documentObjectenApiSync

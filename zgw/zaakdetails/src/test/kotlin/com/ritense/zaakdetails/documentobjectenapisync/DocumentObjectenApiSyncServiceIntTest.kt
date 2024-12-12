@@ -28,7 +28,9 @@ import com.ritense.zakenapi.domain.ZaakResponse
 import com.ritense.zakenapi.service.ZaakTypeLinkService
 import com.ritense.zakenapi.web.rest.request.CreateZaakTypeLinkRequest
 import com.ritense.zgw.Rsin
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
@@ -38,6 +40,8 @@ import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import java.time.LocalDate
@@ -45,10 +49,14 @@ import java.util.UUID
 import kotlin.test.assertTrue
 
 @Transactional
+@SpringBootTest(properties = ["valtimo.zgw.zaakdetails.linktozaak.enabled=true"])
 class DocumentObjectenApiSyncServiceIntTest : BaseIntegrationTest() {
 
     @Autowired
     lateinit var documentObjectenApiSyncService: DocumentObjectenApiSyncService
+
+    @Autowired
+    lateinit var documentObjectenApiSyncManagementService: DocumentObjectenApiSyncManagementService
 
     @Autowired
     lateinit var documentService: DocumentService
@@ -68,7 +76,7 @@ class DocumentObjectenApiSyncServiceIntTest : BaseIntegrationTest() {
             mock()
         )
 
-        documentObjectenApiSyncService.saveSyncConfiguration(
+        documentObjectenApiSyncManagementService.saveSyncConfiguration(
             DocumentObjectenApiSync(
                 documentDefinitionName = "profile",
                 documentDefinitionVersion = 1,
@@ -122,7 +130,7 @@ class DocumentObjectenApiSyncServiceIntTest : BaseIntegrationTest() {
             mock()
         )
 
-        documentObjectenApiSyncService.saveSyncConfiguration(
+        documentObjectenApiSyncManagementService.saveSyncConfiguration(
             DocumentObjectenApiSync(
                 documentDefinitionName = "profile",
                 documentDefinitionVersion = 1,
@@ -207,7 +215,7 @@ class DocumentObjectenApiSyncServiceIntTest : BaseIntegrationTest() {
             mock()
         )
 
-        documentObjectenApiSyncService.saveSyncConfiguration(
+        documentObjectenApiSyncManagementService.saveSyncConfiguration(
             DocumentObjectenApiSync(
                 documentDefinitionName = "profile",
                 documentDefinitionVersion = 1,
