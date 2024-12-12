@@ -83,6 +83,6 @@ class CaseDefinitionDeploymentService(
 
     companion object {
         val logger = KotlinLogging.logger {}
-        val CASE_DEFINITION_PATH = "classpath:config/case/definition/*.json"
+        const val CASE_DEFINITION_PATH = "classpath:config/*/*/case/definition/*.json"
     }
 }
