@@ -37,12 +37,12 @@ class SemverConverter: AttributeConverter<Semver?, String?> {
                 it.minor,
                 it.patch
             )
-            if (!it.preRelease.isEmpty()) {
-                resultVersion = resultVersion + "-" + java.lang.String.join(".", it.preRelease)
+            if (it.preRelease.isNotEmpty()) {
+                resultVersion = "$resultVersion-${java.lang.String.join(".", it.preRelease)}"
             }
 
-            if (!it.build.isEmpty()) {
-                resultVersion = resultVersion + "+" + java.lang.String.join(".", it.build)
+            if (it.build.isNotEmpty()) {
+                resultVersion = "$resultVersion+${java.lang.String.join(".", it.build)}"
             }
 
             return resultVersion
