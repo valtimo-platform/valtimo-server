@@ -223,12 +223,13 @@ class KeycloakUserManagementServiceTest {
         assertThat(user).isNull();
     }
 
-    private UserRepresentation newUser(String firstName, String lastName, List<String> roles) {
+    private UserRepresentation newUser(String firstName, String lastName, List<String> roles, String username) {
         var user = new UserRepresentation();
         user.setId(Integer.toString(Objects.hash(firstName, lastName, roles)));
         user.setEnabled(true);
         user.setFirstName(firstName);
         user.setLastName(lastName);
+        user.setUsername(username);
         var roleRepresentations = roles.stream()
             .map(role -> new RoleRepresentation(role, role + " description", false))
             .collect(Collectors.toList());
@@ -237,5 +238,9 @@ class KeycloakUserManagementServiceTest {
         when(keycloakService.usersResource(any()).get(user.getId()).roles().clientLevel(any()).listEffective(true))
             .thenReturn(List.of());
         return user;
+    }
+
+    private UserRepresentation newUser(String firstName, String lastName, List<String> roles) {
+        return newUser(firstName, lastName, roles, "username");
     }
 }
