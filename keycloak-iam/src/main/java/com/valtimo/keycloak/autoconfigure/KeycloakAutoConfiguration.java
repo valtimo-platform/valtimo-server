@@ -28,6 +28,7 @@ import com.valtimo.keycloak.security.jwt.provider.KeycloakSecretKeyProvider;
 import com.valtimo.keycloak.service.KeycloakService;
 import com.valtimo.keycloak.service.KeycloakUserManagementService;
 import com.valtimo.keycloak.service.RequestScopeUserCache;
+import com.valtimo.keycloak.service.UserCache;
 import javax.sql.DataSource;
 import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.springframework.beans.factory.annotation.Value;
@@ -127,7 +128,8 @@ public class KeycloakAutoConfiguration {
 
     @Bean
     @RequestScope
-    public RequestScopeUserCache requestScopeUserCache() {
+    @ConditionalOnMissingBean(UserCache.class)
+    public UserCache requestScopeUserCache() {
         return new RequestScopeUserCache();
     }
 

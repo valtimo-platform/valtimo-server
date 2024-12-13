@@ -137,7 +137,7 @@ public class KeycloakUserManagementService implements UserManagementService {
     public Optional<ManageableUser> findByEmail(String email) {
         return Optional.ofNullable(
             requestScopeUserCache.get(
-                RequestScopeUserCache.CacheType.EMAIL,
+                CacheType.EMAIL,
                 email,
                 (emailToRetrieve) -> findUserRepresentationByEmail(emailToRetrieve).map(this::toManageableUserByRetrievingRoles).orElse(null)
             )
@@ -152,7 +152,7 @@ public class KeycloakUserManagementService implements UserManagementService {
     @Override
     public ValtimoUser findByUserIdentifier(String userIdentifier) {
         return requestScopeUserCache.get(
-            RequestScopeUserCache.CacheType.USER_IDENTIFIER,
+            CacheType.USER_IDENTIFIER,
             userIdentifier,
             (identifier) -> {
                 UserRepresentation user = null;

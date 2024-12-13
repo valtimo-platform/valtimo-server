@@ -17,17 +17,14 @@
 package com.valtimo.keycloak.service
 
 import com.ritense.valtimo.contract.annotation.AllOpen
-import com.ritense.valtimo.contract.authentication.ManageableUser
-import com.ritense.valtimo.contract.authentication.model.ValtimoUser
 import mu.KotlinLogging
-import kotlin.reflect.KClass
 
 @AllOpen
 class RequestScopeUserCache(
     private val currentUserCache: MutableMap<CacheType, MutableMap<String, Any?>> = mutableMapOf(),
-) {
+) : UserCache {
     @Suppress("UNCHECKED_CAST")
-    fun <T> get(cacheType: CacheType, key: String, requestFunction: (String) -> T?): T? {
+    override fun <T> get(cacheType: CacheType, key: String, requestFunction: (String) -> T?): T? {
         if (currentUserCache[cacheType] == null) {
             currentUserCache[cacheType] = mutableMapOf()
         }
@@ -42,13 +39,6 @@ class RequestScopeUserCache(
         }
         logger.debug { "Returning user information from cache $cacheType with key $key" }
         return currentUserCache[cacheType]?.get(key) as T?
-    }
-
-    enum class CacheType(
-        val cachedClass: KClass<*>
-    ) {
-        EMAIL(ManageableUser::class),
-        USER_IDENTIFIER(ValtimoUser::class);
     }
 
     companion object {

@@ -28,7 +28,7 @@ import org.mockito.kotlin.verify
 class RequestScopeUserCacheTest {
      @Test
      fun `should return user information from cache`() {
-         val cacheType = RequestScopeUserCache.CacheType.EMAIL
+         val cacheType = CacheType.EMAIL
          val key = "key"
          val expectedResult = mock<ManageableUser>()
          val requestFunction: (String) -> ManageableUser? = { expectedResult }
@@ -42,7 +42,7 @@ class RequestScopeUserCacheTest {
     @Test
     fun `should only call retrieval function once`() {
         // Arrange
-        val cacheType = RequestScopeUserCache.CacheType.EMAIL
+        val cacheType = CacheType.EMAIL
         val key = "key"
         val expectedResult = mock<ManageableUser>()
         val mockRequestFunction = mock<UserRetrievalFunction>()
@@ -62,8 +62,8 @@ class RequestScopeUserCacheTest {
 
     @Test
     fun `should use separate cache for different types`() {
-        val cacheType1 = RequestScopeUserCache.CacheType.EMAIL
-        val cacheType2 = RequestScopeUserCache.CacheType.USER_IDENTIFIER
+        val cacheType1 = CacheType.EMAIL
+        val cacheType2 = CacheType.USER_IDENTIFIER
         val key = "key"
         val mockRequestFunction = mock<UserRetrievalFunction>()
         // need 2 functions because of different return types, but we want to use the same mock to verify it gets called twice
@@ -89,7 +89,7 @@ class RequestScopeUserCacheTest {
 
     @Test
     fun `should only cache expected types`() {
-        val cacheType = RequestScopeUserCache.CacheType.EMAIL
+        val cacheType = CacheType.EMAIL
         val key = "key"
         val requestFunction: (String) -> String? = { key }
         val cache = RequestScopeUserCache()
