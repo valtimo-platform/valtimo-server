@@ -16,12 +16,14 @@
 
 package com.valtimo.keycloak.service
 
+import com.ritense.valtimo.contract.annotation.AllOpen
 import com.ritense.valtimo.contract.authentication.ManageableUser
 import com.ritense.valtimo.contract.authentication.model.ValtimoUser
 import mu.KotlinLogging
 import kotlin.reflect.KClass
 
-open class RequestScopeUserCache(
+@AllOpen
+class RequestScopeUserCache(
     private val currentUserCache: MutableMap<CacheType, MutableMap<String, Any?>> = mutableMapOf(),
 ) {
     @Suppress("UNCHECKED_CAST")
