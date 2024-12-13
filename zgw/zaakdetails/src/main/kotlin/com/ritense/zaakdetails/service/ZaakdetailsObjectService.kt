@@ -7,8 +7,8 @@ import java.util.*
 class ZaakdetailsObjectService(
     private val zaakdetailsObjectRepository: ZaakdetailsObjectRepository
 ) {
-    fun findById(id: UUID): Optional<ZaakdetailsObject> {
-        return zaakdetailsObjectRepository.findById(id)
+    fun findByDocumentId(documentId: UUID): Optional<ZaakdetailsObject> {
+        return zaakdetailsObjectRepository.findById(documentId)
     }
 
     fun save(zaakdetailsObject: ZaakdetailsObject) {

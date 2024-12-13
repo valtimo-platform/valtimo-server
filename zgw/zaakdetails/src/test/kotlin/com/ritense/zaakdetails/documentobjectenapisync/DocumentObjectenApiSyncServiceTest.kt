@@ -113,7 +113,7 @@ internal class DocumentObjectenApiSyncServiceTest {
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
             .thenReturn(URI.create("http://localhost/"))
 
-        whenever(zaakdetailsObjectService.findById(any()))
+        whenever(zaakdetailsObjectService.findByDocumentId(any()))
             .thenReturn(Optional.empty())
 
         whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(
@@ -158,9 +158,9 @@ internal class DocumentObjectenApiSyncServiceTest {
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
             .thenReturn(URI.create("http://localhost/"))
 
-        whenever(zaakdetailsObjectService.findById(any()))
+        whenever(zaakdetailsObjectService.findByDocumentId(any()))
             .thenReturn(Optional.of(ZaakdetailsObject(
-                id = UUID.randomUUID(),
+                documentId = UUID.randomUUID(),
                 URI.create("http://localhost/"),
                 linkedToZaak = true
             )))
@@ -190,7 +190,7 @@ internal class DocumentObjectenApiSyncServiceTest {
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
             .thenReturn(URI.create("http://localhost/"))
 
-        whenever(zaakdetailsObjectService.findById(any()))
+        whenever(zaakdetailsObjectService.findByDocumentId(any()))
             .thenReturn(Optional.empty())
 
         whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(
@@ -239,7 +239,7 @@ internal class DocumentObjectenApiSyncServiceTest {
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
             .thenReturn(URI.create("http://localhost/"))
 
-        whenever(zaakdetailsObjectService.findById(any()))
+        whenever(zaakdetailsObjectService.findByDocumentId(any()))
             .thenReturn(Optional.empty())
 
         whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(
@@ -278,7 +278,7 @@ internal class DocumentObjectenApiSyncServiceTest {
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
             .thenReturn(URI.create("http://localhost/"))
 
-        whenever(zaakdetailsObjectService.findById(any()))
+        whenever(zaakdetailsObjectService.findByDocumentId(any()))
             .thenReturn(Optional.empty())
 
         whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(
@@ -330,7 +330,7 @@ internal class DocumentObjectenApiSyncServiceTest {
         whenever(objecttypenApiPlugin.getObjectTypeUrlById(any()))
             .thenReturn(URI.create("http://localhost/"))
 
-        whenever(zaakdetailsObjectService.findById(any()))
+        whenever(zaakdetailsObjectService.findByDocumentId(any()))
             .thenReturn(Optional.empty())
 
         whenever(objectenApiPlugin.getObjectsByObjectTypeIdWithSearchParams(

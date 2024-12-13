@@ -41,6 +41,7 @@ import com.ritense.zakenapi.domain.rol.RolType
 import com.ritense.zakenapi.event.DocumentLinkedToZaak
 import com.ritense.zakenapi.event.ZaakCreated
 import com.ritense.zakenapi.event.ZaakInformatieObjectenListed
+import com.ritense.zakenapi.event.ZaakObjectViewed
 import com.ritense.zakenapi.event.ZaakObjectenListed
 import com.ritense.zakenapi.event.ZaakOpschortingUpdated
 import com.ritense.zakenapi.event.ZaakPatched
@@ -129,7 +130,9 @@ class ZakenApiClient(
             .retrieve()
             .body<Page<ZaakObject>>()!!
 
-        //TODO: outbox event
+        if(result.results.isNotEmpty()) {
+            outboxService.send { ZaakObjectViewed(objectMapper.valueToTree(result.results.first())) }
+        }
         return result.results.firstOrNull()
     }
 

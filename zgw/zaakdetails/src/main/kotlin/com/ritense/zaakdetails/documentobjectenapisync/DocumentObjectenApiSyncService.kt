@@ -102,7 +102,7 @@ class DocumentObjectenApiSyncService(
             val objectRequest = getObjectRequest(document, objecttypenApiPlugin, objectManagementConfiguration)
 
             val zaakdetailsObject: ZaakdetailsObject;
-            val zaakdetailsObjectOptional = zaakdetailsObjectService.findById(document.id().id)
+            val zaakdetailsObjectOptional = zaakdetailsObjectService.findByDocumentId(document.id().id)
 
             val checkExistingZaakObjectBeforeCreating: Boolean;
 
@@ -121,7 +121,7 @@ class DocumentObjectenApiSyncService(
                     objectenApiPlugin.objectUpdate(existingObjectWrapper.url, objectRequest)
 
                     zaakdetailsObject = ZaakdetailsObject(
-                        id = document.id().id,
+                        documentId = document.id().id,
                         objectURI = existingObjectWrapper.url
                     )
 
@@ -130,7 +130,7 @@ class DocumentObjectenApiSyncService(
                     logger.debug { "Zaakdetails object does not exist yet: create." }
                     val newObjectWrapper = objectenApiPlugin.createObject(objectRequest)
                     zaakdetailsObject = ZaakdetailsObject(
-                        id = document.id().id,
+                        documentId = document.id().id,
                         objectURI = newObjectWrapper.url
                     )
 
@@ -190,7 +190,7 @@ class DocumentObjectenApiSyncService(
     ) {
         logger.debug { "Create Zaakobject. Check if existing: ${checkExistingZaakObjectBeforeCreating}" }
         try {
-            val zaakUri = zaakUrlProvider.getZaakUrl(zaakdetailsObject.id)
+            val zaakUri = zaakUrlProvider.getZaakUrl(zaakdetailsObject.documentId)
 
             val zakenApiPlugin = pluginService.createInstance(
                 ZakenApiPlugin::class.java,
@@ -229,7 +229,7 @@ class DocumentObjectenApiSyncService(
             zaakUrl = zaakUri,
             objectUrl = zaakdetailsObject.objectURI,
             objectTypeOverige = "zaakdetails",
-            documentId = zaakdetailsObject.id
+            documentId = zaakdetailsObject.documentId
         )
     }
 

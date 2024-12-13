@@ -11,8 +11,8 @@ import java.util.UUID
 @Table(name = "zaakdetails_object")
 data class ZaakdetailsObject(
     @Id
-    @Column(name = "id")
-    val id: UUID,
+    @Column(name = "document_id")
+    val documentId: UUID,
 
     @Column(name = "object_url")
     val objectURI: URI,

@@ -20,7 +20,7 @@
 
     <changeSet author="Ritense" id="1">
         <createTable tableName="zaakdetails_object">
-            <column name="id" type="${uuidType}">
+            <column name="document_id" type="${uuidType}">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="zaakdetails_objectPK"/>
             </column>
             <column name="object_url" type="VARCHAR(512)">
