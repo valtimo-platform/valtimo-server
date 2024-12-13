@@ -58,16 +58,16 @@ public class KeycloakUserManagementService implements UserManagementService {
 
     private final KeycloakService keycloakService;
     private final String clientName;
-    private final RequestScopeUserCache requestScopeUserCache;
+    private final UserCache userCache;
 
     public KeycloakUserManagementService(
         KeycloakService keycloakService,
         String keycloakClientName,
-        RequestScopeUserCache requestScopeUserCache
+        UserCache userCache
     ) {
         this.keycloakService = keycloakService;
         this.clientName = keycloakClientName;
-        this.requestScopeUserCache = requestScopeUserCache;
+        this.userCache = userCache;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class KeycloakUserManagementService implements UserManagementService {
     @Override
     public Optional<ManageableUser> findByEmail(String email) {
         return Optional.ofNullable(
-            requestScopeUserCache.get(
+            userCache.get(
                 CacheType.EMAIL,
                 email,
                 (emailToRetrieve) -> findUserRepresentationByEmail(emailToRetrieve).map(this::toManageableUserByRetrievingRoles).orElse(null)
@@ -151,7 +151,7 @@ public class KeycloakUserManagementService implements UserManagementService {
 
     @Override
     public ValtimoUser findByUserIdentifier(String userIdentifier) {
-        return requestScopeUserCache.get(
+        return userCache.get(
             CacheType.USER_IDENTIFIER,
             userIdentifier,
             (identifier) -> {

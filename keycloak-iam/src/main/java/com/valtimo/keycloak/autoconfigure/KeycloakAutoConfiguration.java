@@ -81,9 +81,9 @@ public class KeycloakAutoConfiguration {
     public KeycloakUserManagementService keycloakUserManagementService(
         final KeycloakService keycloakService,
         @Value("#{'${spring.security.oauth2.client.registration.keycloakjwt.client-id:${valtimo.keycloak.client:}}'}") final String keycloakClientName,
-        final RequestScopeUserCache requestScopeUserCache
+        final UserCache userCache
     ) {
-        return new KeycloakUserManagementService(keycloakService, keycloakClientName, requestScopeUserCache);
+        return new KeycloakUserManagementService(keycloakService, keycloakClientName, userCache);
     }
 
     @Bean
