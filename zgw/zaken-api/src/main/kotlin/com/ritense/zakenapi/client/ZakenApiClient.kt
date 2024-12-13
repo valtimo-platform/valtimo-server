@@ -41,6 +41,7 @@ import com.ritense.zakenapi.domain.rol.RolType
 import com.ritense.zakenapi.event.DocumentLinkedToZaak
 import com.ritense.zakenapi.event.ZaakCreated
 import com.ritense.zakenapi.event.ZaakInformatieObjectenListed
+import com.ritense.zakenapi.event.ZaakObjectCreated
 import com.ritense.zakenapi.event.ZaakObjectViewed
 import com.ritense.zakenapi.event.ZaakObjectenListed
 import com.ritense.zakenapi.event.ZaakOpschortingUpdated
@@ -512,7 +513,9 @@ class ZakenApiClient(
 
         result.objectUrl = sanitizeUriHost(result.objectUrl)
 
-        //TODO: outbox event
+        outboxService.send {
+            ZaakObjectCreated(result.url.toString(), objectMapper.valueToTree(result))
+        }
         return result
     }
 

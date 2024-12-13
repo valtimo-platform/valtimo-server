@@ -19,9 +19,9 @@ package com.ritense.zakenapi.event
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.outbox.domain.BaseEvent
 
-class ZaakObjectViewed (zaakobject: ObjectNode) : BaseEvent(
-    type = "com.ritense.gzac.zrc.zaakobject.viewed",
+class ZaakObjectCreated (zaakObjectUrl: String, zaakobject: ObjectNode) : BaseEvent(
+    type = "com.ritense.gzac.zrc.zaakobject.created",
     resultType = "com.ritense.zakenapi.domain.ZaakObject",
-    resultId = null,
+    resultId = zaakObjectUrl,
     result = zaakobject
 )
