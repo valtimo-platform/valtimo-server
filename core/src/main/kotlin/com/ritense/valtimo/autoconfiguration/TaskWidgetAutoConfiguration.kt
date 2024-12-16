@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.ritense.document.dashboard
+package com.ritense.valtimo.autoconfiguration
 
-import com.ritense.valtimo.contract.dashboard.QueryCondition
+import com.ritense.valtimo.camunda.repository.CamundaTaskRepository
+import com.ritense.valtimo.dashboard.TaskWidgetDataSource
+import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.context.annotation.Bean
 
-data class DocumentCountsQueryItem(
-    val label: String,
-    val queryConditions: List<QueryCondition<*>>
-)
-
-data class DocumentCountsDataSourceProperties(
-    val documentDefinition: String,
-    val queryItems: List<DocumentCountsQueryItem>
-)
+@AutoConfiguration
+class TaskWidgetAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean(TaskWidgetDataSource::class)
+    fun taskWidgetDataSource(
+        taskRepository: CamundaTaskRepository
+    ) = TaskWidgetDataSource(taskRepository)
+}

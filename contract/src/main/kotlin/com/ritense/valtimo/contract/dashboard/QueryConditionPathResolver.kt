@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.ritense.document.dashboard
+package com.ritense.valtimo.contract.dashboard
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.ritense.valtimo.contract.repository.ExpressionOperator
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.Expression
+import jakarta.persistence.criteria.Root
 
-data class QueryCondition<T : Comparable<T>>(
-    val queryPath: String,
-    val queryOperator: ExpressionOperator,
-    @JsonDeserialize(using = ComparableDeserializer::class)
-    val queryValue: T
-)
+fun interface QueryConditionPathResolver<T : Comparable<T>> {
+    fun resolve(
+        valueClass: Class<T>,
+        path: String,
+        root: Root<*>,
+        criteriaBuilder: CriteriaBuilder
+    ): Expression<T>
+}

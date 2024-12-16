@@ -16,25 +16,16 @@
 
 package com.ritense.document.dashboard
 
-import PermissionConditionKey
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.ritense.authorization.permission.condition.PermissionConditionValueResolver
-import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.repository.impl.JsonSchemaDocumentRepository
 import com.ritense.document.repository.impl.specification.JsonSchemaDocumentSpecificationHelper.Companion.byDocumentDefinitionIdName
 import com.ritense.valtimo.contract.dashboard.WidgetDataSource
 import com.ritense.valtimo.contract.database.QueryDialectHelper
-import com.ritense.valtimo.contract.repository.ExpressionOperator
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Expression
 import jakarta.persistence.criteria.Path
-import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import org.springframework.expression.spel.standard.SpelExpressionParser
-import org.springframework.expression.spel.support.StandardEvaluationContext
-import java.time.LocalDateTime
-import org.springframework.expression.Expression as SpelExpression
 
 class DocumentWidgetDataSource(
     private val documentRepository: JsonSchemaDocumentRepository,
@@ -49,7 +40,7 @@ class DocumentWidgetDataSource(
         val spec = byCaseSpec.and { root, _, criteriaBuilder ->
             criteriaBuilder.and(
                 *caseCountDataSourceProperties.queryConditions?.map {
-                    createConditionPredicate(root, it, criteriaBuilder)
+                    it.toPredicate(root, criteriaBuilder, this::getPathExpression)
                 }?.toTypedArray() ?: arrayOf()
             )
         }
@@ -59,87 +50,87 @@ class DocumentWidgetDataSource(
         return DocumentCountDataResult(count, total)
     }
 
-    @WidgetDataSource("case-counts", "Case counts")
-    fun getCaseCounts(caseCountsDataSourceProperties: DocumentCountsDataSourceProperties): DocumentCountsDataResult {
-        val items: List<DocumentCountsItem> = caseCountsDataSourceProperties.queryItems.map { queryItem ->
-            val spec = byDocumentDefinitionIdName(caseCountsDataSourceProperties.documentDefinition)
-                .and { root, _, criteriaBuilder ->
-                    criteriaBuilder.and(
-                        *queryItem.queryConditions.map {
-                            createConditionPredicate(root, it, criteriaBuilder)
-                        }.toTypedArray()
-                    )
-                }
-
-            val count = documentRepository.count(spec)
-
-
-            DocumentCountsItem(queryItem.label, count)
-        }
-
-        return DocumentCountsDataResult(items)
-    }
-
-    @WidgetDataSource("case-group-by", "Case group by")
-    fun getCaseGroupBy(caseGroupByDataSourceProperties: DocumentGroupByDataSourceProperties): DocumentGroupByDataResult {
-        val criteriaBuilder: CriteriaBuilder = entityManager.criteriaBuilder
-        val query = criteriaBuilder.createQuery(DocumentGroupByItem::class.java)
-        val root: Root<JsonSchemaDocument> = query.from(JsonSchemaDocument::class.java)
-        val docPredicate = criteriaBuilder.equal(
-            root.get<Any>("documentDefinitionId").get<String>("name"),
-            caseGroupByDataSourceProperties.documentDefinition
-        )
-        val pathIsNotNullPredicate = createConditionPredicate(
-            root,
-            QueryCondition(caseGroupByDataSourceProperties.path, ExpressionOperator.NOT_EQUAL_TO, "\${null}"),
-            criteriaBuilder
-        )
-        // todo: fix null values through getJsonValueExpression
-        val pathIsNotNullStringPredicate = createConditionPredicate(
-            root,
-            QueryCondition(caseGroupByDataSourceProperties.path, ExpressionOperator.NOT_EQUAL_TO, "null"),
-            criteriaBuilder
-        )
-        val conditionPredicates = caseGroupByDataSourceProperties.queryConditions?.map {
-            createConditionPredicate(root, it, criteriaBuilder)
-        }?.toTypedArray() ?: arrayOf()
-        val combinedPredicates =
-            arrayOf(docPredicate, pathIsNotNullPredicate, pathIsNotNullStringPredicate, *conditionPredicates)
-        val groupByExpression =
-            getPathExpression(String::class.java, caseGroupByDataSourceProperties.path, root, criteriaBuilder)
-
-        query
-            .where(*combinedPredicates)
-            .multiselect(
-                groupByExpression,
-                criteriaBuilder.count(root),
-            )
-            .groupBy(groupByExpression)
-
-        val resultList = entityManager.createQuery(query).resultList
-        val result: List<DocumentGroupByItem>;
-
-        if (caseGroupByDataSourceProperties.enum.isNullOrEmpty()) {
-            result = resultList
-        } else {
-            result = resultList.map {
-                val enumValue: String? = caseGroupByDataSourceProperties.enum[it.label]
-                if (enumValue.isNullOrEmpty()) {
-                    it
-                } else {
-                    it.label = enumValue
-                    it
-                }
-            }
-        }
-
-        return DocumentGroupByDataResult(values = result)
-    }
+//    @WidgetDataSource("case-counts", "Case counts")
+//    fun getCaseCounts(caseCountsDataSourceProperties: DocumentCountsDataSourceProperties): DocumentCountsDataResult {
+//        val items: List<DocumentCountsItem> = caseCountsDataSourceProperties.queryItems.map { queryItem ->
+//            val spec = byDocumentDefinitionIdName(caseCountsDataSourceProperties.documentDefinition)
+//                .and { root, _, criteriaBuilder ->
+//                    criteriaBuilder.and(
+//                        *queryItem.queryConditions.map {
+//                            it.toPredicate(root, criteriaBuilder, this::getPathExpression)
+//                        }.toTypedArray()
+//                    )
+//                }
+//
+//            val count = documentRepository.count(spec)
+//
+//
+//            DocumentCountsItem(queryItem.label, count)
+//        }
+//
+//        return DocumentCountsDataResult(items)
+//    }
+//
+//    @WidgetDataSource("case-group-by", "Case group by")
+//    fun getCaseGroupBy(caseGroupByDataSourceProperties: DocumentGroupByDataSourceProperties): DocumentGroupByDataResult {
+//        val criteriaBuilder: CriteriaBuilder = entityManager.criteriaBuilder
+//        val query = criteriaBuilder.createQuery(DocumentGroupByItem::class.java)
+//        val root: Root<JsonSchemaDocument> = query.from(JsonSchemaDocument::class.java)
+//        val docPredicate = criteriaBuilder.equal(
+//            root.get<Any>("documentDefinitionId").get<String>("name"),
+//            caseGroupByDataSourceProperties.documentDefinition
+//        )
+//        val pathIsNotNullPredicate = createConditionPredicate(
+//            root,
+//            QueryCondition(caseGroupByDataSourceProperties.path, ExpressionOperator.NOT_EQUAL_TO, "\${null}"),
+//            criteriaBuilder
+//        )
+//        // todo: fix null values through getJsonValueExpression
+//        val pathIsNotNullStringPredicate = createConditionPredicate(
+//            root,
+//            QueryCondition(caseGroupByDataSourceProperties.path, ExpressionOperator.NOT_EQUAL_TO, "null"),
+//            criteriaBuilder
+//        )
+//        val conditionPredicates = caseGroupByDataSourceProperties.queryConditions?.map {
+//            createConditionPredicate(root, it, criteriaBuilder)
+//        }?.toTypedArray() ?: arrayOf()
+//        val combinedPredicates =
+//            arrayOf(docPredicate, pathIsNotNullPredicate, pathIsNotNullStringPredicate, *conditionPredicates)
+//        val groupByExpression =
+//            getPathExpression(String::class.java, caseGroupByDataSourceProperties.path, root, criteriaBuilder)
+//
+//        query
+//            .where(*combinedPredicates)
+//            .multiselect(
+//                groupByExpression,
+//                criteriaBuilder.count(root),
+//            )
+//            .groupBy(groupByExpression)
+//
+//        val resultList = entityManager.createQuery(query).resultList
+//        val result: List<DocumentGroupByItem>;
+//
+//        if (caseGroupByDataSourceProperties.enum.isNullOrEmpty()) {
+//            result = resultList
+//        } else {
+//            result = resultList.map {
+//                val enumValue: String? = caseGroupByDataSourceProperties.enum[it.label]
+//                if (enumValue.isNullOrEmpty()) {
+//                    it
+//                } else {
+//                    it.label = enumValue
+//                    it
+//                }
+//            }
+//        }
+//
+//        return DocumentGroupByDataResult(values = result)
+//    }
 
     private fun <T> getPathExpression(
         valueClass: Class<T>,
         path: String,
-        root: Root<JsonSchemaDocument>,
+        root: Root<*>,
         criteriaBuilder: CriteriaBuilder
     ): Expression<T> {
         // Prefix defaults to doc: when no prefix is given
@@ -166,104 +157,104 @@ class DocumentWidgetDataSource(
         return expression;
     }
 
-    private fun <T> queryValueIsDateTimeSpelExpression(target: T): Boolean {
-        if (target !is String) {
-            return false
-        }
-
-        val stringTarget = target as String
-
-        return stringTarget.isNotEmpty() &&
-            stringTarget.startsWith("\${") &&
-            stringTarget.endsWith('}') &&
-            stringTarget.contains("localDateTimeNow")
-    }
-
-    private fun getPredicateFromDateTimeSpelExpression(
-        root: Root<JsonSchemaDocument>,
-        it: QueryCondition<String>,
-        criteriaBuilder: CriteriaBuilder
-    ): Predicate {
-        val parser = SpelExpressionParser()
-        val expressionWithoutPrefixSuffix = it.queryValue.substringAfter("\${").substringBefore("}")
-
-        val spelEvaluationContext = DocumentWidgetDataSourceSpelEvaluationContext()
-        val context = StandardEvaluationContext()
-
-        context.setRootObject(spelEvaluationContext)
-
-        val spelExpression: SpelExpression = parser.parseExpression(expressionWithoutPrefixSuffix)
-
-        val valueClass = LocalDateTime::class.java
-        val value = spelExpression.getValue(context, valueClass)
-
-        val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
-
-        return it.queryOperator.toPredicate(
-            criteriaBuilder,
-            expression,
-            value
-        )
-    }
-
-    private fun <T> queryValueIsPermissionConditionValueExpression(target: T): Boolean {
-        if (target !is String) {
-            return false
-        }
-
-        val stringTarget = target as String
-
-        return stringTarget.isNotEmpty() &&
-            PermissionConditionKey.isValidKey(stringTarget) &&
-            // roles is a list and is currently not supported
-            PermissionConditionKey.fromKey(stringTarget) != PermissionConditionKey.CURRENT_USER_ROLES
-    }
-
-    private fun getPredicateFromPermissionConditionExpression(
-        root: Root<JsonSchemaDocument>,
-        it: QueryCondition<String>,
-        criteriaBuilder: CriteriaBuilder
-    ): Predicate {
-        val valueClass = String::class.java
-        val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
-        val permissionConditionKey = PermissionConditionKey.fromKey(it.queryValue)?.key
-        val resolvedValue = PermissionConditionValueResolver.resolveValue(permissionConditionKey) as? String ?: ""
-
-        return it.queryOperator.toPredicate(
-            criteriaBuilder,
-            expression,
-            resolvedValue
-        )
-    }
-
-    private fun <T : Comparable<T>> createConditionPredicate(
-        root: Root<JsonSchemaDocument>,
-        it: QueryCondition<T>,
-        criteriaBuilder: CriteriaBuilder
-    ): Predicate {
-        if (queryValueIsDateTimeSpelExpression(it.queryValue)) {
-            return getPredicateFromDateTimeSpelExpression(root, it as QueryCondition<String>, criteriaBuilder)
-        }
-
-        if (queryValueIsPermissionConditionValueExpression(it.queryValue)) {
-            return getPredicateFromPermissionConditionExpression(root, it as QueryCondition<String>, criteriaBuilder)
-        }
-
-        val queryValue = if (it.queryValue == "\${null}") {
-            null
-        } else {
-            it.queryValue
-        }
-
-        val valueClass = it.queryValue::class.java as Class<T>
-        val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
-
-        return it.queryOperator.toPredicate(
-            criteriaBuilder,
-            expression,
-            queryValue
-        )
-    }
+//    private fun <T> queryValueIsDateTimeSpelExpression(target: T): Boolean {
+//        if (target !is String) {
+//            return false
+//        }
+//
+//        val stringTarget = target as String
+//
+//        return stringTarget.isNotEmpty() &&
+//            stringTarget.startsWith("\${") &&
+//            stringTarget.endsWith('}') &&
+//            stringTarget.contains("localDateTimeNow")
+//    }
+//
+//    private fun getPredicateFromDateTimeSpelExpression(
+//        root: Root<JsonSchemaDocument>,
+//        it: QueryCondition<String>,
+//        criteriaBuilder: CriteriaBuilder
+//    ): Predicate {
+//        val parser = SpelExpressionParser()
+//        val expressionWithoutPrefixSuffix = it.queryValue.substringAfter("\${").substringBefore("}")
+//
+//        val spelEvaluationContext = DocumentWidgetDataSourceSpelEvaluationContext()
+//        val context = StandardEvaluationContext()
+//
+//        context.setRootObject(spelEvaluationContext)
+//
+//        val spelExpression: SpelExpression = parser.parseExpression(expressionWithoutPrefixSuffix)
+//
+//        val valueClass = LocalDateTime::class.java
+//        val value = spelExpression.getValue(context, valueClass)
+//
+//        val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
+//
+//        return it.queryOperator.toPredicate(
+//            criteriaBuilder,
+//            expression,
+//            value
+//        )
+//    }
+//
+//    private fun <T> queryValueIsPermissionConditionValueExpression(target: T): Boolean {
+//        if (target !is String) {
+//            return false
+//        }
+//
+//        val stringTarget = target as String
+//
+//        return stringTarget.isNotEmpty() &&
+//            PermissionConditionKey.isValidKey(stringTarget) &&
+//            // roles is a list and is currently not supported
+//            PermissionConditionKey.fromKey(stringTarget) != PermissionConditionKey.CURRENT_USER_ROLES
+//    }
+//
+//    private fun getPredicateFromPermissionConditionExpression(
+//        root: Root<JsonSchemaDocument>,
+//        it: QueryCondition<String>,
+//        criteriaBuilder: CriteriaBuilder
+//    ): Predicate {
+//        val valueClass = String::class.java
+//        val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
+//        val permissionConditionKey = PermissionConditionKey.fromKey(it.queryValue)?.key
+//        val resolvedValue = PermissionConditionValueResolver.resolveValue(permissionConditionKey) as? String ?: ""
+//
+//        return it.queryOperator.toPredicate(
+//            criteriaBuilder,
+//            expression,
+//            resolvedValue
+//        )
+//    }
+//
+//    private fun <T : Comparable<T>> createConditionPredicate(
+//        root: Root<JsonSchemaDocument>,
+//        it: QueryCondition<T>,
+//        criteriaBuilder: CriteriaBuilder
+//    ): Predicate {
+//        if (queryValueIsDateTimeSpelExpression(it.queryValue)) {
+//            return getPredicateFromDateTimeSpelExpression(root, it as QueryCondition<String>, criteriaBuilder)
+//        }
+//
+//        if (queryValueIsPermissionConditionValueExpression(it.queryValue)) {
+//            return getPredicateFromPermissionConditionExpression(root, it as QueryCondition<String>, criteriaBuilder)
+//        }
+//
+//        val queryValue = if (it.queryValue == "\${null}") {
+//            null
+//        } else {
+//            it.queryValue
+//        }
+//
+//        val valueClass = it.queryValue::class.java as Class<T>
+//        val expression = getPathExpression(valueClass, it.queryPath, root, criteriaBuilder)
+//
+//        return it.queryOperator.toPredicate(
+//            criteriaBuilder,
+//            expression,
+//            queryValue
+//        )
+//    }
 
     companion object {
         private const val DOC_PREFIX = "doc:"

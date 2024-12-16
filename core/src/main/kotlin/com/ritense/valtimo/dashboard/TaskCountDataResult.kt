@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package com.ritense.document.dashboard
+package com.ritense.valtimo.dashboard
 
-import com.ritense.valtimo.contract.dashboard.QueryCondition
+import com.ritense.valtimo.contract.dashboard.feature.HasNumberValue
+import com.ritense.valtimo.contract.dashboard.feature.HasTotal
 
-data class DocumentCountsQueryItem(
-    val label: String,
-    val queryConditions: List<QueryCondition<*>>
-)
-
-data class DocumentCountsDataSourceProperties(
-    val documentDefinition: String,
-    val queryItems: List<DocumentCountsQueryItem>
-)
+class TaskCountDataResult(
+    override val value: Long,
+    override val total: Long,
+) : HasNumberValue, HasTotal
