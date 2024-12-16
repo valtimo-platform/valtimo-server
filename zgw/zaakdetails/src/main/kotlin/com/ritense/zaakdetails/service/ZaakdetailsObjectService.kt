@@ -18,7 +18,8 @@ package com.ritense.zaakdetails.service
 
 import com.ritense.zaakdetails.domain.ZaakdetailsObject
 import com.ritense.zaakdetails.repository.ZaakdetailsObjectRepository
-import java.util.*
+import java.util.Optional
+import java.util.UUID
 
 class ZaakdetailsObjectService(
     private val zaakdetailsObjectRepository: ZaakdetailsObjectRepository

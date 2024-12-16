@@ -26,7 +26,7 @@ data class ZaakObject(
     @JsonProperty("zaak")
     val zaakUrl: URI,
     @JsonProperty("object")
-    var objectUrl: URI,
+    val objectUrl: URI,
     val objectType: String,
     val objectTypeOverige: String?,
     val relatieomschrijving: String?

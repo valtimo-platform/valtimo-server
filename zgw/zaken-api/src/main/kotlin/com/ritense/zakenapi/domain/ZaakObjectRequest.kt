@@ -18,7 +18,6 @@ package com.ritense.zakenapi.domain
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.net.URI
-import java.util.*
 
 data class ZaakObjectRequest (
     @JsonProperty("zaak")

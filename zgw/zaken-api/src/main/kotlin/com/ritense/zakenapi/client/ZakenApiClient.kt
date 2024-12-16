@@ -498,7 +498,7 @@ class ZakenApiClient(
         validateUrlHost(baseUrl, request.zaakUrl)
         request.objectUrl = sanitizeUriHost(request.objectUrl)
 
-        val result = buildRestClient(authentication)
+        var result = buildRestClient(authentication)
             .post()
             .uri {
                 ClientTools.baseUrlToBuilder(it, baseUrl)
@@ -511,7 +511,7 @@ class ZakenApiClient(
             .retrieve()
             .body<ZaakObject>()!!
 
-        result.objectUrl = sanitizeUriHost(result.objectUrl)
+        result = result.copy(objectUrl = sanitizeUriHost(result.objectUrl))
 
         outboxService.send {
             ZaakObjectCreated(result.url.toString(), objectMapper.valueToTree(result))
