@@ -34,74 +34,6 @@ data class QueryCondition<T : Comparable<T>>(
     @JsonDeserialize(using = ComparableDeserializer::class)
     val queryValue: T
 ) {
-    private fun <T> queryValueIsNull(target: T): Boolean {
-        return target == "\${null}"
-    }
-
-    private fun queryValueIsDateTimeSpelExpression(target: Any?): Boolean {
-        return (target as? String)?.let {
-            it.isNotEmpty() && it.startsWith("\${") && it.endsWith('}') && "localDateTimeNow" in it
-        } ?: false
-    }
-
-    private fun getPredicateFromDateTimeSpelExpression(
-        root: Root<*>,
-        it: QueryCondition<String>,
-        criteriaBuilder: CriteriaBuilder,
-        pathExpressionFunction: (Class<T>, String, Root<*>, CriteriaBuilder) -> Expression<T>
-    ): Predicate {
-        val parser = SpelExpressionParser()
-        val expressionWithoutPrefixSuffix = it.queryValue.substringAfter("\${").substringBefore("}")
-
-        val spelEvaluationContext = WidgetDataSourceSpelEvaluationContext()
-        val context = StandardEvaluationContext()
-
-        context.setRootObject(spelEvaluationContext)
-
-        val spelExpression: org.springframework.expression.Expression =
-            parser.parseExpression(expressionWithoutPrefixSuffix)
-
-        val valueClass = LocalDateTime::class.java
-
-        val value = spelExpression.getValue(context, valueClass)
-
-        val expression =
-            pathExpressionFunction(valueClass as Class<T>, it.queryPath, root, criteriaBuilder)
-
-        return it.queryOperator.toPredicate(
-            criteriaBuilder,
-            expression,
-            value as T
-        )
-    }
-
-    private fun <T> queryValueIsCurrentUserExpression(target: T): Boolean {
-        return (target as? String)?.let {
-            it.isNotEmpty() &&
-                PermissionConditionKey.isValidKey(it) &&
-                // roles is a list and is currently not supported
-                PermissionConditionKey.fromKey(it) != PermissionConditionKey.CURRENT_USER_ROLES
-        } ?: false
-    }
-
-    private fun getPredicateFromCurrentUserExpression(
-        root: Root<*>,
-        it: QueryCondition<String>,
-        criteriaBuilder: CriteriaBuilder,
-        pathExpressionFunction: (Class<T>, String, Root<*>, CriteriaBuilder) -> Expression<T>
-    ): Predicate {
-        val valueClass = String::class.java
-        val expression = pathExpressionFunction(valueClass as Class<T>, it.queryPath, root, criteriaBuilder)
-        val permissionConditionKey = PermissionConditionKey.fromKey(it.queryValue)?.key
-        val resolvedValue = CurrentUserExpressionHandler.resolveValue(permissionConditionKey) as? String ?: ""
-
-        return it.queryOperator.toPredicate(
-            criteriaBuilder,
-            expression,
-            resolvedValue as T
-        )
-    }
-
 
     fun toPredicate(
         root: Root<*>,
@@ -113,7 +45,6 @@ data class QueryCondition<T : Comparable<T>>(
         if (queryValueIsDateTimeSpelExpression(queryValue)) {
             return getPredicateFromDateTimeSpelExpression(
                 root,
-                this as QueryCondition<String>,
                 criteriaBuilder,
                 pathExpressionFunction
             )
@@ -122,7 +53,6 @@ data class QueryCondition<T : Comparable<T>>(
         if (queryValueIsCurrentUserExpression(queryValue)) {
             return getPredicateFromCurrentUserExpression(
                 root,
-                this as QueryCondition<String>,
                 criteriaBuilder,
                 pathExpressionFunction
             )
@@ -142,6 +72,74 @@ data class QueryCondition<T : Comparable<T>>(
             criteriaBuilder,
             expression,
             predicateQueryValue
+        )
+    }
+
+    private fun <T> queryValueIsNull(target: T): Boolean {
+        return target == "\${null}"
+    }
+
+    private fun queryValueIsDateTimeSpelExpression(target: Any?): Boolean {
+        return (target as? String)?.let {
+            it.isNotEmpty() && it.startsWith("\${") && it.endsWith('}') && "localDateTimeNow" in it
+        } ?: false
+    }
+
+    private fun getPredicateFromDateTimeSpelExpression(
+        root: Root<*>,
+        criteriaBuilder: CriteriaBuilder,
+        pathExpressionFunction: (Class<T>, String, Root<*>, CriteriaBuilder) -> Expression<T>
+    ): Predicate {
+        val queryCondition = this as QueryCondition<String>;
+        val parser = SpelExpressionParser()
+        val expressionWithoutPrefixSuffix = queryCondition.queryValue.substringAfter("\${").substringBefore("}")
+
+        val spelEvaluationContext = WidgetDataSourceSpelEvaluationContext()
+        val context = StandardEvaluationContext()
+
+        context.setRootObject(spelEvaluationContext)
+
+        val spelExpression: org.springframework.expression.Expression =
+            parser.parseExpression(expressionWithoutPrefixSuffix)
+
+        val valueClass = LocalDateTime::class.java
+
+        val value = spelExpression.getValue(context, valueClass)
+
+        val expression =
+            pathExpressionFunction(valueClass as Class<T>, queryCondition.queryPath, root, criteriaBuilder)
+
+        return queryCondition.queryOperator.toPredicate(
+            criteriaBuilder,
+            expression,
+            value as T
+        )
+    }
+
+    private fun <T> queryValueIsCurrentUserExpression(target: T): Boolean {
+        return (target as? String)?.let {
+            it.isNotEmpty() &&
+                PermissionConditionKey.isValidKey(it) &&
+                // roles is a list and is currently not supported
+                PermissionConditionKey.fromKey(it) != PermissionConditionKey.CURRENT_USER_ROLES
+        } ?: false
+    }
+
+    private fun getPredicateFromCurrentUserExpression(
+        root: Root<*>,
+        criteriaBuilder: CriteriaBuilder,
+        pathExpressionFunction: (Class<T>, String, Root<*>, CriteriaBuilder) -> Expression<T>
+    ): Predicate {
+        val queryCondition = this as QueryCondition<String>;
+        val valueClass = String::class.java
+        val expression = pathExpressionFunction(valueClass as Class<T>, queryCondition.queryPath, root, criteriaBuilder)
+        val permissionConditionKey = PermissionConditionKey.fromKey(queryCondition.queryValue)?.key
+        val resolvedValue = CurrentUserExpressionHandler.resolveValue(permissionConditionKey) as? String ?: ""
+
+        return queryCondition.queryOperator.toPredicate(
+            criteriaBuilder,
+            expression,
+            resolvedValue as T
         )
     }
 }

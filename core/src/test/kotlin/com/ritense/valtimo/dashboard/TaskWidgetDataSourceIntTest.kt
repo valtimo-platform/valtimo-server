@@ -16,7 +16,6 @@
 
 package com.ritense.document.dashboard
 
-import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.valtimo.BaseIntegrationTest
 import com.ritense.valtimo.contract.authorization.UserManagementServiceHolder
 import com.ritense.valtimo.contract.dashboard.QueryCondition
@@ -116,20 +115,24 @@ class TaskWidgetDataSourceIntTest @Autowired constructor(
     fun `should filter tasks created within the last minute`() {
         createTask()
 
-        val properties = TaskCountDataSourceProperties(
-            queryConditions = listOf(
-                QueryCondition(
-                    "task:createTime",
-                    ExpressionOperator.GREATER_THAN,
-                    "\${localDateTimeNow.minusMinutes(1)}"
-                )
+        Thread.sleep(2000)
+
+        createTask()
+
+        val queryConditions = listOf(
+            QueryCondition(
+                "task:createTime",
+                ExpressionOperator.GREATER_THAN,
+                "\${localDateTimeNow.minusSeconds(1)}"
             )
         )
+
+        val properties = TaskCountDataSourceProperties(queryConditions = queryConditions)
 
         val result = taskWidgetDataSource.getTaskCount(properties)
 
         assertThat(result.value).isEqualTo(1)
-        assertThat(result.total).isEqualTo(1)
+        assertThat(result.total).isEqualTo(2)
     }
 
     @Test
@@ -189,10 +192,6 @@ class TaskWidgetDataSourceIntTest @Autowired constructor(
         task.setAssignee(assignee)
 
         camundaTaskService.saveTask(task)
-
-        return runWithoutAuthorization {
-            camundaTaskService.saveTask(task)
-        }
     }
 
     companion object {
