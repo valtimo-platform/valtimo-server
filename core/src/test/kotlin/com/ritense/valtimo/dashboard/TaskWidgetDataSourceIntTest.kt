@@ -112,7 +112,7 @@ class TaskWidgetDataSourceIntTest @Autowired constructor(
     }
 
     @Test
-    fun `should hande local date time now filter`() {
+    fun `should handle local date time now filter`() {
         createTask()
 
         Thread.sleep(2000)
