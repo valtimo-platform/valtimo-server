@@ -18,19 +18,28 @@ package com.ritense.case.repository
 
 import com.ritense.case.domain.TaskListColumn
 import com.ritense.case.domain.TaskListColumnId
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface TaskListColumnRepository : JpaRepository<TaskListColumn, TaskListColumnId> {
-    fun findByIdCaseDefinitionNameAndIdKey(caseDefinitionName: String, key: String): TaskListColumn?
-    fun findByIdCaseDefinitionNameOrderByOrderAsc(caseDefinitionName: String): List<TaskListColumn>
+    fun findByIdCaseDefinitionIdAndIdKey(caseDefinitionId: CaseDefinitionId, key: String): TaskListColumn?
+    fun findByIdCaseDefinitionIdOrderByOrderAsc(caseDefinitionId: CaseDefinitionId): List<TaskListColumn>
 
-    @Query("SELECT MAX(tlc.order) FROM TaskListColumn tlc WHERE tlc.id.caseDefinitionName = :caseDefinitionName")
-    fun findMaxOrderByIdCaseDefinitionName(@Param("caseDefinitionName") caseDefinitionName: String): Int?
+    @Query(
+        "SELECT MAX(tlc.order) " +
+        "FROM TaskListColumn tlc " +
+        "WHERE tlc.id.caseDefinitionId = :caseDefinitionId"
+    )
+    fun findMaxOrderByIdCaseDefinitionId(@Param("caseDefinitionId") caseDefinitionId: CaseDefinitionId): Int?
 
     @Modifying
-    @Query("UPDATE TaskListColumn tlc SET tlc.order = tlc.order - 1 WHERE tlc.id.caseDefinitionName = :caseDefinitionName AND tlc.order > :order")
-    fun decrementOrderDueToColumnDeletion(@Param("caseDefinitionName") caseDefinitionName: String, @Param("order") order: Int)
+    @Query(
+        "UPDATE TaskListColumn tlc " +
+        "SET tlc.order = tlc.order - 1 " +
+        "WHERE tlc.id.caseDefinitionId = :caseDefinitionId AND tlc.order > :order"
+    )
+    fun decrementOrderDueToColumnDeletion(@Param("caseDefinitionId") caseDefinitionId: CaseDefinitionId, @Param("order") order: Int)
 }

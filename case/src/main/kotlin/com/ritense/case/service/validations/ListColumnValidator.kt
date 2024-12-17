@@ -16,10 +16,12 @@
 
 package com.ritense.case.service.validations
 
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
+
 interface ListColumnValidator<T> {
 
-    fun validate(caseDefinitionName: String, caseListColumnDto: T)
+    fun validate(caseDefinitionId: CaseDefinitionId, caseListColumnDto: T)
 
-    fun validate(caseDefinitionName: String, caseListColumnDtoList: List<T>)
+    fun validate(caseDefinitionId: CaseDefinitionId, caseListColumnDtoList: List<T>)
 
 }

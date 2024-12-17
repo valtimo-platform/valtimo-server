@@ -16,14 +16,16 @@
 
 package com.ritense.case.domain
 
+import com.ritense.valtimo.contract.case_.CaseDefinitionId
 import com.ritense.valtimo.contract.domain.AbstractId
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
+import jakarta.persistence.Embedded
 
 @Embeddable
 data class TaskListColumnId(
-    @Column(name = "case_definition_name")
-    val caseDefinitionName: String,
+    @Embedded
+    val caseDefinitionId: CaseDefinitionId,
     @Column(name = "column_key")
     val key: String
 ) : AbstractId<TaskListColumnId>()

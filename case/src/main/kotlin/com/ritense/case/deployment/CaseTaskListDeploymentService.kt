@@ -47,6 +47,10 @@ class CaseTaskListDeploymentService(
     }
 
     override fun getChangelogDetails(filename: String, content: String): List<ChangesetDetails> {
+        // basePath[1] is caseDefinitionName, basePath[2] is caseDefinitionVersionTag
+        val basePath = Regex("config(/[^/]+){2}/").find(filename)?.groups?.first()?.value?.split('/')
+        // do search for caseDefinition based on caseDefinitionName and caseDefinitionVersionTag
+
         val changeset = objectMapper.readValue<TaskListChangeset>(content)
         return listOf(
             ChangesetDetails(
