@@ -112,7 +112,7 @@ class TaskWidgetDataSourceIntTest @Autowired constructor(
     }
 
     @Test
-    fun `should filter tasks created within the last minute`() {
+    fun `should hande local date time now filter`() {
         createTask()
 
         Thread.sleep(2000)
