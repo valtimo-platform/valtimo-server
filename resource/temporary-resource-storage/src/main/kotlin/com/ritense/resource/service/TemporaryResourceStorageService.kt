@@ -65,7 +65,8 @@ class TemporaryResourceStorageService(
         val dataFile = BufferedInputStream(inputStream).use { bis ->
             if (uploadProperties.acceptedMimeTypes.isNotEmpty()) {
                 //Tika marks the stream, reads the first few bytes and resets it when done.
-                val mediaType = Tika().detect(bis)
+                // The mediatype will only contain the mimetype, any extra parameters are stripped off
+                val mediaType = Tika().detect(bis).split(";")[0].trim()
                 if (!uploadProperties.acceptedMimeTypes.contains(mediaType)) {
                     throw MimeTypeDeniedException("$mediaType is not whitelisted for uploads.")
                 }
@@ -83,6 +84,28 @@ class TemporaryResourceStorageService(
         metaDataFile.toFile().writeText(objectMapper.writeValueAsString(metaDataContent))
 
         return metaDataFile.nameWithoutExtension
+    }
+
+    /**
+     * This method can be used to enrich the metadata before it is handled.
+     */
+    fun patchResourceMetaData(id: String, metaData: Map<String, Any?>) {
+        require(!metaData.containsKey(MetadataType.FILE_PATH.key)) { "${MetadataType.FILE_PATH.key} cannot be patched!" }
+
+        val metaDataFile = getMetaDataFileFromResourceId(id)
+        require(!metaDataFile.notExists()) { "No resource found with id '$id'" }
+
+        val originalMetaData = getMetadataFromFile(id, false)
+        // Since the metadata does not allow null values, this code removes the key when the value is null
+        val newMetaData = (originalMetaData + metaData)
+            .mapNotNull { (key, value) -> if (value != null) Pair(key, value) else null }
+            .toMap()
+
+        writeMetaDataFile(metaDataFile, newMetaData)
+    }
+
+    private fun writeMetaDataFile(file: Path, metaDataContent: Map<String, Any>) {
+        file.toFile().writeText(objectMapper.writeValueAsString(metaDataContent))
     }
 
     fun deleteResource(id: String): Boolean {
@@ -121,13 +144,13 @@ class TemporaryResourceStorageService(
             getMetadataFromFile(id)
     }
 
-    internal fun getMetadataFromFile(id: String): Map<String, Any> {
+    internal fun getMetadataFromFile(id: String, filterPath: Boolean = true): Map<String, Any> {
         val metaDataFile = getMetaDataFileFromResourceId(id)
         if (metaDataFile.notExists()) {
             return emptyMap()
         }
         return objectMapper.readValue<Map<String, Any>>(metaDataFile.readText())
-            .filter { it.key != MetadataType.FILE_PATH.key }
+            .filter { !filterPath || it.key != MetadataType.FILE_PATH.key }
     }
 
     internal fun getMetadataFilePath(id: String): String {

@@ -19,6 +19,8 @@ package com.ritense.valtimo.formflow.mapper
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.exporter.request.ExportRequest
 import com.ritense.exporter.request.FormFlowDefinitionExportRequest
+import com.ritense.form.domain.FormDisplayType
+import com.ritense.form.domain.FormSizes
 import com.ritense.formflow.service.FormFlowService
 import com.ritense.logging.withLoggingContext
 import com.ritense.processlink.autodeployment.ProcessLinkDeployDto
@@ -72,6 +74,7 @@ class FormFlowProcessLinkMapper(
                 formFlowDefinitionId = processLink.formFlowDefinitionId,
                 formDisplayType = processLink.formDisplayType,
                 formSize = processLink.formSize,
+                subtitles = processLink.subtitles,
             )
         }
     }
@@ -87,6 +90,7 @@ class FormFlowProcessLinkMapper(
                 formFlowDefinitionId = deployDto.formFlowDefinitionId,
                 formDisplayType = deployDto.formDisplayType,
                 formSize = deployDto.formSize,
+                subtitles = deployDto.subtitles,
             )
         }
     }
@@ -100,7 +104,10 @@ class FormFlowProcessLinkMapper(
 
             FormFlowProcessLinkUpdateRequestDto(
                 id = existingProcessLinkId,
-                formFlowDefinitionId = deployDto.formFlowDefinitionId
+                formFlowDefinitionId = deployDto.formFlowDefinitionId,
+                formDisplayType = deployDto.formDisplayType,
+                formSize = deployDto.formSize,
+                subtitles = deployDto.subtitles,
             )
         }
     }
@@ -116,6 +123,7 @@ class FormFlowProcessLinkMapper(
                 formFlowDefinitionId = "${processLink.formFlowDefinitionId.substringBeforeLast(":")}:latest",
                 formDisplayType = processLink.formDisplayType,
                 formSize = processLink.formSize,
+                subtitles = processLink.subtitles,
             )
         }
     }
@@ -132,8 +140,9 @@ class FormFlowProcessLinkMapper(
                 activityId = createRequestDto.activityId,
                 activityType = createRequestDto.activityType,
                 formFlowDefinitionId = createRequestDto.formFlowDefinitionId,
-                formDisplayType = createRequestDto.formDisplayType,
-                formSize = createRequestDto.formSize,
+                formDisplayType = createRequestDto.formDisplayType ?: FormDisplayType.modal,
+                formSize = createRequestDto.formSize ?: FormSizes.medium,
+                subtitles = createRequestDto.subtitles ?: emptyList(),
             )
         }
     }
@@ -153,8 +162,9 @@ class FormFlowProcessLinkMapper(
                 activityId = processLinkToUpdate.activityId,
                 activityType = processLinkToUpdate.activityType,
                 formFlowDefinitionId = updateRequestDto.formFlowDefinitionId,
-                formDisplayType = updateRequestDto.formDisplayType,
-                formSize = updateRequestDto.formSize,
+                formDisplayType = updateRequestDto.formDisplayType ?: FormDisplayType.modal,
+                formSize = updateRequestDto.formSize ?: FormSizes.medium,
+                subtitles = updateRequestDto.subtitles ?: emptyList(),
             )
         }
     }
