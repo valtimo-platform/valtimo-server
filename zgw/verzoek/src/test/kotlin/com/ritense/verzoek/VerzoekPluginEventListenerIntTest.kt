@@ -370,7 +370,7 @@ internal class VerzoekPluginEventListenerIntTest : BaseIntegrationTest() {
             verzoekPluginEventListener.createZaakFromNotificatie(createEvent())
         }
         //assertions
-        assertEquals("VerzoekObject /record/data is empty!", exception.message)
+        assertEquals("VerzoekObject /record/data cannot be found!", exception.message)
     }
 
     @Test
@@ -442,7 +442,7 @@ internal class VerzoekPluginEventListenerIntTest : BaseIntegrationTest() {
             verzoekPluginEventListener.createZaakFromNotificatie(createEvent())
         }
         //assertions
-        assertEquals("VerzoekObject /record/data/data is empty! For verzoek with type 'objection'", exception.message)
+        assertEquals("VerzoekObject /record/data/data cannot be found! For verzoek with type 'objection'", exception.message)
     }
 
     private fun createObjectWrapper(withMetaData: Boolean, withType: String, withObjectData: Boolean): ObjectWrapper {

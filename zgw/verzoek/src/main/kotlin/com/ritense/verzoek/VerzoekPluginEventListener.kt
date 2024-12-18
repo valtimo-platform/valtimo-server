@@ -99,7 +99,7 @@ class VerzoekPluginEventListener(
             val verzoekObjectWrapper = getVerzoekObject(objectManagement, event)
             val verzoekObject = objectMapper.valueToTree<ObjectNode>(verzoekObjectWrapper)
             val verzoekObjectData = verzoekObjectWrapper.record.data as ObjectNode?
-                ?: throw NotificatiesNotificationEventException("VerzoekObject /record/data is empty!")
+                ?: throw NotificatiesNotificationEventException("VerzoekObject /record/data cannot be found!")
             val verzoekTypeProperties = getVerzoekTypeProperties(verzoekObjectData, event)
             if (verzoekTypeProperties == null) {
                 val verzoekType = verzoekObjectData["type"]?.textValue()
@@ -149,7 +149,7 @@ class VerzoekPluginEventListener(
             verzoekObject.at(path.substringAfterLast("object:"))
         } else {
             val verzoekDataData = verzoekObject["record"]["data"]["data"] ?: throw NotificatiesNotificationEventException(
-                "VerzoekObject /record/data/data is empty! For verzoek with type '${verzoekObject["type"]}'"
+                "VerzoekObject /record/data/data cannot be found! For verzoek with type '${verzoekObject["type"]}'"
             )
             verzoekDataData.at(path)
         }
@@ -229,7 +229,7 @@ class VerzoekPluginEventListener(
         verzoekObject: ObjectNode
     ): JsonNode {
         val verzoekDataData = verzoekObject["record"]["data"]["data"] ?: throw NotificatiesNotificationEventException(
-            "VerzoekObject /record/data/data is empty! For verzoek with type '${verzoekTypeProperties.type}'"
+            "VerzoekObject /record/data/data cannot be found! For verzoek with type '${verzoekTypeProperties.type}'"
         )
 
         logger.debug { "Building document content for verzoek type '${verzoekTypeProperties.type}'" }
