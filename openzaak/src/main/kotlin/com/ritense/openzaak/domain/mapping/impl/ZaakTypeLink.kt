@@ -37,7 +37,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.hibernate.annotations.Type
 import org.hibernate.validator.constraints.Length
 import org.springframework.data.domain.Persistable

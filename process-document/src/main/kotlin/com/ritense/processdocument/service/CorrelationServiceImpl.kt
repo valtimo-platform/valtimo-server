@@ -24,10 +24,10 @@ import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificat
 import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byLatestVersion
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
 import com.ritense.valtimo.camunda.service.CamundaRuntimeService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.runtime.MessageCorrelationResult
-import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.runtime.MessageCorrelationResult
+import org.operaton.bpm.engine.runtime.ProcessInstance
 
 class CorrelationServiceImpl(
     val runtimeService: RuntimeService,

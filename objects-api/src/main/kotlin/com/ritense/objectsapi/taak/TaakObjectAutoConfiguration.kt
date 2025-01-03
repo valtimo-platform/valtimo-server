@@ -28,7 +28,7 @@ import com.ritense.valtimo.service.CamundaTaskService
 import com.ritense.valueresolver.ValueResolverService
 import com.ritense.zakenapi.provider.BsnProvider
 import com.ritense.zakenapi.provider.KvkProvider
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

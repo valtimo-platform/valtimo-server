@@ -28,8 +28,8 @@ import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificat
 import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byVersion
 import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byVersionTag
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.model.bpmn.instance.CallActivity
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.model.bpmn.instance.CallActivity
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service

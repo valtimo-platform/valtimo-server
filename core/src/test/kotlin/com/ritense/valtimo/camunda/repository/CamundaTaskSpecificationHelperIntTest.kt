@@ -2,9 +2,9 @@ package com.ritense.valtimo.camunda.repository
 
 import com.ritense.valtimo.BaseIntegrationTest
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.TaskService
-import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState
-import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.operaton.bpm.engine.TaskService
+import org.operaton.bpm.engine.impl.persistence.entity.SuspensionState
+import org.operaton.bpm.engine.runtime.ProcessInstance
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

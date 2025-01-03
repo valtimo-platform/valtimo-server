@@ -29,8 +29,8 @@ import com.ritense.valtimo.camunda.repository.CamundaVariableInstanceSpecificati
 import com.ritense.valtimo.camunda.repository.CamundaVariableInstanceSpecificationHelper.Companion.byNameIn
 import com.ritense.valtimo.camunda.repository.CamundaVariableInstanceSpecificationHelper.Companion.byProcessInstanceId
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.runtime.ProcessInstance
 import org.springframework.data.domain.Sort
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service

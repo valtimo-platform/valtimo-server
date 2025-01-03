@@ -17,8 +17,8 @@
 package com.ritense.valtimo.service;
 
 import com.ritense.valtimo.camunda.domain.CamundaTask;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.operaton.bpm.engine.RepositoryService;
+import org.operaton.bpm.model.bpmn.BpmnModelInstance;
 
 public class BpmnModelService {
 
@@ -28,7 +28,7 @@ public class BpmnModelService {
         this.repositoryService = repositoryService;
     }
 
-    public org.camunda.bpm.model.bpmn.instance.Task getTask(CamundaTask task) {
+    public org.operaton.bpm.model.bpmn.instance.Task getTask(CamundaTask task) {
         final BpmnModelInstance bpmnModelInstance = repositoryService.getBpmnModelInstance(task.getProcessDefinitionId());
         return bpmnModelInstance.getModelElementById(task.getTaskDefinitionKey());
     }

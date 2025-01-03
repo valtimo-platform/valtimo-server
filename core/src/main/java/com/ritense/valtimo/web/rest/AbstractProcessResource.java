@@ -44,11 +44,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.impl.util.IoUtil;
-import org.camunda.bpm.engine.rest.dto.repository.ProcessDefinitionDiagramDto;
-import org.camunda.bpm.model.bpmn.instance.FlowNode;
-import org.camunda.bpm.model.bpmn.instance.Task;
+import org.operaton.bpm.engine.RepositoryService;
+import org.operaton.bpm.engine.impl.util.IoUtil;
+import org.operaton.bpm.engine.rest.dto.repository.ProcessDefinitionDiagramDto;
+import org.operaton.bpm.model.bpmn.instance.FlowNode;
+import org.operaton.bpm.model.bpmn.instance.Task;
 
 public abstract class AbstractProcessResource {
 

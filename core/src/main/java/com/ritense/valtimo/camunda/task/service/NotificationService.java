@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.camunda.task.service;
 
-import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.delegate.DelegateTask;
 
 public interface NotificationService {
 

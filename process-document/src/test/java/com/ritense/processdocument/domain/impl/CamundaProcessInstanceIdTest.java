@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 import com.ritense.processdocument.domain.ProcessInstanceId;
 import java.util.UUID;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
+import org.operaton.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -25,8 +25,8 @@ import static org.mockito.Mockito.when;
 import com.ritense.valtimo.contract.config.LiquibaseRunner;
 import java.sql.SQLException;
 import liquibase.exception.DatabaseException;
-import org.camunda.bpm.engine.impl.db.PersistenceSession;
-import org.camunda.bpm.engine.impl.interceptor.CommandContext;
+import org.operaton.bpm.engine.impl.db.PersistenceSession;
+import org.operaton.bpm.engine.impl.interceptor.CommandContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

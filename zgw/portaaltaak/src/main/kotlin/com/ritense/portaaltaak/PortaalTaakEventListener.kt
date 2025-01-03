@@ -38,8 +38,8 @@ import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import com.ritense.valueresolver.ValueResolverService
 import mu.KotlinLogging
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.delegate.VariableScope
 import org.springframework.context.event.EventListener
 import org.springframework.transaction.annotation.Transactional
 import java.net.MalformedURLException

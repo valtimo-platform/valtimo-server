@@ -16,7 +16,7 @@
 
 package com.ritense.valueresolver
 
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.UUID
 
 interface ValueResolverService {

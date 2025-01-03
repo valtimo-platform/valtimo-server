@@ -59,8 +59,8 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.validation.ValidationException
 import jakarta.validation.Validator
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateTask
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.env.Environment
 import org.springframework.data.repository.findByIdOrNull

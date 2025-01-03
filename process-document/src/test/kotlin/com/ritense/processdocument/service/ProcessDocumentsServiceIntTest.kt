@@ -28,8 +28,8 @@ import com.ritense.processdocument.repository.ProcessDocumentInstanceRepository
 import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byName
 import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
-import org.camunda.bpm.engine.ProcessEngineException
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.ProcessEngineException
+import org.operaton.bpm.engine.RuntimeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

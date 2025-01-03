@@ -20,8 +20,8 @@ import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
 import com.ritense.valtimo.camunda.dto.CamundaTaskDto;
 import java.util.List;
 import java.util.Map;
-import org.camunda.bpm.engine.form.FormField;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.operaton.bpm.engine.form.FormField;
+import org.operaton.bpm.engine.runtime.ProcessInstance;
 
 public class CustomTaskDto {
 

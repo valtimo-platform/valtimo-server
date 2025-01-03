@@ -24,8 +24,8 @@ import com.ritense.document.service.DocumentService
 import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.smartdocuments.domain.DocumentFormatOption
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperties
 
 @Deprecated("Since 12.0.0")
 class CamundaSmartDocumentGenerator(

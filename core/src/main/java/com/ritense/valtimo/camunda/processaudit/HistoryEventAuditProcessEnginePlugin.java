@@ -18,12 +18,12 @@ package com.ritense.valtimo.camunda.processaudit;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.camunda.bpm.engine.ProcessEngine;
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
-import org.camunda.bpm.engine.impl.history.handler.CompositeHistoryEventHandler;
-import org.camunda.bpm.engine.impl.history.handler.DbHistoryEventHandler;
-import org.camunda.bpm.engine.impl.history.handler.HistoryEventHandler;
+import org.operaton.bpm.engine.ProcessEngine;
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.operaton.bpm.engine.impl.cfg.ProcessEnginePlugin;
+import org.operaton.bpm.engine.impl.history.handler.CompositeHistoryEventHandler;
+import org.operaton.bpm.engine.impl.history.handler.DbHistoryEventHandler;
+import org.operaton.bpm.engine.impl.history.handler.HistoryEventHandler;
 import org.springframework.context.ApplicationEventPublisher;
 
 public class HistoryEventAuditProcessEnginePlugin implements ProcessEnginePlugin {

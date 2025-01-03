@@ -29,7 +29,7 @@ import com.ritense.openzaak.catalogi.CatalogiClient
 import com.ritense.openzaak.service.ZaakTypeLinkService
 import com.ritense.resource.service.OpenZaakService
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
-import org.camunda.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RepositoryService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.boot.autoconfigure.AutoConfiguration

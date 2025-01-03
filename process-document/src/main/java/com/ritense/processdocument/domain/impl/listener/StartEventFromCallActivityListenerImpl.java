@@ -21,12 +21,12 @@ import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId;
 import com.ritense.processdocument.domain.listener.StartEventFromCallActivityListener;
 import com.ritense.processdocument.service.ProcessDocumentAssociationService;
 import java.util.UUID;
-import org.camunda.bpm.engine.ActivityTypes;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener;
-import org.camunda.bpm.model.bpmn.impl.instance.ProcessImpl;
+import org.operaton.bpm.engine.ActivityTypes;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.delegate.ExecutionListener;
+import org.operaton.bpm.extension.reactor.bus.CamundaSelector;
+import org.operaton.bpm.extension.reactor.spring.listener.ReactorExecutionListener;
+import org.operaton.bpm.model.bpmn.impl.instance.ProcessImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

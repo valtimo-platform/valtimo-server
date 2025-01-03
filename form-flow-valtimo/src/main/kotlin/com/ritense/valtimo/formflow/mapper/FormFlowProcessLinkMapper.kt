@@ -38,7 +38,7 @@ import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkCreateReques
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkExportResponseDto
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkResponseDto
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkUpdateRequestDto
-import org.camunda.bpm.engine.repository.ProcessDefinition
+import org.operaton.bpm.engine.repository.ProcessDefinition
 import org.springframework.stereotype.Component
 import java.util.UUID
 

@@ -45,8 +45,8 @@ import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.result.FunctionResult;
 import com.ritense.valtimo.contract.result.OperationError;
 import java.util.Optional;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.HistoryService;
+import org.operaton.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

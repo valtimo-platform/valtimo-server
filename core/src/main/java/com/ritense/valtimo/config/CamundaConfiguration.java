@@ -24,13 +24,13 @@ import com.ritense.valtimo.validator.MaxDateValidator;
 import com.ritense.valtimo.validator.MinDateValidator;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.camunda.bpm.engine.impl.form.validator.FormFieldValidator;
-import org.camunda.bpm.engine.impl.persistence.StrongUuidGenerator;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.spring.boot.starter.configuration.CamundaProcessEngineConfiguration;
+import org.operaton.bpm.engine.RepositoryService;
+import org.operaton.bpm.engine.impl.RepositoryServiceImpl;
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.operaton.bpm.engine.impl.form.validator.FormFieldValidator;
+import org.operaton.bpm.engine.impl.persistence.StrongUuidGenerator;
+import org.operaton.bpm.engine.variable.Variables;
+import org.operaton.bpm.spring.boot.starter.configuration.CamundaProcessEngineConfiguration;
 
 public class CamundaConfiguration implements CamundaProcessEngineConfiguration {
 

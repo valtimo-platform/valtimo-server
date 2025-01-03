@@ -35,7 +35,7 @@ import com.ritense.zgw.LoggingConstants.DOCUMENTEN_API
 import com.ritense.zgw.Rsin
 import mu.KLogger
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import java.net.URI
 import java.time.LocalDate
 import java.util.UUID

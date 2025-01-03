@@ -17,7 +17,7 @@
 package com.ritense.valtimo.camunda.repository
 
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
-import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState
+import org.operaton.bpm.engine.impl.persistence.entity.SuspensionState
 import org.springframework.data.jpa.domain.Specification
 
 class CamundaProcessDefinitionSpecificationHelper {

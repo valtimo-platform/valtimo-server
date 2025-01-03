@@ -24,9 +24,9 @@ import static org.mockito.Mockito.verify;
 
 import com.ritense.valtimo.contract.audit.utils.AuditHelper;
 import com.ritense.valtimo.contract.utils.RequestHelper;
-import org.camunda.bpm.engine.impl.history.event.HistoricProcessInstanceEventEntity;
-import org.camunda.bpm.engine.impl.history.event.HistoricTaskInstanceEventEntity;
-import org.camunda.bpm.engine.impl.history.event.HistoryEvent;
+import org.operaton.bpm.engine.impl.history.event.HistoricProcessInstanceEventEntity;
+import org.operaton.bpm.engine.impl.history.event.HistoricTaskInstanceEventEntity;
+import org.operaton.bpm.engine.impl.history.event.HistoryEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

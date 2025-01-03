@@ -24,12 +24,12 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.service.DocumentService
 import com.ritense.valtimo.contract.authentication.UserManagementService
 import mu.KotlinLogging
-import org.camunda.bpm.engine.ActivityTypes
-import org.camunda.bpm.engine.TaskService
-import org.camunda.bpm.engine.delegate.DelegateTask
-import org.camunda.bpm.engine.delegate.TaskListener
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener
+import org.operaton.bpm.engine.ActivityTypes
+import org.operaton.bpm.engine.TaskService
+import org.operaton.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.engine.delegate.TaskListener
+import org.operaton.bpm.extension.reactor.bus.CamundaSelector
+import org.operaton.bpm.extension.reactor.spring.listener.ReactorTaskListener
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 

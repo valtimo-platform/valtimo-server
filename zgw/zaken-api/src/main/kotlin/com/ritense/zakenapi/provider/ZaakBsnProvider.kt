@@ -25,7 +25,7 @@ import com.ritense.zakenapi.ZakenApiPlugin
 import com.ritense.zakenapi.domain.rol.RolNatuurlijkPersoon
 import com.ritense.zakenapi.domain.rol.RolType
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
-import org.camunda.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.engine.delegate.DelegateTask
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)

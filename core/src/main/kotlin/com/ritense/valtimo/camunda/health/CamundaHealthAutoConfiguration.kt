@@ -17,7 +17,7 @@
 
 package com.ritense.valtimo.camunda.health
 
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

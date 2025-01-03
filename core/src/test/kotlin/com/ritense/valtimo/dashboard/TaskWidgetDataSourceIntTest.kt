@@ -23,7 +23,7 @@ import com.ritense.valtimo.contract.repository.ExpressionOperator
 import com.ritense.valtimo.dashboard.TaskCountDataSourceProperties
 import com.ritense.valtimo.dashboard.TaskWidgetDataSource
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.task.Task
+import org.operaton.bpm.engine.task.Task
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock

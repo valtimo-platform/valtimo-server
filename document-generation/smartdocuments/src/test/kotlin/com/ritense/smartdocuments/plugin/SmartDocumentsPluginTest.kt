@@ -26,8 +26,8 @@ import com.ritense.smartdocuments.domain.TemplateGroup
 import com.ritense.smartdocuments.domain.TemplatesStructure
 import com.ritense.valueresolver.ValueResolverService
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.extension.mockito.delegate.DelegateExecutionFake
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.extension.mockito.delegate.DelegateExecutionFake
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -35,7 +35,9 @@ import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.runtime.Execution
 import org.springframework.context.ApplicationEventPublisher
 
 const val TEMPLATE_NAME_LIST = "templateNameList"
@@ -157,8 +159,10 @@ internal class SmartDocumentsPluginTest {
     )
 
     private fun delegateExecution(): DelegateExecution {
-        return DelegateExecutionFake()
-            .withBusinessKey("business_key")
-            .withProcessInstanceId("process_instance_id")
+        val execution = mock<DelegateExecution>()
+        whenever(execution.processInstanceId).thenReturn("process_instance_id")
+        whenever(execution.businessKey).thenReturn("business_key")
+
+        return execution
     }
 }

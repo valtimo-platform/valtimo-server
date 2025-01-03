@@ -21,7 +21,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
-import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState
+import org.operaton.bpm.engine.impl.persistence.entity.SuspensionState
 import org.hibernate.annotations.Immutable
 
 @Immutable

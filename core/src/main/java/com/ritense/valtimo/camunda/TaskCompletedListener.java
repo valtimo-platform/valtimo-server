@@ -23,11 +23,11 @@ import com.ritense.valtimo.contract.utils.RequestHelper;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
-import org.camunda.bpm.engine.ActivityTypes;
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.delegate.TaskListener;
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener;
+import org.operaton.bpm.engine.ActivityTypes;
+import org.operaton.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.delegate.TaskListener;
+import org.operaton.bpm.extension.reactor.bus.CamundaSelector;
+import org.operaton.bpm.extension.reactor.spring.listener.ReactorTaskListener;
 import org.springframework.context.ApplicationEventPublisher;
 
 import static com.ritense.logging.LoggingContextKt.withLoggingContext;

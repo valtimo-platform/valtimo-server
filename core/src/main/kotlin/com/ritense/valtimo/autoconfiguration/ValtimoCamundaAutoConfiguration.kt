@@ -42,10 +42,10 @@ import com.ritense.valtimo.contract.config.ValtimoProperties
 import com.ritense.valtimo.contract.database.QueryDialectHelper
 import com.ritense.valtimo.repository.ValtimoApplicationPropertyRepository
 import com.ritense.valtimo.service.CamundaTaskService
-import org.camunda.bpm.engine.HistoryService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
+import org.operaton.bpm.engine.HistoryService
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

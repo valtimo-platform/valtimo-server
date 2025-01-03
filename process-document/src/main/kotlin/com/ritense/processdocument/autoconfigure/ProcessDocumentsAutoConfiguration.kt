@@ -58,9 +58,9 @@ import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import com.ritense.valueresolver.ValueResolverService
 import jakarta.persistence.EntityManager
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.TaskService
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.TaskService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

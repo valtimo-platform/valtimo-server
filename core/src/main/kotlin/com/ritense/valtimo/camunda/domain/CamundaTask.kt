@@ -27,8 +27,8 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
-import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState
-import org.camunda.bpm.engine.task.DelegationState
+import org.operaton.bpm.engine.impl.persistence.entity.SuspensionState
+import org.operaton.bpm.engine.task.DelegationState
 import org.hibernate.annotations.Immutable
 import java.time.LocalDateTime
 

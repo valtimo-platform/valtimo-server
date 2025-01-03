@@ -28,7 +28,7 @@ import com.ritense.valtimo.contract.exception.ProcessNotFoundException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import org.camunda.bpm.engine.RepositoryService;
+import org.operaton.bpm.engine.RepositoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;

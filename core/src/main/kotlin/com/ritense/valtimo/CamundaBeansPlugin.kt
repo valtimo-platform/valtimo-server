@@ -17,8 +17,8 @@
 package com.ritense.valtimo
 
 import mu.KotlinLogging
-import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
+import org.operaton.bpm.engine.impl.cfg.AbstractProcessEnginePlugin
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
 
 class CamundaBeansPlugin : AbstractProcessEnginePlugin() {
     override fun preInit(processEngineConfiguration: ProcessEngineConfigurationImpl?) {

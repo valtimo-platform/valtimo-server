@@ -18,7 +18,7 @@ import com.ritense.valtimo.service.BpmnModelService
 import com.ritense.valtimo.service.CamundaTaskService
 import com.ritense.valueresolver.ValueResolverService
 import java.util.UUID
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any

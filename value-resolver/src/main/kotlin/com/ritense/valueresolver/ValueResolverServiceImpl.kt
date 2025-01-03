@@ -18,7 +18,7 @@ package com.ritense.valueresolver
 
 import com.ritense.logging.LoggableResource
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import org.springframework.stereotype.Service
 import java.util.UUID
 

@@ -35,7 +35,7 @@ import com.ritense.valtimo.contract.mail.MailSender
 import java.util.function.Consumer
 import java.util.function.Supplier
 import mu.KotlinLogging
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.Bean

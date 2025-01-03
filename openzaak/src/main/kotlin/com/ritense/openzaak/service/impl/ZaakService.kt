@@ -36,7 +36,7 @@ import com.ritense.openzaak.service.impl.model.zaak.Status
 import com.ritense.openzaak.service.impl.model.zaak.Zaak
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.net.URI

@@ -22,11 +22,11 @@ import com.ritense.exporter.Exporter
 import com.ritense.exporter.request.DecisionDefinitionExportRequest
 import com.ritense.exporter.request.ProcessDefinitionExportRequest
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.model.bpmn.Bpmn
-import org.camunda.bpm.model.bpmn.BpmnModelInstance
-import org.camunda.bpm.model.bpmn.instance.BusinessRuleTask
-import org.camunda.bpm.model.bpmn.instance.CallActivity
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.model.bpmn.Bpmn
+import org.operaton.bpm.model.bpmn.BpmnModelInstance
+import org.operaton.bpm.model.bpmn.instance.BusinessRuleTask
+import org.operaton.bpm.model.bpmn.instance.CallActivity
 import java.io.ByteArrayOutputStream
 
 class ProcessDefinitionExporter(

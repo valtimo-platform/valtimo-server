@@ -31,7 +31,7 @@ import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.formflow.domain.FormFlowProcessLink
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID

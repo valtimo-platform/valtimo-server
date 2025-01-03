@@ -16,7 +16,7 @@
 
 package com.ritense.openzaak.service
 
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 
 @Deprecated("Since 12.0.0. Replace with the Zaken API plugin")
 interface ZaakProcessService {

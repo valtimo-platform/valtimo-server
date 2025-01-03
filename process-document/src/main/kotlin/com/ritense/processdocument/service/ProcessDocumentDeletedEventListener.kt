@@ -26,7 +26,7 @@ import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentI
 import com.ritense.valtimo.contract.event.DocumentDeletedEvent
 import mu.KLogger
 import mu.KotlinLogging
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.context.event.EventListener
 
 class ProcessDocumentDeletedEventListener(

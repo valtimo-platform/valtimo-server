@@ -17,68 +17,68 @@
 package com.ritense.processlink.domain
 
 import com.fasterxml.jackson.annotation.JsonValue
-import org.camunda.bpm.engine.delegate.ExecutionListener.EVENTNAME_END
-import org.camunda.bpm.engine.delegate.ExecutionListener.EVENTNAME_START
-import org.camunda.bpm.engine.delegate.TaskListener.EVENTNAME_ASSIGNMENT
-import org.camunda.bpm.engine.delegate.TaskListener.EVENTNAME_COMPLETE
-import org.camunda.bpm.engine.delegate.TaskListener.EVENTNAME_CREATE
-import org.camunda.bpm.engine.delegate.TaskListener.EVENTNAME_DELETE
-import org.camunda.bpm.engine.delegate.TaskListener.EVENTNAME_TIMEOUT
-import org.camunda.bpm.engine.delegate.TaskListener.EVENTNAME_UPDATE
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_CANCEL as CAMUNDA_BOUNDARY_CANCEL
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_COMPENSATION as CAMUNDA_BOUNDARY_COMPENSATION
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_CONDITIONAL as CAMUNDA_BOUNDARY_CONDITIONAL
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_ERROR as CAMUNDA_BOUNDARY_ERROR
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_ESCALATION as CAMUNDA_BOUNDARY_ESCALATION
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_MESSAGE as CAMUNDA_BOUNDARY_MESSAGE
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_SIGNAL as CAMUNDA_BOUNDARY_SIGNAL
-import org.camunda.bpm.engine.ActivityTypes.BOUNDARY_TIMER as CAMUNDA_BOUNDARY_TIMER
-import org.camunda.bpm.engine.ActivityTypes.CALL_ACTIVITY as CAMUNDA_CALL_ACTIVITY
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_CANCEL as CAMUNDA_END_EVENT_CANCEL
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_COMPENSATION as CAMUNDA_END_EVENT_COMPENSATION
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_ERROR as CAMUNDA_END_EVENT_ERROR
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_ESCALATION as CAMUNDA_END_EVENT_ESCALATION
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_MESSAGE as CAMUNDA_END_EVENT_MESSAGE
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_NONE as CAMUNDA_END_EVENT_NONE
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_SIGNAL as CAMUNDA_END_EVENT_SIGNAL
-import org.camunda.bpm.engine.ActivityTypes.END_EVENT_TERMINATE as CAMUNDA_END_EVENT_TERMINATE
-import org.camunda.bpm.engine.ActivityTypes.GATEWAY_COMPLEX as CAMUNDA_GATEWAY_COMPLEX
-import org.camunda.bpm.engine.ActivityTypes.GATEWAY_EVENT_BASED as CAMUNDA_GATEWAY_EVENT_BASED
-import org.camunda.bpm.engine.ActivityTypes.GATEWAY_EXCLUSIVE as CAMUNDA_GATEWAY_EXCLUSIVE
-import org.camunda.bpm.engine.ActivityTypes.GATEWAY_INCLUSIVE as CAMUNDA_GATEWAY_INCLUSIVE
-import org.camunda.bpm.engine.ActivityTypes.GATEWAY_PARALLEL as CAMUNDA_GATEWAY_PARALLEL
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_CATCH as CAMUNDA_INTERMEDIATE_EVENT_CATCH
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_COMPENSATION_THROW as CAMUNDA_INTERMEDIATE_EVENT_COMPENSATION_THROW
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_CONDITIONAL as CAMUNDA_INTERMEDIATE_EVENT_CONDITIONAL
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_ESCALATION_THROW as CAMUNDA_INTERMEDIATE_EVENT_ESCALATION_THROW
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_LINK as CAMUNDA_INTERMEDIATE_EVENT_LINK
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_MESSAGE as CAMUNDA_INTERMEDIATE_EVENT_MESSAGE
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_MESSAGE_THROW as CAMUNDA_INTERMEDIATE_EVENT_MESSAGE_THROW
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_NONE_THROW as CAMUNDA_INTERMEDIATE_EVENT_NONE_THROW
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_SIGNAL as CAMUNDA_INTERMEDIATE_EVENT_SIGNAL
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_SIGNAL_THROW as CAMUNDA_INTERMEDIATE_EVENT_SIGNAL_THROW
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_THROW as CAMUNDA_INTERMEDIATE_EVENT_THROW
-import org.camunda.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_TIMER as CAMUNDA_INTERMEDIATE_EVENT_TIMER
-import org.camunda.bpm.engine.ActivityTypes.MULTI_INSTANCE_BODY as CAMUNDA_MULTI_INSTANCE_BODY
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT as CAMUNDA_START_EVENT
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_COMPENSATION as CAMUNDA_START_EVENT_COMPENSATION
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_CONDITIONAL as CAMUNDA_START_EVENT_CONDITIONAL
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_ERROR as CAMUNDA_START_EVENT_ERROR
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_ESCALATION as CAMUNDA_START_EVENT_ESCALATION
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_MESSAGE as CAMUNDA_START_EVENT_MESSAGE
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_SIGNAL as CAMUNDA_START_EVENT_SIGNAL
-import org.camunda.bpm.engine.ActivityTypes.START_EVENT_TIMER as CAMUNDA_START_EVENT_TIMER
-import org.camunda.bpm.engine.ActivityTypes.SUB_PROCESS as CAMUNDA_SUB_PROCESS
-import org.camunda.bpm.engine.ActivityTypes.SUB_PROCESS_AD_HOC as CAMUNDA_SUB_PROCESS_AD_HOC
-import org.camunda.bpm.engine.ActivityTypes.TASK as CAMUNDA_TASK
-import org.camunda.bpm.engine.ActivityTypes.TASK_BUSINESS_RULE as CAMUNDA_TASK_BUSINESS_RULE
-import org.camunda.bpm.engine.ActivityTypes.TASK_MANUAL_TASK as CAMUNDA_TASK_MANUAL_TASK
-import org.camunda.bpm.engine.ActivityTypes.TASK_RECEIVE_TASK as CAMUNDA_TASK_RECEIVE_TASK
-import org.camunda.bpm.engine.ActivityTypes.TASK_SCRIPT as CAMUNDA_TASK_SCRIPT
-import org.camunda.bpm.engine.ActivityTypes.TASK_SEND_TASK as CAMUNDA_TASK_SEND_TASK
-import org.camunda.bpm.engine.ActivityTypes.TASK_SERVICE as CAMUNDA_TASK_SERVICE
-import org.camunda.bpm.engine.ActivityTypes.TASK_USER_TASK as CAMUNDA_TASK_USER_TASK
-import org.camunda.bpm.engine.ActivityTypes.TRANSACTION as CAMUNDA_TRANSACTION
+import org.operaton.bpm.engine.delegate.ExecutionListener.EVENTNAME_END
+import org.operaton.bpm.engine.delegate.ExecutionListener.EVENTNAME_START
+import org.operaton.bpm.engine.delegate.TaskListener.EVENTNAME_ASSIGNMENT
+import org.operaton.bpm.engine.delegate.TaskListener.EVENTNAME_COMPLETE
+import org.operaton.bpm.engine.delegate.TaskListener.EVENTNAME_CREATE
+import org.operaton.bpm.engine.delegate.TaskListener.EVENTNAME_DELETE
+import org.operaton.bpm.engine.delegate.TaskListener.EVENTNAME_TIMEOUT
+import org.operaton.bpm.engine.delegate.TaskListener.EVENTNAME_UPDATE
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_CANCEL as CAMUNDA_BOUNDARY_CANCEL
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_COMPENSATION as CAMUNDA_BOUNDARY_COMPENSATION
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_CONDITIONAL as CAMUNDA_BOUNDARY_CONDITIONAL
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_ERROR as CAMUNDA_BOUNDARY_ERROR
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_ESCALATION as CAMUNDA_BOUNDARY_ESCALATION
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_MESSAGE as CAMUNDA_BOUNDARY_MESSAGE
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_SIGNAL as CAMUNDA_BOUNDARY_SIGNAL
+import org.operaton.bpm.engine.ActivityTypes.BOUNDARY_TIMER as CAMUNDA_BOUNDARY_TIMER
+import org.operaton.bpm.engine.ActivityTypes.CALL_ACTIVITY as CAMUNDA_CALL_ACTIVITY
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_CANCEL as CAMUNDA_END_EVENT_CANCEL
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_COMPENSATION as CAMUNDA_END_EVENT_COMPENSATION
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_ERROR as CAMUNDA_END_EVENT_ERROR
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_ESCALATION as CAMUNDA_END_EVENT_ESCALATION
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_MESSAGE as CAMUNDA_END_EVENT_MESSAGE
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_NONE as CAMUNDA_END_EVENT_NONE
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_SIGNAL as CAMUNDA_END_EVENT_SIGNAL
+import org.operaton.bpm.engine.ActivityTypes.END_EVENT_TERMINATE as CAMUNDA_END_EVENT_TERMINATE
+import org.operaton.bpm.engine.ActivityTypes.GATEWAY_COMPLEX as CAMUNDA_GATEWAY_COMPLEX
+import org.operaton.bpm.engine.ActivityTypes.GATEWAY_EVENT_BASED as CAMUNDA_GATEWAY_EVENT_BASED
+import org.operaton.bpm.engine.ActivityTypes.GATEWAY_EXCLUSIVE as CAMUNDA_GATEWAY_EXCLUSIVE
+import org.operaton.bpm.engine.ActivityTypes.GATEWAY_INCLUSIVE as CAMUNDA_GATEWAY_INCLUSIVE
+import org.operaton.bpm.engine.ActivityTypes.GATEWAY_PARALLEL as CAMUNDA_GATEWAY_PARALLEL
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_CATCH as CAMUNDA_INTERMEDIATE_EVENT_CATCH
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_COMPENSATION_THROW as CAMUNDA_INTERMEDIATE_EVENT_COMPENSATION_THROW
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_CONDITIONAL as CAMUNDA_INTERMEDIATE_EVENT_CONDITIONAL
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_ESCALATION_THROW as CAMUNDA_INTERMEDIATE_EVENT_ESCALATION_THROW
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_LINK as CAMUNDA_INTERMEDIATE_EVENT_LINK
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_MESSAGE as CAMUNDA_INTERMEDIATE_EVENT_MESSAGE
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_MESSAGE_THROW as CAMUNDA_INTERMEDIATE_EVENT_MESSAGE_THROW
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_NONE_THROW as CAMUNDA_INTERMEDIATE_EVENT_NONE_THROW
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_SIGNAL as CAMUNDA_INTERMEDIATE_EVENT_SIGNAL
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_SIGNAL_THROW as CAMUNDA_INTERMEDIATE_EVENT_SIGNAL_THROW
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_THROW as CAMUNDA_INTERMEDIATE_EVENT_THROW
+import org.operaton.bpm.engine.ActivityTypes.INTERMEDIATE_EVENT_TIMER as CAMUNDA_INTERMEDIATE_EVENT_TIMER
+import org.operaton.bpm.engine.ActivityTypes.MULTI_INSTANCE_BODY as CAMUNDA_MULTI_INSTANCE_BODY
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT as CAMUNDA_START_EVENT
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_COMPENSATION as CAMUNDA_START_EVENT_COMPENSATION
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_CONDITIONAL as CAMUNDA_START_EVENT_CONDITIONAL
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_ERROR as CAMUNDA_START_EVENT_ERROR
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_ESCALATION as CAMUNDA_START_EVENT_ESCALATION
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_MESSAGE as CAMUNDA_START_EVENT_MESSAGE
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_SIGNAL as CAMUNDA_START_EVENT_SIGNAL
+import org.operaton.bpm.engine.ActivityTypes.START_EVENT_TIMER as CAMUNDA_START_EVENT_TIMER
+import org.operaton.bpm.engine.ActivityTypes.SUB_PROCESS as CAMUNDA_SUB_PROCESS
+import org.operaton.bpm.engine.ActivityTypes.SUB_PROCESS_AD_HOC as CAMUNDA_SUB_PROCESS_AD_HOC
+import org.operaton.bpm.engine.ActivityTypes.TASK as CAMUNDA_TASK
+import org.operaton.bpm.engine.ActivityTypes.TASK_BUSINESS_RULE as CAMUNDA_TASK_BUSINESS_RULE
+import org.operaton.bpm.engine.ActivityTypes.TASK_MANUAL_TASK as CAMUNDA_TASK_MANUAL_TASK
+import org.operaton.bpm.engine.ActivityTypes.TASK_RECEIVE_TASK as CAMUNDA_TASK_RECEIVE_TASK
+import org.operaton.bpm.engine.ActivityTypes.TASK_SCRIPT as CAMUNDA_TASK_SCRIPT
+import org.operaton.bpm.engine.ActivityTypes.TASK_SEND_TASK as CAMUNDA_TASK_SEND_TASK
+import org.operaton.bpm.engine.ActivityTypes.TASK_SERVICE as CAMUNDA_TASK_SERVICE
+import org.operaton.bpm.engine.ActivityTypes.TASK_USER_TASK as CAMUNDA_TASK_USER_TASK
+import org.operaton.bpm.engine.ActivityTypes.TRANSACTION as CAMUNDA_TRANSACTION
 
 enum class ActivityTypeWithEventName(
     @JsonValue val value: String

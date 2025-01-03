@@ -17,11 +17,11 @@
 package com.ritense.valtimo.logging
 
 import com.ritense.valtimo.contract.authentication.UserManagementService
-import org.camunda.bpm.engine.impl.jobexecutor.JobExecutor
-import org.camunda.bpm.engine.impl.jobexecutor.NotifyAcquisitionRejectedJobsHandler
-import org.camunda.bpm.spring.boot.starter.CamundaBpmAutoConfiguration
-import org.camunda.bpm.spring.boot.starter.configuration.impl.DefaultJobConfiguration.JobConfiguration
-import org.camunda.bpm.spring.boot.starter.property.CamundaBpmProperties
+import org.operaton.bpm.engine.impl.jobexecutor.JobExecutor
+import org.operaton.bpm.engine.impl.jobexecutor.NotifyAcquisitionRejectedJobsHandler
+import org.operaton.bpm.spring.boot.starter.CamundaBpmAutoConfiguration
+import org.operaton.bpm.spring.boot.starter.configuration.impl.DefaultJobConfiguration.JobConfiguration
+import org.operaton.bpm.spring.boot.starter.property.CamundaBpmProperties
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureBefore

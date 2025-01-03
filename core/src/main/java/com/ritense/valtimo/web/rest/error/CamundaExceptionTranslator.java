@@ -20,7 +20,7 @@ import com.ritense.valtimo.contract.annotation.SkipComponentScan;
 import com.ritense.valtimo.contract.exception.DocumentParserException;
 import com.ritense.valtimo.contract.exception.ProcessNotFoundException;
 import com.ritense.valtimo.web.rest.util.HeaderUtil;
-import org.camunda.bpm.engine.impl.form.validator.FormFieldValidatorException;
+import org.operaton.bpm.engine.impl.form.validator.FormFieldValidatorException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

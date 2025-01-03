@@ -23,7 +23,7 @@ import com.ritense.valtimo.camunda.domain.CamundaHistoricProcessInstance
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
 import com.ritense.valtimo.camunda.repository.CamundaHistoricProcessInstanceRepository
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import org.camunda.bpm.engine.HistoryService
+import org.operaton.bpm.engine.HistoryService
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

@@ -27,10 +27,10 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import jakarta.persistence.Transient
-import org.camunda.bpm.engine.impl.variable.serializer.DefaultVariableSerializers
-import org.camunda.bpm.engine.impl.variable.serializer.TypedValueSerializer
-import org.camunda.bpm.engine.impl.variable.serializer.ValueFields
-import org.camunda.bpm.engine.variable.value.TypedValue
+import org.operaton.bpm.engine.impl.variable.serializer.DefaultVariableSerializers
+import org.operaton.bpm.engine.impl.variable.serializer.TypedValueSerializer
+import org.operaton.bpm.engine.impl.variable.serializer.ValueFields
+import org.operaton.bpm.engine.variable.value.TypedValue
 import org.hibernate.annotations.Immutable
 
 @Immutable

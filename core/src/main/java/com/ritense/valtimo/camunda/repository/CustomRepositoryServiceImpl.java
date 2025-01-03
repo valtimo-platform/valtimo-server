@@ -21,8 +21,8 @@ import com.ritense.valtimo.contract.utils.RequestHelper;
 import com.ritense.valtimo.domain.process.event.ProcessDefinitionDeletedEvent;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
-import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.operaton.bpm.engine.impl.RepositoryServiceImpl;
+import org.operaton.bpm.engine.repository.ProcessDefinition;
 import org.springframework.context.ApplicationEventPublisher;
 
 public class CustomRepositoryServiceImpl extends RepositoryServiceImpl {

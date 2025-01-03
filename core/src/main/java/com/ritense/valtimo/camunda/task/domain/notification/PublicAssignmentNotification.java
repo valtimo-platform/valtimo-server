@@ -28,7 +28,7 @@ import com.ritense.valtimo.contract.mail.model.value.MailTemplateIdentifier;
 import com.ritense.valtimo.contract.mail.model.value.Recipient;
 import java.util.Map;
 import java.util.Optional;
-import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.delegate.DelegateTask;
 
 public class PublicAssignmentNotification extends TaskNotification {
 

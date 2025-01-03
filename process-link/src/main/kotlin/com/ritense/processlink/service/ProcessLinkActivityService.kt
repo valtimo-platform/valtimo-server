@@ -42,7 +42,7 @@ import com.ritense.valtimo.exception.ProcessDefinitionNotFoundException
 import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import mu.KotlinLogging
-import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState
+import org.operaton.bpm.engine.impl.persistence.entity.SuspensionState
 import org.springframework.stereotype.Service
 import java.util.UUID
 

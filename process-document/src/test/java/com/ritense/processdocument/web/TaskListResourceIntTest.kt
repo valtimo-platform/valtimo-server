@@ -39,8 +39,8 @@ import com.ritense.valtimo.contract.authentication.AuthoritiesConstants
 import com.ritense.valtimo.service.CamundaTaskService
 import java.nio.charset.StandardCharsets
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.TaskService
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.TaskService
 import org.hamcrest.Matchers.hasItems
 import org.hamcrest.Matchers.hasKey
 import org.hamcrest.Matchers.hasSize

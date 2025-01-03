@@ -34,7 +34,7 @@ import com.ritense.smartdocuments.domain.SmartDocumentsRequest
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance

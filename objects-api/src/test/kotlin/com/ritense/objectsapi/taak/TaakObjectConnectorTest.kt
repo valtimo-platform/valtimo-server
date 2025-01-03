@@ -24,9 +24,9 @@ import com.ritense.valueresolver.ValueResolverService
 import com.ritense.zakenapi.provider.BsnProvider
 import com.ritense.zakenapi.provider.KvkProvider
 import org.assertj.core.api.Assertions
-import org.camunda.bpm.engine.delegate.DelegateTask
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty
+import org.operaton.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperties
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito

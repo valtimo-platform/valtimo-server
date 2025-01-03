@@ -28,7 +28,7 @@ import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.authentication.UserManagementService
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.Optional

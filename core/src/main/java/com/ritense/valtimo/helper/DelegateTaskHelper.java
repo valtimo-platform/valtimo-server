@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
-import org.camunda.bpm.engine.rest.dto.history.HistoricTaskInstanceDto;
-import org.camunda.bpm.engine.task.IdentityLink;
-import org.camunda.bpm.engine.task.IdentityLinkType;
-import org.camunda.bpm.model.bpmn.instance.Task;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.operaton.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.history.HistoricTaskInstance;
+import org.operaton.bpm.engine.rest.dto.history.HistoricTaskInstanceDto;
+import org.operaton.bpm.engine.task.IdentityLink;
+import org.operaton.bpm.engine.task.IdentityLinkType;
+import org.operaton.bpm.model.bpmn.instance.Task;
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperty;
 
 public class DelegateTaskHelper {
     private static final String TASK_ASSIGNMENT_EVENT = "assignment";

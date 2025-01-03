@@ -18,7 +18,7 @@ package com.ritense.valtimo.sse.domain.listener
 
 import com.ritense.valtimo.sse.event.TaskUpdateSseEvent
 import com.ritense.valtimo.web.sse.service.SseSubscriptionService
-import org.camunda.bpm.spring.boot.starter.event.TaskEvent
+import org.operaton.bpm.spring.boot.starter.event.TaskEvent
 import org.springframework.transaction.event.TransactionalEventListener
 
 class TaskUpdateListener(

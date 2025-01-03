@@ -31,8 +31,8 @@ import com.ritense.processdocument.domain.delegate.ProcessDocumentStartEventMess
 import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId;
 import com.ritense.processdocument.service.ProcessDocumentAssociationService;
 import com.ritense.valtimo.contract.json.JsonPointerHelper;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -32,10 +32,10 @@ import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage;
 import com.ritense.valtimo.emailnotificationsettings.service.EmailNotificationSettingsService;
 import com.ritense.valtimo.helper.DelegateTaskHelper;
 import java.util.List;
-import org.camunda.community.mockito.delegate.DelegateTaskFake;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.operaton.bpm.engine.delegate.DelegateTask;
 
 class NotificationServiceImplTest {
 
@@ -71,7 +71,7 @@ class NotificationServiceImplTest {
         when(emailNotificationService.existsByEmailAddressAndTaskNotificationsEnabled(anyString())).thenReturn(true);
         when(valtimoProperties.getApp().getBaselUrl()).thenReturn("http://baseUrl");
 
-        DelegateTaskFake task = mockTask("id");
+        DelegateTask task = mockTask("id");
         notificationService.sendNotification(task, "mail-template-test");
 
         verify(mailSender).send(ArgumentMatchers.any(TemplatedMailMessage.class));

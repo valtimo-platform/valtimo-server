@@ -18,8 +18,8 @@ package com.ritense.valtimo.camunda.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.camunda.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.operaton.bpm.engine.rest.dto.runtime.ProcessInstanceDto;
+import org.operaton.bpm.engine.runtime.ProcessInstance;
 
 public class ProcessInstanceWithDefinition {
 

@@ -17,8 +17,8 @@
 package com.ritense.valtimo.config;
 
 import java.util.ArrayList;
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.camunda.bpm.spring.boot.starter.configuration.CamundaFailedJobConfiguration;
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.operaton.bpm.spring.boot.starter.configuration.CamundaFailedJobConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 
 @AutoConfiguration

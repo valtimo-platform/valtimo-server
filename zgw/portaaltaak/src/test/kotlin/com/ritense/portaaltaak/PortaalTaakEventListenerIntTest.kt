@@ -43,8 +43,8 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.delegate.VariableScope
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.junit.jupiter.api.BeforeEach

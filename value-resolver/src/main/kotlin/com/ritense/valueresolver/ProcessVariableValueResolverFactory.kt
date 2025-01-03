@@ -17,8 +17,8 @@
 package com.ritense.valueresolver
 
 import java.util.function.Function
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.delegate.VariableScope
 
 /**
  * This resolver can resolve requestedValues against the variables of a process or task.

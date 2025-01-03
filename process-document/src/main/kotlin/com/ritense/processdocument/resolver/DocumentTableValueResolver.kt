@@ -24,7 +24,7 @@ import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valueresolver.ValueResolverFactory
 import com.ritense.valueresolver.ValueResolverOption
 import com.ritense.valueresolver.exception.ValueResolverValidationException
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.function.Function
 
 /**

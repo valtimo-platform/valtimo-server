@@ -33,7 +33,7 @@ import com.ritense.processdocument.service.result.NewDocumentAndStartProcessResu
 import com.ritense.processdocument.service.result.NewDocumentForRunningProcessResult;
 import com.ritense.processdocument.service.result.StartProcessForDocumentResult;
 import java.util.Optional;
-import org.camunda.bpm.engine.delegate.VariableScope;
+import org.operaton.bpm.engine.delegate.VariableScope;
 
 public interface ProcessDocumentService {
 

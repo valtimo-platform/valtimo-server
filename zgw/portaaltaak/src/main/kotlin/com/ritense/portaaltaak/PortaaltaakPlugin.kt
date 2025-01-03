@@ -50,8 +50,8 @@ import com.ritense.zakenapi.link.ZaakInstanceLinkNotFoundException
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
 import mu.KLogger
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateTask
 import java.net.URI
 import java.time.LocalDate
 import java.time.LocalDateTime

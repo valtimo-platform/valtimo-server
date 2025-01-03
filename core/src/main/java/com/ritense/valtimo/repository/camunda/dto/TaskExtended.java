@@ -18,7 +18,7 @@ package com.ritense.valtimo.repository.camunda.dto;
 
 import com.ritense.valtimo.contract.authentication.model.ValtimoUser;
 
-public class TaskExtended extends org.camunda.bpm.engine.rest.dto.task.TaskDto {
+public class TaskExtended extends org.operaton.bpm.engine.rest.dto.task.TaskDto {
 
     public final String businessKey;
     public final String processDefinitionKey;

@@ -22,11 +22,11 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.service.DocumentService
 import com.ritense.openzaak.domain.mapping.impl.ZaakTypeLink
 import com.ritense.openzaak.service.ZaakTypeLinkService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.engine.delegate.ExecutionListener
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.ExecutionListener
+import org.operaton.bpm.extension.reactor.bus.CamundaSelector
+import org.operaton.bpm.extension.reactor.spring.listener.ReactorExecutionListener
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 

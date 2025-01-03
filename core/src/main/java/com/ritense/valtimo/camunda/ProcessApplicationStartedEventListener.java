@@ -20,7 +20,7 @@ import com.ritense.authorization.AuthorizationContext;
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
 import com.ritense.valtimo.contract.event.ProcessDefinitionAvailableEvent;
 import com.ritense.valtimo.service.CamundaProcessService;
-import org.camunda.bpm.spring.boot.starter.event.ProcessApplicationStartedEvent;
+import org.operaton.bpm.spring.boot.starter.event.ProcessApplicationStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

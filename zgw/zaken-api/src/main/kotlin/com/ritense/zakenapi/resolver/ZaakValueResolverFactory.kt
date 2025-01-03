@@ -19,7 +19,7 @@ package com.ritense.zakenapi.resolver
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valueresolver.ValueResolverOption
 import com.ritense.zakenapi.service.ZaakDocumentService
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.UUID
 import java.util.function.Function
 

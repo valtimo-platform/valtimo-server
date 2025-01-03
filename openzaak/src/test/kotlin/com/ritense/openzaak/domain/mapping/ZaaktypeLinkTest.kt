@@ -27,15 +27,17 @@ import com.ritense.openzaak.domain.mapping.impl.ZaakTypeLinkId
 import com.ritense.openzaak.web.rest.request.ServiceTaskHandlerRequest
 import com.ritense.zakenapi.domain.ZaakInstanceLink
 import com.ritense.zakenapi.domain.ZaakInstanceLinkId
+import jakarta.validation.ConstraintViolationException
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.community.mockito.delegate.DelegateExecutionFake
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import java.net.URI
 import java.util.UUID
-import jakarta.validation.ConstraintViolationException
 
 class ZaaktypeLinkTest {
 
@@ -167,7 +169,9 @@ class ZaaktypeLinkTest {
 
     @Test
     fun `should pick correct serviceTaskHandler when handeling task`() {
-        val delegateExecutionFake = DelegateExecutionFake().withCurrentActivityId("taskA")
+        val delegateExecution = mock<DelegateExecution>()
+        whenever(delegateExecution.currentActivityId).thenReturn("taskA")
+
         val zaakInstanceUrl = URI.create("www.zaakUrl.nl")
         val zaakTypeLink = zaakTypeLink()
         zaakTypeLink.assignZaakServiceHandler(
@@ -187,7 +191,7 @@ class ZaaktypeLinkTest {
             )
         )
 
-        zaakTypeLink.handleServiceTask(delegateExecutionFake, "process2", zaakInstanceUrl)
+        zaakTypeLink.handleServiceTask(delegateExecution, "process2", zaakInstanceUrl)
 
         assertThat(zaakTypeLink.domainEvents()).contains(
             StatusSetEvent(

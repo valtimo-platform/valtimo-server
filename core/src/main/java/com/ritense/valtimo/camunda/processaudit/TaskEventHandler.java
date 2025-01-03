@@ -16,7 +16,7 @@
 
 package com.ritense.valtimo.camunda.processaudit;
 
-import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.delegate.DelegateTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

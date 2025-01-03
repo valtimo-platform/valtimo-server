@@ -17,7 +17,7 @@
 package com.ritense.valueresolver
 
 import com.ritense.valueresolver.exception.ValueResolverValidationException
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.UUID
 import java.util.function.Function
 

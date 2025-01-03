@@ -22,7 +22,7 @@ import com.ritense.valtimo.repository.queryparameter.ProcessInstanceQueryParamet
 import com.ritense.valtimo.web.rest.dto.ProcessInstanceSearchDTO;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
-import org.camunda.bpm.engine.impl.db.ListQueryParameterObject;
+import org.operaton.bpm.engine.impl.db.ListQueryParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

@@ -39,9 +39,9 @@ import jakarta.persistence.EntityNotFoundException
 import java.net.MalformedURLException
 import java.net.URI
 import mu.KotlinLogging
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.delegate.VariableScope
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperties
 import org.springframework.context.event.EventListener
 
 class TaakObjectListener(

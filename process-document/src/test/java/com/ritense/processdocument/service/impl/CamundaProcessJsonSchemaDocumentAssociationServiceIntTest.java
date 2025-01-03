@@ -46,7 +46,7 @@ import com.ritense.valtimo.repository.camunda.dto.TaskInstanceWithIdentityLink;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
-import org.camunda.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

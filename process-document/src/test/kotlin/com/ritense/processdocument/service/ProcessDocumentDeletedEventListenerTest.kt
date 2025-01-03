@@ -21,8 +21,8 @@ import com.ritense.processdocument.domain.ProcessDocumentInstanceId
 import com.ritense.valtimo.contract.event.DocumentDeletedEvent
 import com.ritense.valtimo.contract.result.FunctionResult
 import com.ritense.valtimo.contract.result.OperationError
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.runtime.ProcessInstance
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.RETURNS_DEEP_STUBS

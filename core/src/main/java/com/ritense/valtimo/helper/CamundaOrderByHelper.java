@@ -20,10 +20,10 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.asRuntimeExcepti
 
 import java.util.ArrayList;
 import java.util.List;
-import org.camunda.bpm.engine.impl.Direction;
-import org.camunda.bpm.engine.impl.HistoricProcessInstanceQueryProperty;
-import org.camunda.bpm.engine.impl.QueryOrderingProperty;
-import org.camunda.bpm.engine.query.QueryProperty;
+import org.operaton.bpm.engine.impl.Direction;
+import org.operaton.bpm.engine.impl.HistoricProcessInstanceQueryProperty;
+import org.operaton.bpm.engine.impl.QueryOrderingProperty;
+import org.operaton.bpm.engine.query.QueryProperty;
 import org.springframework.data.domain.Sort;
 
 public class CamundaOrderByHelper {

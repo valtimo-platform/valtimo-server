@@ -29,14 +29,15 @@ import com.ritense.openzaak.service.impl.model.zaak.Zaak
 import com.ritense.zakenapi.domain.ZaakInstanceLink
 import com.ritense.zakenapi.domain.ZaakInstanceLinkId
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.community.mockito.delegate.DelegateExecutionFake
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.contains
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -101,13 +102,14 @@ class ZaakServiceTest : BaseTest() {
     @Test
     fun `should create zaak with link`() {
         //given
-        val delegateExecutionFake = DelegateExecutionFake("id")
-            .withProcessBusinessKey(document.id!!.id.toString())
+        val delegateExecution = mock<DelegateExecution>()
+        whenever(delegateExecution.id).thenReturn("id")
+        whenever(delegateExecution.processBusinessKey).thenReturn(document.id!!.id.toString())
 
         //when
         httpZaakCreated()
 
-        zaakService.createZaakWithLink(delegateExecutionFake)
+        zaakService.createZaakWithLink(delegateExecution)
 
         //then
         verify(zaakInstanceLinkService).createZaakInstanceLink(

@@ -25,9 +25,9 @@ import com.ritense.valtimo.camunda.service.CamundaRepositoryService;
 import com.ritense.valtimo.domain.processdefinition.ProcessDefinitionProperties;
 import com.ritense.valtimo.event.ProcessDefinitionDeployedEvent;
 import com.ritense.valtimo.processdefinition.repository.ProcessDefinitionPropertiesRepository;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
-import org.camunda.bpm.model.xml.ModelInstance;
+import org.operaton.bpm.engine.RepositoryService;
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.operaton.bpm.model.xml.ModelInstance;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 

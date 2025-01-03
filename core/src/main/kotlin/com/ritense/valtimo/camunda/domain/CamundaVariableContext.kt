@@ -16,9 +16,9 @@
 
 package com.ritense.valtimo.camunda.domain
 
-import org.camunda.bpm.engine.variable.Variables
-import org.camunda.bpm.engine.variable.context.VariableContext
-import org.camunda.bpm.engine.variable.value.TypedValue
+import org.operaton.bpm.engine.variable.Variables
+import org.operaton.bpm.engine.variable.context.VariableContext
+import org.operaton.bpm.engine.variable.value.TypedValue
 
 class CamundaVariableContext(
     private val typedMap: Map<String, TypedValue?>

@@ -27,11 +27,11 @@ import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.service.BpmnModelService;
 import java.util.Collections;
 import java.util.List;
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
-import org.camunda.bpm.engine.rest.dto.history.HistoricTaskInstanceDto;
-import org.camunda.bpm.model.bpmn.instance.Task;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.operaton.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.history.HistoricTaskInstance;
+import org.operaton.bpm.engine.rest.dto.history.HistoricTaskInstanceDto;
+import org.operaton.bpm.model.bpmn.instance.Task;
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

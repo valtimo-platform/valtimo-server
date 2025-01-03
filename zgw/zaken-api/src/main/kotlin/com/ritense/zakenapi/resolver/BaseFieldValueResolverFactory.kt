@@ -19,7 +19,7 @@ package com.ritense.zakenapi.resolver
 import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valueresolver.ValueResolverFactory
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.function.Function
 
 abstract class BaseFieldValueResolverFactory(

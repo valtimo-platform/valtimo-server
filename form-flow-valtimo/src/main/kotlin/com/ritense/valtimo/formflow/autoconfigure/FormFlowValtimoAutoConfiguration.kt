@@ -44,7 +44,7 @@ import com.ritense.valtimo.formflow.web.rest.FormFlowResource
 import com.ritense.valtimo.formflow.web.rest.ProcessLinkFormFlowDefinitionResource
 import com.ritense.valtimo.service.CamundaTaskService
 import com.ritense.valueresolver.ValueResolverService
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean

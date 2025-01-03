@@ -22,16 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
-import org.camunda.bpm.engine.rest.dto.history.HistoricTaskInstanceDto;
-import org.camunda.bpm.model.bpmn.BpmnModelException;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
-import org.camunda.bpm.model.bpmn.instance.Task;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.operaton.bpm.engine.RepositoryService;
+import org.operaton.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.history.HistoricTaskInstance;
+import org.operaton.bpm.engine.rest.dto.history.HistoricTaskInstanceDto;
+import org.operaton.bpm.model.bpmn.BpmnModelException;
+import org.operaton.bpm.model.bpmn.BpmnModelInstance;
+import org.operaton.bpm.model.bpmn.instance.ExtensionElements;
+import org.operaton.bpm.model.bpmn.instance.Task;
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperties;
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperty;
 
 public class ActivityHelper {
 

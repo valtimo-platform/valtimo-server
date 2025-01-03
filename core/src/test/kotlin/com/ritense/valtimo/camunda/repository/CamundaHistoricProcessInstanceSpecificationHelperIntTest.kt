@@ -20,8 +20,8 @@ import com.ritense.valtimo.BaseIntegrationTest
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.ADMIN
 import com.ritense.valtimo.service.CamundaTaskService
 import org.assertj.core.api.Assertions
-import org.camunda.bpm.engine.IdentityService
-import org.camunda.bpm.engine.runtime.ProcessInstance
+import org.operaton.bpm.engine.IdentityService
+import org.operaton.bpm.engine.runtime.ProcessInstance
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

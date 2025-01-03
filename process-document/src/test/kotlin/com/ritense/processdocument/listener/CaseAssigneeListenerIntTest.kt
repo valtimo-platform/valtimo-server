@@ -30,7 +30,7 @@ import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.ADMIN
 import com.ritense.valtimo.contract.authentication.ManageableUser
 import com.ritense.valtimo.contract.authentication.model.ValtimoUserBuilder
 import com.ritense.valtimo.service.CamundaTaskService
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

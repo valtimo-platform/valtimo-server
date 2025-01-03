@@ -35,7 +35,7 @@ import com.ritense.valtimo.formflow.BaseIntegrationTest
 import com.ritense.valtimo.formflow.FormFlowTaskOpenResultProperties
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkCreateRequestDto
 import com.ritense.valtimo.service.CamundaTaskService
-import org.camunda.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RepositoryService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional

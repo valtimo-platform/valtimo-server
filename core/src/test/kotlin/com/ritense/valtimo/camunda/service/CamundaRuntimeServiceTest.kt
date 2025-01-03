@@ -21,7 +21,7 @@ import com.ritense.authorization.AuthorizationService
 import com.ritense.valtimo.camunda.domain.CamundaVariableInstance
 import com.ritense.valtimo.camunda.repository.CamundaIdentityLinkRepository
 import com.ritense.valtimo.camunda.repository.CamundaVariableInstanceRepository
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock

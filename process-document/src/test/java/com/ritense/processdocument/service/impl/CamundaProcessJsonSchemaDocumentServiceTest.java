@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.operaton.bpm.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Test;
 
 class CamundaProcessJsonSchemaDocumentServiceTest {

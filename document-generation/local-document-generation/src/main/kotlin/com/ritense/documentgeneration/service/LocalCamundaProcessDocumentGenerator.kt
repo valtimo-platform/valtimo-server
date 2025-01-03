@@ -17,7 +17,7 @@
 package com.ritense.documentgeneration.service
 
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 
 class LocalCamundaProcessDocumentGenerator {
 

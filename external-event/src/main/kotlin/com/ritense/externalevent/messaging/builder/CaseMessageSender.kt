@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonPointer
 import com.fasterxml.jackson.databind.JsonNode
 import com.ritense.document.service.impl.JsonSchemaDocumentService
 import com.ritense.externalevent.service.ExternalCaseService
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 
 @Deprecated("Since 12.0.0")
 data class CaseMessageSender(

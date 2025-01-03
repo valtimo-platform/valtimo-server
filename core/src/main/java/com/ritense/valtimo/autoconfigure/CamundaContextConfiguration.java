@@ -19,7 +19,7 @@ package com.ritense.valtimo.autoconfigure;
 import com.ritense.valtimo.CamundaWhitelistedBeansPlugin;
 import com.ritense.valtimo.contract.annotation.ProcessBean;
 import java.util.Map;
-import org.camunda.bpm.spring.boot.starter.configuration.Ordering;
+import org.operaton.bpm.spring.boot.starter.configuration.Ordering;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;

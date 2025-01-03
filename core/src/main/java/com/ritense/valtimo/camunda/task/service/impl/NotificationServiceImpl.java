@@ -25,7 +25,7 @@ import com.ritense.valtimo.contract.mail.MailSender;
 import com.ritense.valtimo.contract.mail.model.value.MailTemplateIdentifier;
 import com.ritense.valtimo.emailnotificationsettings.service.EmailNotificationSettingsService;
 import com.ritense.valtimo.helper.DelegateTaskHelper;
-import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.delegate.DelegateTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

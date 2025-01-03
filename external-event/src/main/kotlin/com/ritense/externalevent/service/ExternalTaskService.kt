@@ -31,7 +31,7 @@ import com.ritense.processdocument.domain.impl.request.ModifyDocumentAndComplete
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valtimo.camunda.processaudit.DeletePortalTaskEvent
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.engine.delegate.DelegateTask
 import org.springframework.context.event.EventListener
 import org.springframework.transaction.annotation.Transactional
 import reactor.core.publisher.Sinks

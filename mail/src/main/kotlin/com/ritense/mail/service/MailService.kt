@@ -26,8 +26,8 @@ import com.ritense.valtimo.contract.mail.model.value.MailTemplateIdentifier
 import com.ritense.valtimo.contract.mail.model.value.Recipient
 import com.ritense.valtimo.contract.mail.model.value.Sender
 import com.ritense.valtimo.contract.mail.model.value.Subject
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperties
 import org.springframework.stereotype.Service
 import java.util.Optional
 import java.util.regex.Pattern

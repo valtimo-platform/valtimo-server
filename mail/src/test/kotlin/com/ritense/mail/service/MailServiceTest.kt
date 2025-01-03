@@ -20,10 +20,6 @@ import com.ritense.valtimo.contract.mail.MailSender
 import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage
 import com.ritense.valtimo.contract.mail.model.value.Recipient
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty
-import org.camunda.community.mockito.delegate.DelegateExecutionFake
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -31,6 +27,10 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperties
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperty
 
 internal class MailServiceTest {
 
@@ -42,32 +42,32 @@ internal class MailServiceTest {
     internal fun setUp() {
         mailSender = mock(MailSender::class.java)
         mailService = MailService(mailSender)
-        delegateExecution = DelegateExecutionFake("id")
-            .withProcessBusinessKey("businessKey")
-            .withVariables(mutableMapOf("emailAddress" to "Jan Jansen"))
+        delegateExecution = mock()
+        whenever(delegateExecution.processBusinessKey).thenReturn("businessKey")
+        whenever(delegateExecution.variables).thenReturn(mapOf("emailAddress" to "Jan Jansen"))
 
-        val subjectProperty = mock(CamundaProperty::class.java)
+        val subjectProperty = mock(OperatonProperty::class.java)
         `when`(subjectProperty.getAttributeValue(anyString())).thenReturn("mailSendTaskSubject")
-        `when`(subjectProperty.camundaName).thenReturn("mailSendTaskSubject")
-        `when`(subjectProperty.camundaValue).thenReturn("The Subject")
+        `when`(subjectProperty.operatonName).thenReturn("mailSendTaskSubject")
+        `when`(subjectProperty.operatonValue).thenReturn("The Subject")
 
-        val recipientProperty = mock(CamundaProperty::class.java)
+        val recipientProperty = mock(OperatonProperty::class.java)
         `when`(recipientProperty.getAttributeValue(anyString())).thenReturn("mailSendTaskTo")
-        `when`(recipientProperty.camundaName).thenReturn("mailSendTaskTo")
-        `when`(recipientProperty.camundaValue).thenReturn("\${emailAddress}")
+        `when`(recipientProperty.operatonName).thenReturn("mailSendTaskTo")
+        `when`(recipientProperty.operatonValue).thenReturn("\${emailAddress}")
 
-        val mailTemplateProperty = mock(CamundaProperty::class.java)
+        val mailTemplateProperty = mock(OperatonProperty::class.java)
         `when`(mailTemplateProperty.getAttributeValue(anyString())).thenReturn("mailSendTaskTemplate")
-        `when`(mailTemplateProperty.camundaName).thenReturn("mailSendTaskTemplate")
-        `when`(mailTemplateProperty.camundaValue).thenReturn("Mail template identifier")
+        `when`(mailTemplateProperty.operatonName).thenReturn("mailSendTaskTemplate")
+        `when`(mailTemplateProperty.operatonValue).thenReturn("Mail template identifier")
 
-        val senderProperty = mock(CamundaProperty::class.java)
+        val senderProperty = mock(OperatonProperty::class.java)
         `when`(senderProperty.getAttributeValue(anyString())).thenReturn("mailSendTaskFrom")
-        `when`(senderProperty.camundaName).thenReturn("mailSendTaskFrom")
-        `when`(senderProperty.camundaValue).thenReturn("sender@domain.com")
+        `when`(senderProperty.operatonName).thenReturn("mailSendTaskFrom")
+        `when`(senderProperty.operatonValue).thenReturn("sender@domain.com")
 
-        val camundaProperties = mock(CamundaProperties::class.java)
-        `when`(camundaProperties.camundaProperties).thenReturn(listOf(
+        val OperatonProperties = mock(OperatonProperties::class.java)
+        `when`(OperatonProperties.operatonProperties).thenReturn(listOf(
             subjectProperty,
             recipientProperty,
             mailTemplateProperty,
@@ -78,9 +78,9 @@ internal class MailServiceTest {
             .bpmnModelElementInstance
             .extensionElements
             .elementsQuery
-            .filterByType(CamundaProperties::class.java)
+            .filterByType(OperatonProperties::class.java)
             .singleResult()
-        ).thenReturn(camundaProperties)
+        ).thenReturn(OperatonProperties)
     }
 
     @Test

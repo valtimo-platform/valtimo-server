@@ -17,9 +17,9 @@
 package com.ritense.valtimo.camunda.service
 
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
-import org.camunda.bpm.engine.impl.context.Context
-import org.camunda.bpm.engine.impl.context.ProcessEngineContextImpl
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
+import org.operaton.bpm.engine.impl.context.Context
+import org.operaton.bpm.engine.impl.context.ProcessEngineContextImpl
 import org.springframework.stereotype.Service
 import java.util.concurrent.Callable
 

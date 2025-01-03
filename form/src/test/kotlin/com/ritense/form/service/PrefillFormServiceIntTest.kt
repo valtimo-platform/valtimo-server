@@ -24,7 +24,7 @@ import com.ritense.document.domain.impl.request.NewDocumentRequest
 import com.ritense.document.service.DocumentService
 import com.ritense.form.BaseIntegrationTest
 import com.ritense.valtimo.service.CamundaProcessService
-import org.camunda.bpm.engine.TaskService
+import org.operaton.bpm.engine.TaskService
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test

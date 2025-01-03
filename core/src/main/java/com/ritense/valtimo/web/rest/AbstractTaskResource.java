@@ -29,9 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.camunda.bpm.engine.FormService;
-import org.camunda.bpm.engine.form.FormField;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.operaton.bpm.engine.FormService;
+import org.operaton.bpm.engine.form.FormField;
+import org.operaton.bpm.engine.runtime.ProcessInstance;
 
 public abstract class AbstractTaskResource {
 

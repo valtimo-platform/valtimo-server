@@ -32,7 +32,7 @@ import com.ritense.valtimo.web.rest.dto.ProcessInstanceSearchDTO;
 import jakarta.inject.Inject;
 import java.util.Date;
 import java.util.List;
-import org.camunda.bpm.engine.RepositoryService;
+import org.operaton.bpm.engine.RepositoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;

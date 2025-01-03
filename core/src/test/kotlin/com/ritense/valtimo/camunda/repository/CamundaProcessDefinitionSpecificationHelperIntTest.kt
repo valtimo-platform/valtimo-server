@@ -2,7 +2,7 @@ package com.ritense.valtimo.camunda.repository
 
 import com.ritense.valtimo.BaseIntegrationTest
 import org.assertj.core.api.Assertions
-import org.camunda.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RepositoryService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional

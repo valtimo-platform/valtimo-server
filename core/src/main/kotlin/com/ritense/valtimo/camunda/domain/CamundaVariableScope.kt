@@ -16,8 +16,8 @@
 
 package com.ritense.valtimo.camunda.domain
 
-import org.camunda.bpm.engine.delegate.VariableScope
-import org.camunda.bpm.engine.variable.value.TypedValue
+import org.operaton.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.variable.value.TypedValue
 
 abstract class CamundaVariableScope : VariableScope {
 

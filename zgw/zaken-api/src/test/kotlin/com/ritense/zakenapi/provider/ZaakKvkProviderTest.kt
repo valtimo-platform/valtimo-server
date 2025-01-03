@@ -30,7 +30,6 @@ import com.ritense.zakenapi.domain.rol.RolNietNatuurlijkPersoon
 import com.ritense.zakenapi.domain.rol.RolType
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.community.mockito.delegate.DelegateTaskFake
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -38,6 +37,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.delegate.DelegateTask
 import java.net.URI
 import java.util.UUID
 
@@ -62,8 +62,9 @@ class ZaakKvkProviderTest {
 
     @Test
     fun `should get bsn via zaak rollen`() {
-        val task = DelegateTaskFake()
-                .withProcessInstanceId(UUID.randomUUID().toString())
+        val task = mock<DelegateTask> {
+            on { processInstanceId }.thenReturn(UUID.randomUUID().toString())
+        }
         val zaakUrl = URI("example.com")
 
         prepareMocks(task, zaakUrl)
@@ -83,8 +84,9 @@ class ZaakKvkProviderTest {
 
     @Test
     fun `should throw exception when plugin configuration is not found`() {
-        val task = DelegateTaskFake()
-                .withProcessInstanceId(UUID.randomUUID().toString())
+        val task = mock<DelegateTask> {
+            on { processInstanceId }.thenReturn(UUID.randomUUID().toString())
+        }
         val zaakUrl = URI("example.com")
 
         prepareMocks(task, zaakUrl)
@@ -96,7 +98,7 @@ class ZaakKvkProviderTest {
         assertThat(exception.message).isEqualTo("No plugin configuration was found for zaak with URL $zaakUrl")
     }
 
-    private fun prepareMocks(task: DelegateTaskFake, zaakUrl: URI) {
+    private fun prepareMocks(task: DelegateTask, zaakUrl: URI) {
         val documentId = UUID.randomUUID()
         whenever(processDocumentService.getDocumentId(eq(CamundaProcessInstanceId(task.processInstanceId)), eq(task))).thenReturn(JsonSchemaDocumentId.existingId(documentId))
         val zaakInstanceLink = mock<ZaakInstanceLink>()

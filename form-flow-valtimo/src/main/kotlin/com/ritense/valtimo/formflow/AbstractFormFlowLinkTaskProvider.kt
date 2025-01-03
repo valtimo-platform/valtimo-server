@@ -21,7 +21,7 @@ import com.ritense.document.exception.DocumentNotFoundException
 import com.ritense.document.service.DocumentService
 import com.ritense.logging.withLoggingContext
 import com.ritense.valtimo.camunda.domain.CamundaTask
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 
 abstract class AbstractFormFlowLinkTaskProvider(
     private val documentService: DocumentService,
