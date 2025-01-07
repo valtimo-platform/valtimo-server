@@ -277,7 +277,7 @@ class PortaaltaakPlugin(
         sendData: List<DataBindingConfig>,
         documentId: String
     ): Map<String, Any> {
-        val sendDataValuesResolvedMap = valueResolverService.resolveValues(documentId, sendData.map { it.value })
+        val sendDataValuesResolvedMap = valueResolverService.resolveValues(documentId, delegateTask, sendData.map { it.value })
 
         if (sendData.size != sendDataValuesResolvedMap.size) {
             val failedValues = sendData
