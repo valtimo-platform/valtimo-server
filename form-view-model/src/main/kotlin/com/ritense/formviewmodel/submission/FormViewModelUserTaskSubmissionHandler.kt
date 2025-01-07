@@ -17,6 +17,7 @@
 package com.ritense.formviewmodel.submission
 
 import com.ritense.formviewmodel.viewmodel.Submission
+import com.ritense.processlink.domain.ProcessLink
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.KClass
@@ -24,6 +25,14 @@ import kotlin.reflect.full.allSupertypes
 
 @Transactional
 interface FormViewModelUserTaskSubmissionHandler<T : Submission> {
+
+    /**
+     * Determines whether this handler supports the specified process link.
+     *
+     * @param processLink the process link to check
+     * @return `true` if link is supported, `false` otherwise
+     */
+    fun supports(processLink: ProcessLink) = false
 
     /**
      * Determines whether this handler supports the specified form name.

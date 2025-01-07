@@ -1,18 +1,26 @@
 package com.ritense.formviewmodel.submission
 
+import com.ritense.form.service.FormDefinitionService
 import com.ritense.formviewmodel.BaseTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mock
+import org.mockito.junit.jupiter.MockitoExtension
 
-class FormViewModelUserTaskSubmissionHandlerFactoryTest : BaseTest() {
+@ExtendWith(MockitoExtension::class)
+class FormViewModelUserTaskSubmissionHandlerFactoryTest(
+    @Mock private val formDefinitionService: FormDefinitionService,
+) : BaseTest() {
 
     private lateinit var formViewModelUserTaskSubmissionHandlerFactory: FormViewModelUserTaskSubmissionHandlerFactory
 
     @BeforeEach
     fun setUp() {
         formViewModelUserTaskSubmissionHandlerFactory = FormViewModelUserTaskSubmissionHandlerFactory(
-            listOf(TestUserTaskSubmissionHandler())
+            listOf(TestUserTaskSubmissionHandler()),
+            formDefinitionService
         )
     }
 

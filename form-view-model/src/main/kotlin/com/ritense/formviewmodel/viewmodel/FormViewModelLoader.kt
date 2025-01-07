@@ -16,17 +16,15 @@
 
 package com.ritense.formviewmodel.viewmodel
 
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.processlink.domain.ProcessLink
+import org.springframework.transaction.annotation.Transactional
 
-interface ViewModel {
+@Transactional
+abstract class FormViewModelLoader<T : ViewModel>: ViewModelLoader<T> {
 
-    @Deprecated("Deprecated since 12.6.0", replaceWith = ReplaceWith("update(task, page)"))
-    fun update(task: CamundaTask? = null): ViewModel {
-        return update(task, null)
-    }
+    override fun supports(processLink: ProcessLink) = false
 
-    fun update(task: CamundaTask? = null, page: Int?): ViewModel {
-        return this
-    }
+    fun supports(formName: String) = getFormName() == formName
 
+    abstract fun getFormName(): String
 }

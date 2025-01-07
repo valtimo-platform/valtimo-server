@@ -17,10 +17,11 @@
 package com.ritense.formviewmodel
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.form.service.FormDefinitionService
 import com.ritense.formviewmodel.autoconfigure.FormViewModelAutoConfiguration
 import com.ritense.formviewmodel.submission.TestStartFormSubmissionHandler
 import com.ritense.formviewmodel.submission.TestUserTaskSubmissionHandler
-import com.ritense.formviewmodel.viewmodel.TestViewModelLoader
+import com.ritense.formviewmodel.viewmodel.TestFormViewModelLoader
 import com.ritense.valtimo.contract.json.MapperSingleton
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -47,7 +48,7 @@ class TestApplication {
         }
 
         @Bean
-        fun testViewModelLoader() = TestViewModelLoader()
+        fun testViewModelLoader(formDefinitionService: FormDefinitionService) = TestFormViewModelLoader()
 
         @Bean
         fun testStartFormSubmissionHandler() = TestStartFormSubmissionHandler()
