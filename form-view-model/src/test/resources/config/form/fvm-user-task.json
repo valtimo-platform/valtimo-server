@@ -8,7 +8,7 @@
     },
     "components": [
         {
-            "label": "test",
+            "label": "Voornaam",
             "key": "test",
             "type": "textfield",
             "input": true,
@@ -19,8 +19,8 @@
             }
         },
         {
-            "label": "reversedString",
-            "key": "reversedString",
+            "label": "Voornaam",
+            "key": "test2",
             "type": "textfield",
             "input": true,
             "validate": {
@@ -28,34 +28,6 @@
                 "unique": false,
                 "multiple": false
             }
-        },
-        {
-            "label": "age",
-            "key": "age",
-            "type": "textfield",
-            "input": true,
-            "validate": {
-                "maxLength": 10,
-                "unique": false,
-                "multiple": false
-            }
-        },
-        {
-            "label": "Container",
-            "tableView": false,
-            "key": "dataContainer",
-            "type": "container",
-            "input": true,
-            "components": [
-                {
-                    "label": "Text Field",
-                    "applyMaskOn": "change",
-                    "tableView": true,
-                    "key": "nestedData",
-                    "type": "textfield",
-                    "input": true
-                }
-            ]
         },
         {
             "type": "button",

@@ -97,12 +97,10 @@ class FormViewModelResource(
 
     @PostMapping("/submit/user-task")
     fun submitTask(
-        @RequestParam formName: String,
         @RequestParam taskInstanceId: String,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<Void> {
         formViewModelSubmissionService.handleUserTaskSubmission(
-            formName = formName,
             taskInstanceId = taskInstanceId,
             submission = submission
         )
@@ -111,13 +109,11 @@ class FormViewModelResource(
 
     @PostMapping("/submit/start-form")
     fun submitStartForm(
-        @RequestParam formName: String,
         @RequestParam processDefinitionKey: String,
         @RequestParam documentDefinitionName: String,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<Void> {
         formViewModelSubmissionService.handleStartFormSubmission(
-            formName = formName,
             processDefinitionKey = processDefinitionKey,
             documentDefinitionName = documentDefinitionName,
             submission = submission,

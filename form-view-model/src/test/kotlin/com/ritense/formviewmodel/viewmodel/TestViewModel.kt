@@ -6,10 +6,11 @@ data class TestViewModel(
     val test: String? = null,
     val age: Int? = null,
     val dataContainer: TestData? = null,
+    val reversedString: String? = null
 ) : ViewModel, Submission {
 
     override fun update(task: CamundaTask?, page: Int?): ViewModel {
-        return this
+        return this.copy(reversedString = reversedString?.reversed())
     }
 
 }

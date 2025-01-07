@@ -133,20 +133,20 @@ class FormViewModelResourceTest(
 
     @Test
     fun `should return validation error for user task submission`() {
+        val taskInstanceId = "taskInstanceId"
         whenever(
             formViewModelSubmissionService.handleUserTaskSubmission(
-                formName = eq("test"),
                 submission = any(),
-                taskInstanceId = any()
+                taskInstanceId = eq(taskInstanceId)
             )
         ).then {
             throw FormException(message = "Im a child", "age")
         }
         mockMvc.perform(
             post(
-                "$BASE_URL/submit/$USER_TASK?formName={formName}&taskInstanceId={taskInstanceId}",
-                "test", "taskInstanceId"
-            ).accept(APPLICATION_JSON_UTF8_VALUE)
+                "$BASE_URL/submit/$USER_TASK"
+            ).queryParam("taskInstanceId", taskInstanceId)
+                .accept(APPLICATION_JSON_UTF8_VALUE)
                 .contentType(APPLICATION_JSON_UTF8_VALUE)
                 .content(objectMapper.writeValueAsString(TestViewModel()))
         ).andExpect(status().isBadRequest)
@@ -234,24 +234,22 @@ class FormViewModelResourceTest(
 
     @Test
     fun `should return validation error for start form submission`() {
+        val processDefinitionKey = "processDefinitionKey"
+        val documentDefinitionName = "documentDefinitionName"
         whenever(
             formViewModelSubmissionService.handleStartFormSubmission(
-                formName = eq("test"),
-                processDefinitionKey = eq("processDefinitionKey"),
-                documentDefinitionName = eq("documentDefinitionName"),
+                processDefinitionKey = eq(processDefinitionKey),
+                documentDefinitionName = eq(documentDefinitionName),
                 submission = any()
             )
         ).then {
             throw FormException(message = "Im a child", "age")
         }
         mockMvc.perform(
-            post(
-                "$BASE_URL/submit/$START_FORM?" +
-                    "formName={formName}&" +
-                    "processDefinitionKey={processDefinitionKey}&" +
-                    "documentDefinitionName={documentDefinitionName}",
-                "test", "processDefinitionKey", "documentDefinitionName"
-            ).accept(APPLICATION_JSON_UTF8_VALUE)
+            post("$BASE_URL/submit/$START_FORM")
+                .queryParam("processDefinitionKey", processDefinitionKey)
+                .queryParam("documentDefinitionName", documentDefinitionName)
+                .accept(APPLICATION_JSON_UTF8_VALUE)
                 .contentType(APPLICATION_JSON_UTF8_VALUE)
                 .content(objectMapper.writeValueAsString(TestViewModel()))
         ).andExpect(status().isBadRequest)

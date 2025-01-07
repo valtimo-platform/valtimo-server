@@ -2,7 +2,7 @@ package com.ritense.formviewmodel.viewmodel
 
 import com.ritense.valtimo.camunda.domain.CamundaTask
 
-class TestFormViewModelLoader() : FormViewModelLoader<TestViewModel>() {
+class TestFormViewModelLoader(private val formName: String = "test") : FormViewModelLoader<TestViewModel>() {
     override fun load(task: CamundaTask?): TestViewModel {
         return TestViewModel()
     }
@@ -11,5 +11,5 @@ class TestFormViewModelLoader() : FormViewModelLoader<TestViewModel>() {
         return formName == getFormName()
     }
 
-    override fun getFormName(): String = "test"
+    override fun getFormName(): String = formName
 }

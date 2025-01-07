@@ -17,12 +17,14 @@
 package com.ritense.formviewmodel
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.commandhandling.CommandDispatcher
 import com.ritense.form.service.FormDefinitionService
 import com.ritense.formviewmodel.autoconfigure.FormViewModelAutoConfiguration
 import com.ritense.formviewmodel.submission.TestStartFormSubmissionHandler
 import com.ritense.formviewmodel.submission.TestUserTaskSubmissionHandler
 import com.ritense.formviewmodel.viewmodel.TestFormViewModelLoader
 import com.ritense.valtimo.contract.json.MapperSingleton
+import org.mockito.kotlin.spy
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.runApplication
@@ -48,12 +50,20 @@ class TestApplication {
         }
 
         @Bean
-        fun testViewModelLoader(formDefinitionService: FormDefinitionService) = TestFormViewModelLoader()
+        fun testViewModelLoader(formDefinitionService: FormDefinitionService) = TestFormViewModelLoader(
+            formName = "fvm-user-task"
+        )
 
         @Bean
-        fun testStartFormSubmissionHandler() = TestStartFormSubmissionHandler()
+        fun testStartFormSubmissionHandler(commandDispatcher: CommandDispatcher?) = spy(
+            TestStartFormSubmissionHandler(formName = "fvm-user-task",)
+        )
 
         @Bean
-        fun testUserTaskSubmissionHandler() = TestUserTaskSubmissionHandler()
+        fun testUserTaskSubmissionHandler(commandDispatcher: CommandDispatcher?) = spy(
+            TestUserTaskSubmissionHandler(formName = "fvm-user-task",)
+        )
+
+
     }
 }
