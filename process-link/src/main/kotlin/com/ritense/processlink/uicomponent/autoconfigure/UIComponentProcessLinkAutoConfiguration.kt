@@ -18,6 +18,7 @@ package com.ritense.processlink.uicomponent.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.processlink.uicomponent.mapper.UIComponentProcessLinkMapper
+import com.ritense.processlink.uicomponent.mapper.UIComponentProcessLinkModule
 import com.ritense.processlink.uicomponent.service.UIComponentProcessLinkActivityHandler
 import com.ritense.processlink.uicomponent.service.UIComponentSupportedProcessLinksHandler
 import com.ritense.valtimo.camunda.domain.CamundaTask
@@ -31,13 +32,16 @@ import org.springframework.context.annotation.Configuration
 @EntityScan("com.ritense.processlink.uicomponent.domain")
 class UIComponentProcessLinkAutoConfiguration {
 
+
+    @Bean
+    @ConditionalOnMissingBean(UIComponentProcessLinkModule::class)
+    fun uiComponentProcessLinkModule() = UIComponentProcessLinkModule()
+
     @Bean
     @ConditionalOnMissingBean(UIComponentProcessLinkMapper::class)
     fun uiComponentProcessLinkMapper(
         objectMapper: ObjectMapper
-    ) = UIComponentProcessLinkMapper(
-        objectMapper
-    )
+    ) = UIComponentProcessLinkMapper()
 
     @Bean
     @ConditionalOnMissingBean(UIComponentSupportedProcessLinksHandler::class)

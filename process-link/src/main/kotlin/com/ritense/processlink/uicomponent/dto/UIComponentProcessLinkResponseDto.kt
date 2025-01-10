@@ -16,8 +16,8 @@
 
 package com.ritense.processlink.uicomponent.dto
 
-import com.ritense.processlink.uicomponent.mapper.UIComponentProcessLinkMapper.Companion.PROCESS_LINK_TYPE_CUSTOM
 import com.ritense.processlink.domain.ActivityTypeWithEventName
+import com.ritense.processlink.uicomponent.domain.UIComponentProcessLink.Companion.TYPE_UI_COMPONENT
 import com.ritense.processlink.web.rest.dto.ProcessLinkResponseDto
 import java.util.UUID
 
@@ -26,6 +26,8 @@ data class UIComponentProcessLinkResponseDto(
     override val processDefinitionId: String,
     override val activityId: String,
     override val activityType: ActivityTypeWithEventName,
-    override val processLinkType: String = PROCESS_LINK_TYPE_CUSTOM,
     val componentKey: String
-) : ProcessLinkResponseDto
+) : ProcessLinkResponseDto {
+    override val processLinkType: String
+        get() = TYPE_UI_COMPONENT
+}

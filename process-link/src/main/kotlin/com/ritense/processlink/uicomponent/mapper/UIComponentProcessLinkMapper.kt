@@ -16,7 +16,6 @@
 
 package com.ritense.processlink.uicomponent.mapper
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.processlink.autodeployment.ProcessLinkDeployDto
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.mapper.ProcessLinkMapper
@@ -32,21 +31,9 @@ import com.ritense.processlink.web.rest.dto.ProcessLinkResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkUpdateRequestDto
 import java.util.UUID
 
-class UIComponentProcessLinkMapper(
-    objectMapper: ObjectMapper
-) : ProcessLinkMapper {
+class UIComponentProcessLinkMapper : ProcessLinkMapper {
 
-    init {
-        objectMapper.registerSubtypes(
-            UIComponentProcessLinkCreateRequestDto::class.java,
-            UIComponentProcessLinkResponseDto::class.java,
-            UIComponentProcessLinkDeployDto::class.java,
-            UIComponentProcessLinkExportResponseDto::class.java,
-            UIComponentProcessLinkUpdateRequestDto::class.java
-        )
-    }
-
-    override fun supportsProcessLinkType(processLinkType: String) = processLinkType == PROCESS_LINK_TYPE_CUSTOM
+    override fun supportsProcessLinkType(processLinkType: String) = processLinkType == UIComponentProcessLink.TYPE_UI_COMPONENT
 
     override fun toProcessLinkResponseDto(processLink: ProcessLink): ProcessLinkResponseDto {
         processLink as UIComponentProcessLink
@@ -113,9 +100,5 @@ class UIComponentProcessLinkMapper(
             id = existingProcessLinkId,
             componentKey = deployDto.componentKey
         )
-    }
-
-    companion object {
-        const val PROCESS_LINK_TYPE_CUSTOM = "ui-component"
     }
 }

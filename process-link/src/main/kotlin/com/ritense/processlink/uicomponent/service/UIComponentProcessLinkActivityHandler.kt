@@ -20,6 +20,7 @@ import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.service.ProcessLinkActivityHandler
 import com.ritense.processlink.uicomponent.domain.UIComponentActivityResultProperties
 import com.ritense.processlink.uicomponent.domain.UIComponentProcessLink
+import com.ritense.processlink.uicomponent.domain.UIComponentProcessLink.Companion.TYPE_UI_COMPONENT
 import com.ritense.processlink.web.rest.dto.ProcessLinkActivityResult
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import java.util.UUID
@@ -37,7 +38,7 @@ class UIComponentProcessLinkActivityHandler : ProcessLinkActivityHandler<UICompo
         processLink as UIComponentProcessLink
         return ProcessLinkActivityResult(
             processLink.id,
-            TYPE_KEY,
+            TYPE_UI_COMPONENT,
             UIComponentActivityResultProperties(processLink.componentKey)
         )
     }
@@ -51,12 +52,8 @@ class UIComponentProcessLinkActivityHandler : ProcessLinkActivityHandler<UICompo
         processLink as UIComponentProcessLink
         return ProcessLinkActivityResult(
             processLink.id,
-            TYPE_KEY,
+            TYPE_UI_COMPONENT,
             UIComponentActivityResultProperties(processLink.componentKey)
         )
-    }
-
-    companion object {
-        private const val TYPE_KEY = "ui-component"
     }
 }

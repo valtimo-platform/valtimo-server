@@ -18,11 +18,10 @@ package com.ritense.processlink.uicomponent.dto
 
 import com.fasterxml.jackson.annotation.JsonTypeName
 import com.ritense.processlink.domain.ActivityTypeWithEventName
-import com.ritense.processlink.uicomponent.mapper.UIComponentProcessLinkMapper.Companion.PROCESS_LINK_TYPE_CUSTOM
+import com.ritense.processlink.uicomponent.domain.UIComponentProcessLink.Companion.TYPE_UI_COMPONENT
 import com.ritense.processlink.web.rest.dto.ProcessLinkCreateRequestDto
 
-@JsonTypeName(PROCESS_LINK_TYPE_CUSTOM)
-
+@JsonTypeName(TYPE_UI_COMPONENT)
 data class UIComponentProcessLinkCreateRequestDto(
     override val processDefinitionId: String,
     override val activityId: String,
@@ -30,5 +29,5 @@ data class UIComponentProcessLinkCreateRequestDto(
     val componentKey: String
 ) : ProcessLinkCreateRequestDto {
     override val processLinkType: String
-        get() = PROCESS_LINK_TYPE_CUSTOM
+        get() = TYPE_UI_COMPONENT
 }

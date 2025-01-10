@@ -19,6 +19,7 @@ package com.ritense.processlink.uicomponent.service
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLinkType
 import com.ritense.processlink.domain.SupportedProcessLinkTypeHandler
+import com.ritense.processlink.uicomponent.domain.UIComponentProcessLink
 
 class UIComponentSupportedProcessLinksHandler: SupportedProcessLinkTypeHandler {
 
@@ -29,7 +30,7 @@ class UIComponentSupportedProcessLinksHandler: SupportedProcessLinkTypeHandler {
 
     override fun getProcessLinkType(activityType: String): ProcessLinkType? {
         if (supportedActivityTypes.contains(ActivityTypeWithEventName.fromValue(activityType))) {
-            return ProcessLinkType("ui-component", true)
+            return ProcessLinkType(UIComponentProcessLink.TYPE_UI_COMPONENT, true)
         }
         return null
     }

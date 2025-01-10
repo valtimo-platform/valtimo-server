@@ -18,14 +18,13 @@ package com.ritense.processlink.uicomponent.domain
 
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLink
-import com.ritense.processlink.uicomponent.mapper.UIComponentProcessLinkMapper
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import java.util.UUID
 
 @Entity
-@DiscriminatorValue(UIComponentProcessLinkMapper.PROCESS_LINK_TYPE_CUSTOM)
+@DiscriminatorValue(UIComponentProcessLink.TYPE_UI_COMPONENT)
 class UIComponentProcessLink(
     id: UUID,
     processDefinitionId: String,
@@ -38,7 +37,7 @@ class UIComponentProcessLink(
     processDefinitionId,
     activityId,
     activityType,
-    UIComponentProcessLinkMapper.PROCESS_LINK_TYPE_CUSTOM
+    TYPE_UI_COMPONENT
 ) {
 
     override fun copy(id: UUID, processDefinitionId: String) =
@@ -76,5 +75,9 @@ class UIComponentProcessLink(
         var result = super.hashCode()
         result = 31 * result + componentKey.hashCode()
         return result
+    }
+
+    companion object {
+        const val TYPE_UI_COMPONENT = "ui-component"
     }
 }
