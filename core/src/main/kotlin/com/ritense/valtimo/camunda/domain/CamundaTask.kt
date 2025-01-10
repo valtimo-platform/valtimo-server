@@ -140,7 +140,6 @@ class CamundaTask(
 
 
     override fun equals(other: Any?): Boolean {
-        listOf<String>().isNullOrEmpty()
         if (this === other) return true
         if (other !is CamundaTask) return false
 
