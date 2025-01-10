@@ -27,7 +27,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.context.ApplicationContext
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.client.RestClient
 
 @TestInstance(Lifecycle.PER_CLASS)
 internal class ExactPluginTest {
@@ -36,7 +36,7 @@ internal class ExactPluginTest {
     private lateinit var exactService: ExactService
     lateinit var context: ApplicationContext
     private lateinit var exactPlugin: ExactPlugin
-    lateinit var exactClient: WebClient
+    lateinit var exactClient: RestClient
 
     @BeforeAll
     fun setUpAll() {
@@ -88,7 +88,7 @@ internal class ExactPluginTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("GET", request.method)
-        assertEquals("http://localhost:${mockWebServer.port}/api/test", request.requestUrl.toString())
+        assertEquals("/api/test", request.requestUrl?.encodedPath)
     }
 
     class TestGetRequest : ExactGetRequest {
@@ -133,7 +133,7 @@ internal class ExactPluginTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("GET", request.method)
-        assertEquals("http://localhost:${mockWebServer.port}/api/test", request.requestUrl.toString())
+        assertEquals("/api/test", request.requestUrl?.encodedPath)
     }
 
     @Test
@@ -172,7 +172,7 @@ internal class ExactPluginTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("POST", request.method)
-        assertEquals("http://localhost:${mockWebServer.port}/api/test", request.requestUrl.toString())
+        assertEquals("/api/test", request.requestUrl?.encodedPath)
         assertEquals(
             """
             { "request": "1" }
@@ -226,7 +226,7 @@ internal class ExactPluginTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("POST", request.method)
-        assertEquals("http://localhost:${mockWebServer.port}/api/test", request.requestUrl.toString())
+        assertEquals("/api/test", request.requestUrl?.encodedPath)
         assertEquals(
             """
             { "test": 1 }
@@ -270,7 +270,7 @@ internal class ExactPluginTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("PUT", request.method)
-        assertEquals("http://localhost:${mockWebServer.port}/api/test", request.requestUrl.toString())
+        assertEquals("/api/test", request.requestUrl?.encodedPath)
         assertEquals(
             """
             { "request": "1" }
@@ -324,7 +324,7 @@ internal class ExactPluginTest {
 
         val request = mockWebServer.takeRequest()
         assertEquals("PUT", request.method)
-        assertEquals("http://localhost:${mockWebServer.port}/api/test", request.requestUrl.toString())
+        assertEquals("/api/test", request.requestUrl?.encodedPath)
         assertEquals(
             """
             { "test": 1 }

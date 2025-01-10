@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,14 @@
 
 package com.ritense.processdocument.service.impl;
 
+import static com.ritense.authorization.AuthorizationContext.runWithoutAuthorization;
+import static com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.byKey;
+import static com.ritense.valtimo.contract.utils.AssertionConcern.assertStateTrue;
+
 import com.ritense.authorization.Action;
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.authorization.AuthorizationService;
+import com.ritense.authorization.request.AuthorizationResourceContext;
 import com.ritense.authorization.request.EntityAuthorizationRequest;
 import com.ritense.authorization.request.RelatedEntityAuthorizationRequest;
 import com.ritense.document.domain.Document;
@@ -26,6 +31,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId;
 import com.ritense.document.domain.impl.JsonSchemaDocumentId;
+import com.ritense.document.exception.DocumentNotFoundException;
 import com.ritense.document.exception.UnknownDocumentDefinitionException;
 import com.ritense.document.repository.DocumentDefinitionRepository;
 import com.ritense.document.service.DocumentDefinitionService;
@@ -53,6 +59,7 @@ import com.ritense.valtimo.camunda.authorization.CamundaExecutionActionProvider;
 import com.ritense.valtimo.camunda.domain.CamundaExecution;
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService;
+import com.ritense.valtimo.contract.authentication.ManageableUser;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.result.FunctionResult;
 import com.ritense.valtimo.contract.result.OperationError;
@@ -65,11 +72,8 @@ import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.ritense.authorization.AuthorizationContext.runWithoutAuthorization;
-import static com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.byKey;
-import static com.ritense.valtimo.contract.utils.AssertionConcern.assertStateTrue;
 
 public class CamundaProcessJsonSchemaDocumentAssociationService implements ProcessDocumentAssociationService {
 
@@ -160,9 +164,25 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
 
     @Override
     public List<CamundaProcessJsonSchemaDocumentDefinition> findProcessDocumentDefinitions(String documentDefinitionName) {
+        return findProcessDocumentDefinitions(documentDefinitionName, null, null);
+    }
 
+    @Override
+    public List<CamundaProcessJsonSchemaDocumentDefinition> findProcessDocumentDefinitions(
+        String documentDefinitionName,
+        @Nullable Boolean startableByUser
+    ) {
+        return findProcessDocumentDefinitions(documentDefinitionName, startableByUser, null);
+    }
+
+    @Override
+    public List<CamundaProcessJsonSchemaDocumentDefinition> findProcessDocumentDefinitions(
+        String documentDefinitionName,
+        @Nullable Boolean startableByUser,
+        @Nullable Boolean canInitializeDocument
+    ) {
         List<CamundaProcessJsonSchemaDocumentDefinition> results = processDocumentDefinitionRepository
-            .findAllByDocumentDefinitionNameAndLatestDocumentDefinitionVersion(documentDefinitionName);
+            .findAll(documentDefinitionName, startableByUser, canInitializeDocument);
 
         return results.stream().filter(result -> {
             CamundaProcessDefinition processDefinition = AuthorizationContext.runWithoutAuthorization(() ->
@@ -184,11 +204,45 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
 
     @Override
     public List<CamundaProcessJsonSchemaDocumentDefinition> findProcessDocumentDefinitions(
+        UUID documentId,
+        @Nullable Boolean startableByUser,
+        @Nullable Boolean canInitializeDocument
+    ) {
+        Document document = documentService.findBy(JsonSchemaDocumentId.existingId(documentId)).
+            orElseThrow(() -> new DocumentNotFoundException("Document not found with id " + documentId));
+
+        List<CamundaProcessJsonSchemaDocumentDefinition> results = processDocumentDefinitionRepository
+            .findAll(document.definitionId().name(), startableByUser, canInitializeDocument);
+
+        return results.stream().filter(result -> {
+            CamundaProcessDefinition processDefinition = AuthorizationContext.runWithoutAuthorization(() ->
+                repositoryService.findLatestProcessDefinition(
+                    result.processDocumentDefinitionId().processDefinitionKey().toString()
+                )
+            );
+
+            return authorizationService.hasPermission(
+                new RelatedEntityAuthorizationRequest<>(
+                    CamundaExecution.class,
+                    CamundaExecutionActionProvider.CREATE,
+                    CamundaProcessDefinition.class,
+                    processDefinition.getId()
+                ).withContext(
+                    new AuthorizationResourceContext(
+                        JsonSchemaDocument.class,
+                        document
+                    )
+                )
+            );
+        }).toList();
+    }
+
+    @Override
+    public List<CamundaProcessJsonSchemaDocumentDefinition> findProcessDocumentDefinitions(
         String documentDefinitionName,
         Long documentDefinitionVersion
     ) {
-        return processDocumentDefinitionRepository
-            .findAllByDocumentDefinitionNameAndVersion(documentDefinitionName, documentDefinitionVersion);
+        return processDocumentDefinitionRepository.findAllByDocumentDefinitionNameAndVersion(documentDefinitionName, documentDefinitionVersion);
     }
 
     @Override
@@ -263,7 +317,8 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
                         ZoneId.systemDefault()
                     );
                     var startedBy = camundaProcess.getStartUserId() == null ? null :
-                        userManagementService.findByEmail(camundaProcess.getStartUserId()).orElseThrow().getFullName();
+                        userManagementService.findByEmail(camundaProcess.getStartUserId()).map(ManageableUser::getFullName).orElse(null);
+
                     return new ProcessDocumentInstanceDto(
                         process.getId(),
                         process.processName(),
@@ -291,6 +346,15 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
 
         logger.debug("Remove all running process document instances for process: {}", processName);
         processDocumentInstanceRepository.deleteAllByProcessName(processName);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProcessDocumentInstance(ProcessDocumentInstanceId processDocumentInstanceId) {
+        denyAuthorization(CamundaProcessJsonSchemaDocumentInstance.class);
+
+        logger.debug("Deleting process document instance: {}", processDocumentInstanceId);
+        processDocumentInstanceRepository.deleteById(processDocumentInstanceId);
     }
 
     @Override
@@ -368,7 +432,7 @@ public class CamundaProcessJsonSchemaDocumentAssociationService implements Proce
     public void deleteProcessDocumentDefinition(ProcessDocumentDefinitionRequest request) {
         denyAuthorization(CamundaProcessJsonSchemaDocumentDefinition.class);
 
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug(
                 "Remove process document definition for document definition: {}",
                 request.documentDefinitionName()

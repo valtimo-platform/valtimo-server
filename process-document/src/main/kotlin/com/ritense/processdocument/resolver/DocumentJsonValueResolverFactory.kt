@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valtimo.contract.json.patch.JsonPatchBuilder
 import com.ritense.valueresolver.ValueResolverFactory
+import com.ritense.valueresolver.ValueResolverOption
+import com.ritense.valueresolver.ValueResolverOptionType
 import com.ritense.valueresolver.exception.ValueResolverValidationException
 import org.camunda.bpm.engine.delegate.VariableScope
 import java.util.UUID
@@ -87,7 +89,7 @@ class DocumentJsonValueResolverFactory(
     override fun handleValues(
         processInstanceId: String,
         variableScope: VariableScope?,
-        values: Map<String, Any>
+        values: Map<String, Any?>
     ) {
         val document = AuthorizationContext.runWithoutAuthorization {
             processDocumentService.getDocument(CamundaProcessInstanceId(processInstanceId), variableScope)
@@ -108,7 +110,7 @@ class DocumentJsonValueResolverFactory(
         }
     }
 
-    override fun handleValues(documentId: UUID, values: Map<String, Any>) {
+    override fun handleValues(documentId: UUID, values: Map<String, Any?>) {
         val document = AuthorizationContext.runWithoutAuthorization { documentService.get(documentId.toString()) }
         val documentContent = document.content().asJson()
         buildJsonPatch(documentContent, values)
@@ -123,13 +125,39 @@ class DocumentJsonValueResolverFactory(
         }
     }
 
-    override fun preProcessValuesForNewCase(values: Map<String, Any>): ObjectNode {
+    override fun preProcessValuesForNewCase(values: Map<String, Any?>): ObjectNode {
         val emptyDocumentContent = objectMapper.createObjectNode()
         buildJsonPatch(emptyDocumentContent, values)
         return emptyDocumentContent
     }
 
-    private fun buildJsonPatch(jsonNode: JsonNode, values: Map<String, Any>) {
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
+    override fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
+        val documentDefinition = documentDefinitionService.findByNameAndVersion(documentDefinitionName, version).orElseThrow()
+        return documentDefinitionService.getPropertyNames(documentDefinition)
+    }
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String) instead")
+    override fun getResolvableKeys(documentDefinitionName: String): List<String> {
+        val documentDefinition = documentDefinitionService.findLatestByName(documentDefinitionName).orElseThrow()
+        return documentDefinitionService.getPropertyNames(documentDefinition)
+    }
+
+    override fun getResolvableKeyOptions(documentDefinitionName: String, version: Long): List<ValueResolverOption> {
+        val documentDefinition = documentDefinitionService.findByNameAndVersion(documentDefinitionName, version).orElseThrow()
+        val schemaAsNode = documentDefinition.getSchema()
+            .asJson() as ObjectNode
+        return getPropertyNamesFromObjectNode(documentDefinition, schemaAsNode, "$PREFIX:")
+    }
+
+    override fun getResolvableKeyOptions(documentDefinitionName: String): List<ValueResolverOption> {
+        val documentDefinition = documentDefinitionService.findLatestByName(documentDefinitionName).orElseThrow()
+        val schemaAsNode = documentDefinition.getSchema()
+            .asJson() as ObjectNode
+        return getPropertyNamesFromObjectNode(documentDefinition, schemaAsNode, "$PREFIX:")
+    }
+
+    private fun buildJsonPatch(jsonNode: JsonNode, values: Map<String, Any?>) {
         val jsonPatchBuilder = JsonPatchBuilder()
 
         values.forEach {
@@ -197,12 +225,57 @@ class DocumentJsonValueResolverFactory(
         }
     }
 
-    private fun toValueNode(value: Any): JsonNode {
+    private fun toValueNode(value: Any?): JsonNode {
         return objectMapper.valueToTree(value)
     }
 
     companion object {
         const val PREFIX = "doc"
+    }
+
+    private fun getPropertyNamesFromObjectNode(
+        definition: JsonSchemaDocumentDefinition,
+        node: ObjectNode,
+        path: String
+    ): List<ValueResolverOption> {
+        val options: MutableList<ValueResolverOption> = mutableListOf()
+        if (node.has("type")) {
+            val propertyType = node["type"].asText()
+            if (isSimpleObject(propertyType)) {
+                options += ValueResolverOption(path, ValueResolverOptionType.FIELD)
+            } else if (propertyType == "object") {
+                node["properties"].fields().forEach { jsonNode ->
+                    options += getPropertyNamesFromObjectNode(
+                        definition,
+                        jsonNode.value as ObjectNode,
+                        "$path/${jsonNode.key}"
+                    )
+                }
+            } else if (propertyType == "array") {
+                options += ValueResolverOption(
+                    path,
+                    ValueResolverOptionType.COLLECTION,
+                    node["items"]?.let { getPropertyNamesFromObjectNode(definition, it as ObjectNode, "") }
+                )
+            }
+        } else if (node.has("\$ref")) {
+            val internalDefinition = node["\$ref"].asText().substring(1)
+            if (internalDefinition.startsWith("/")) {
+                val referencedNode = definition.schema().at(internalDefinition) as ObjectNode
+                options += getPropertyNamesFromObjectNode(
+                    definition,
+                    referencedNode,
+                    path
+                )
+            }
+        }
+
+        return options
+    }
+
+    private fun isSimpleObject(propertyType: String): Boolean {
+        val simpleTypes = listOf("string", "boolean", "integer", "number")
+        return simpleTypes.contains(propertyType)
     }
 
 }

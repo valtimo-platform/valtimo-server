@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.ritense.processdocument.domain.impl.ProcessDocumentInstanceDto;
 import com.ritense.processdocument.domain.impl.request.ProcessDocumentDefinitionRequest;
 import com.ritense.valtimo.contract.result.FunctionResult;
 import com.ritense.valtimo.contract.result.OperationError;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +46,23 @@ public interface ProcessDocumentAssociationService {
 
     List<? extends ProcessDocumentDefinition> findProcessDocumentDefinitions(String documentDefinitionName);
 
+    List<? extends ProcessDocumentDefinition> findProcessDocumentDefinitions(
+        String documentDefinitionName,
+        @Nullable Boolean startableByUser
+    );
+
+    List<? extends ProcessDocumentDefinition> findProcessDocumentDefinitions(
+        String documentDefinitionName,
+        @Nullable Boolean startableByUser,
+        @Nullable Boolean canInitializeDocument
+    );
+
+    List<? extends ProcessDocumentDefinition> findProcessDocumentDefinitions(
+        UUID documentId,
+        @Nullable Boolean startableByUser,
+        @Nullable Boolean canInitializeDocument
+    );
+
     List<? extends ProcessDocumentDefinition> findProcessDocumentDefinitions(String documentDefinitionName, Long documentDefinitionVersion);
 
     List<? extends ProcessDocumentDefinition> findProcessDocumentDefinitionsByProcessDefinitionKey(String processDefinitionKey);
@@ -56,6 +74,8 @@ public interface ProcessDocumentAssociationService {
     List<? extends ProcessDocumentInstance> findProcessDocumentInstances(Document.Id documentId);
 
     List<ProcessDocumentInstanceDto> findProcessDocumentInstanceDtos(Document.Id documentId);
+
+    void deleteProcessDocumentInstance(ProcessDocumentInstanceId processDocumentInstanceId);
 
     void deleteProcessDocumentInstances(String processName);
 

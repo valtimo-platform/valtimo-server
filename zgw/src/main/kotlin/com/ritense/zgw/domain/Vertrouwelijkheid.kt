@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.ritense.zgw.domain
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
 enum class Vertrouwelijkheid {
@@ -40,9 +41,12 @@ enum class Vertrouwelijkheid {
         get() = this.name.lowercase()
 
     companion object {
+
+        @JvmStatic
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         fun fromKey(key: String?): Vertrouwelijkheid? {
             return key?.let {
-                Vertrouwelijkheid.values().firstOrNull {
+                entries.firstOrNull {
                     it.key == key.lowercase()
                 }
             }

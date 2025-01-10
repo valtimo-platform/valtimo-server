@@ -27,6 +27,7 @@ import org.camunda.bpm.engine.RepositoryService
 import org.camunda.bpm.engine.delegate.DelegateExecution
 import org.springframework.transaction.annotation.Transactional
 
+@Deprecated("Since 12.0.0")
 open class ServiceTaskListener(
     private val zaakTypeLinkService: ZaakTypeLinkService,
     documentService: DocumentService,
@@ -63,7 +64,6 @@ open class ServiceTaskListener(
         document: Document,
         zaakTypeLink: ZaakTypeLink
     ) {
-        // TODO [RV] - Can we remove the when in handleServiceTask by using the when above?
         val zaakInstanceUrl = zaakInstanceLinkService.getByDocumentId(document.id().id).zaakInstanceUrl
         zaakTypeLink.handleServiceTask(execution, processDefinitionKey, zaakInstanceUrl)
         zaakTypeLinkService.modify(zaakTypeLink)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,33 +17,58 @@
 package com.ritense.objecttypenapi.client
 
 import com.ritense.objecttypenapi.ObjecttypenApiAuthentication
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import java.net.URI
 
 class ObjecttypenApiClient(
-    private val webclientBuilder: WebClient.Builder
+    private val restClientBuilder: RestClient.Builder
 ) {
-
 
     fun getObjecttype(
         authentication: ObjecttypenApiAuthentication,
         objecttypeUrl: URI
     ): Objecttype {
-        val url = if (objecttypeUrl.host == "host.docker.internal") {
-            URI.create(objecttypeUrl.toString().replace("host.docker.internal", "localhost"))
-        } else {
-            objecttypeUrl
-        }
-        val result = webclientBuilder
+        val url = sanitizeUriHost(objecttypeUrl)
+        return restClientBuilder
             .clone()
-            .filter(authentication)
+            .apply {
+                authentication.applyAuth(it)
+            }
             .build()
             .get()
             .uri(url)
             .retrieve()
-            .toEntity(Objecttype::class.java)
-            .block()
+            .body(Objecttype::class.java)!!
+    }
 
-        return result?.body!!
+    fun getObjecttypes(
+        authentication: ObjecttypenApiAuthentication,
+        objecttypesUrl: URI
+    ): List<Objecttype> {
+        val url = sanitizeUriHost(objecttypesUrl)
+        return restClientBuilder
+            .clone()
+            .apply {
+                authentication.applyAuth(it)
+            }
+            .build()
+            .get()
+            .uri(url)
+            .retrieve()
+            .body<List<Objecttype>>()!!
+    }
+
+    private fun sanitizeUriHost(objecttypesUrl: URI): URI {
+        val url = if (objecttypesUrl.host == HOST_DOCKER_INTERNAL) {
+            URI.create(objecttypesUrl.toString().replace(HOST_DOCKER_INTERNAL, "localhost"))
+        } else {
+            objecttypesUrl
+        }
+        return url
+    }
+
+    companion object {
+        private const val HOST_DOCKER_INTERNAL = "host.docker.internal"
     }
 }

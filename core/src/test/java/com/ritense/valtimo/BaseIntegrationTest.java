@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,22 @@ package com.ritense.valtimo;
 import com.ritense.outbox.OutboxService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.mail.MailSender;
+import com.ritense.valtimo.repository.CamundaSearchProcessInstanceRepository;
+import jakarta.inject.Inject;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.TaskService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import jakarta.inject.Inject;
-
-@SpringBootTest
+@SpringBootTest(properties = {"valtimo.outbox.enabled=true"}, classes = {CoreTestConfiguration.class})
 @ExtendWith(SpringExtension.class)
 @Tag("integration")
 public abstract class BaseIntegrationTest {
@@ -40,7 +42,7 @@ public abstract class BaseIntegrationTest {
     @Inject
     public RuntimeService runtimeService;
 
-    @MockBean
+    @MockBean(answer = Answers.RETURNS_DEEP_STUBS)
     public UserManagementService userManagementService;
 
     @MockBean
@@ -48,6 +50,12 @@ public abstract class BaseIntegrationTest {
 
     @SpyBean
     public OutboxService outboxService;
+
+    @SpyBean
+    public CamundaSearchProcessInstanceRepository camundaSearchProcessInstanceRepository;
+
+    @SpyBean
+    public TaskService camundaTaskService;
 
     @BeforeAll
     static void beforeAll() {

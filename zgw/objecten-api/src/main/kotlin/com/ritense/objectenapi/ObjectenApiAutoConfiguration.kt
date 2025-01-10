@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,12 @@ import com.ritense.outbox.OutboxService
 import com.ritense.plugin.service.PluginService
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.zakenapi.ZaakUrlProvider
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.DependsOn
-import org.springframework.core.Ordered
 import org.springframework.core.annotation.Order
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.client.RestClient
 
 @AutoConfiguration
 class ObjectenApiAutoConfiguration {
@@ -48,30 +47,31 @@ class ObjectenApiAutoConfiguration {
     fun formSubmissionListener(
         pluginService: PluginService,
         zaakObjectService: ZaakObjectService
-    ): ZaakObjectListener {
-        return ZaakObjectListener(pluginService, zaakObjectService)
-    }
+    ) = ZaakObjectListener(
+        pluginService,
+        zaakObjectService
+    )
 
     @Bean
     @ConditionalOnMissingBean(ObjectenApiClient::class)
     fun objectenApiClient(
-        webclientBuilder: WebClient.Builder,
+        restClientBuilder: RestClient.Builder,
         outboxService: OutboxService,
         objectMapper: ObjectMapper
-    ): ObjectenApiClient {
-        return ObjectenApiClient(webclientBuilder, outboxService, objectMapper)
-    }
+    ) = ObjectenApiClient(
+        restClientBuilder,
+        outboxService,
+        objectMapper
+    )
 
     @Bean
     fun objectenApiPluginFactory(
         pluginService: PluginService,
         objectenApiClient: ObjectenApiClient
-    ): ObjectenApiPluginFactory {
-        return ObjectenApiPluginFactory(
-            pluginService,
-            objectenApiClient
-        )
-    }
+    ) = ObjectenApiPluginFactory(
+        pluginService,
+        objectenApiClient
+    )
 
     @Bean
     fun zaakObjectService(
@@ -79,13 +79,12 @@ class ObjectenApiAutoConfiguration {
         pluginService: PluginService,
         formDefinitionService: FormDefinitionService,
         objectManagementInfoProvider: ObjectManagementInfoProvider
-    ): ZaakObjectService {
-        return ZaakObjectService(zaakUrlProvider,
-            pluginService,
-            formDefinitionService,
-            objectManagementInfoProvider
-        )
-    }
+    ) = ZaakObjectService(
+        zaakUrlProvider,
+        pluginService,
+        formDefinitionService,
+        objectManagementInfoProvider
+    )
 
     @Order(380)
     @Bean
@@ -127,7 +126,6 @@ class ObjectenApiAutoConfiguration {
         return ZaakObjectResource(zaakObjectService)
     }
 
-    @Order(Ordered.LOWEST_PRECEDENCE)
     @Bean
     @ConditionalOnMissingBean(ObjectManagementInfoProvider::class)
     fun errorObjectManagementInfoProvider(): ObjectManagementInfoProvider {

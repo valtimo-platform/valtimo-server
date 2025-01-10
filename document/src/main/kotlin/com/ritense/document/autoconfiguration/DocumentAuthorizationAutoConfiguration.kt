@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,16 @@ package com.ritense.document.autoconfiguration
 
 import com.ritense.document.DocumentDocumentDefinitionMapper
 import com.ritense.document.JsonSchemaDocumentDefinitionSpecificationFactory
-import com.ritense.document.JsonSchemaDocumentSnapshotSpecificationFactory
 import com.ritense.document.JsonSchemaDocumentSpecificationFactory
 import com.ritense.document.SearchFieldSpecificationFactory
+import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition
+import com.ritense.document.repository.DocumentDefinitionRepository
+import com.ritense.document.repository.impl.JsonSchemaDocumentRepository
 import com.ritense.document.service.impl.JsonSchemaDocumentDefinitionService
-import com.ritense.document.service.impl.JsonSchemaDocumentService
 import com.ritense.valtimo.contract.database.QueryDialectHelper
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.Lazy
 
 @AutoConfiguration
@@ -34,9 +35,9 @@ class DocumentAuthorizationAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(JsonSchemaDocumentSpecificationFactory::class)
     fun jsonSchemaDocumentSpecificationFactory(
-        @Lazy documentService: JsonSchemaDocumentService,
+        documentRepository: JsonSchemaDocumentRepository,
         queryDialectHelper: QueryDialectHelper
-    ) = JsonSchemaDocumentSpecificationFactory(documentService, queryDialectHelper)
+    ) = JsonSchemaDocumentSpecificationFactory(documentRepository, queryDialectHelper)
 
     @Bean
     @ConditionalOnMissingBean(JsonSchemaDocumentDefinitionSpecificationFactory::class)
@@ -46,12 +47,6 @@ class DocumentAuthorizationAutoConfiguration {
     ) = JsonSchemaDocumentDefinitionSpecificationFactory(queryDialectHelper, documentDefinitionService)
 
     @Bean
-    @ConditionalOnMissingBean(JsonSchemaDocumentSnapshotSpecificationFactory::class)
-    fun jsonSchemaDocumentSnapshotSpecificationFactory(
-        queryDialectHelper: QueryDialectHelper
-    ) = JsonSchemaDocumentSnapshotSpecificationFactory(queryDialectHelper)
-
-    @Bean
     @ConditionalOnMissingBean(SearchFieldSpecificationFactory::class)
     fun searchFieldSpecificationFactory(
         queryDialectHelper: QueryDialectHelper
@@ -59,6 +54,6 @@ class DocumentAuthorizationAutoConfiguration {
 
     @Bean
     fun documentDocumentDefinitionMapper(
-        @Lazy documentDefinitionService: JsonSchemaDocumentDefinitionService
-    ) = DocumentDocumentDefinitionMapper(documentDefinitionService)
+        documentDefinitionRepository: DocumentDefinitionRepository<JsonSchemaDocumentDefinition>
+    ) = DocumentDocumentDefinitionMapper(documentDefinitionRepository)
 }

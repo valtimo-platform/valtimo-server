@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@ import com.ritense.search.domain.DataType
 import com.ritense.search.domain.DisplayType
 import com.ritense.search.domain.EmptyDisplayTypeParameter
 import com.ritense.search.domain.FieldType
-import com.ritense.search.domain.SearchFieldV2
 import com.ritense.search.domain.SearchListColumn
 import com.ritense.search.service.SearchFieldV2Service
 import com.ritense.search.service.SearchListColumnService
+import com.ritense.search.web.rest.dto.LegacySearchFieldV2Dto
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
@@ -44,9 +44,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
+import org.springframework.transaction.annotation.Transactional
 import java.net.URI
 import java.util.UUID
-import jakarta.transaction.Transactional
 
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -177,7 +177,7 @@ internal class ObjectManagementServiceIntTest : BaseIntegrationTest() {
         )
 
         searchFieldV2Service.create(
-            SearchFieldV2(
+            LegacySearchFieldV2Dto(
                 ownerId = objectManagement.id.toString(),
                 key = "property1",
                 title = "property1",

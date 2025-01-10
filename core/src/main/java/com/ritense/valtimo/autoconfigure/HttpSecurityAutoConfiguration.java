@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package com.ritense.valtimo.autoconfigure;
 
+import com.ritense.valtimo.contract.hardening.service.HardeningService;
 import com.ritense.valtimo.contract.security.config.HttpSecurityConfigurer;
+import com.ritense.valtimo.contract.security.config.oauth2.NoOAuth2ClientsConfiguredCondition;
+import com.ritense.valtimo.contract.web.rest.error.ExceptionTranslator;
 import com.ritense.valtimo.security.ActuatorSecurityFilterChainFactory;
 import com.ritense.valtimo.security.CoreSecurityFactory;
 import com.ritense.valtimo.security.Http401UnauthorizedEntryPoint;
@@ -45,13 +48,18 @@ import com.ritense.valtimo.security.config.ValtimoVersionHttpSecurityConfigurer;
 import com.ritense.valtimo.security.jwt.authentication.TokenAuthenticationService;
 import com.ritense.valtimo.security.matcher.SecurityWhitelistProperties;
 import com.ritense.valtimo.security.matcher.WhitelistIpRequestMatcher;
+import java.util.List;
+import java.util.Optional;
 import org.camunda.bpm.engine.IdentityService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
+import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -61,8 +69,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-
-import java.util.List;
 
 @AutoConfiguration
 @EnableWebSecurity
@@ -218,6 +224,7 @@ public class HttpSecurityAutoConfiguration {
 
     @Order(440)
     @Bean
+    @Conditional(NoOAuth2ClientsConfiguredCondition.class)
     @ConditionalOnMissingBean(JwtHttpSecurityConfigurer.class)
     public JwtHttpSecurityConfigurer jwtHttpSecurityConfigurer(
         IdentityService identityService,
@@ -280,12 +287,19 @@ public class HttpSecurityAutoConfiguration {
     public SecurityFilterChain actuatorSecurityFilterChain(
         HttpSecurity httpSecurity,
         WebEndpointProperties webEndpointProperties,
+        HealthEndpointProperties healthEndpointProperties,
         PasswordEncoder passwordEncoder,
         @Value("${spring-actuator.username}") String username,
         @Value("${spring-actuator.password}") String password
     ) {
         return new ActuatorSecurityFilterChainFactory().createFilterChain(
-            httpSecurity, webEndpointProperties, passwordEncoder, username, password);
+            httpSecurity,
+            webEndpointProperties,
+            healthEndpointProperties,
+            passwordEncoder,
+            username,
+            password
+        );
     }
 
     @Order(100)
@@ -294,6 +308,15 @@ public class HttpSecurityAutoConfiguration {
         CoreSecurityFactory coreSecurityFactory
     ) {
         return coreSecurityFactory.createWebSecurityCustomizer();
+    }
+
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    @Bean
+    @ConditionalOnMissingBean(ExceptionTranslator.class)
+    public ExceptionTranslator defaultCoreExceptionTranslator(
+        Optional<HardeningService> hardeningService
+    ) {
+        return new ExceptionTranslator(hardeningService);
     }
 
 }

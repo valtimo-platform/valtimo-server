@@ -1,5 +1,5 @@
 /*
- *  Copyright 2015-2023 Ritense BV, the Netherlands.
+ *  Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  *  Licensed under EUPL, Version 1.2 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.ritense.valtimo.camunda.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -23,36 +24,55 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.annotations.Immutable
 
+@Immutable
 @Entity
 @Table(name = "ACT_RU_IDENTITYLINK")
 class CamundaIdentityLink(
 
     @Id
-    @Column(name = "ID_")
+    @Column(name = "ID_", insertable = false, updatable = false)
     val id: String,
 
-    @Column(name = "REV_")
+    @Column(name = "REV_", insertable = false, updatable = false)
     val revision: Int,
 
-    @Column(name = "GROUP_ID_")
+    @Column(name = "GROUP_ID_", insertable = false, updatable = false)
     val groupId: String?,
 
-    @Column(name = "TYPE_")
+    @Column(name = "TYPE_", insertable = false, updatable = false)
     val type: String?,
 
-    @Column(name = "USER_ID_")
+    @Column(name = "USER_ID_", insertable = false, updatable = false)
     val userId: String?,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TASK_ID_")
+    @JoinColumn(name = "TASK_ID_", insertable = false, updatable = false)
+    @JsonIgnore
     val task: CamundaTask?,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROC_DEF_ID_")
+    @JoinColumn(name = "PROC_DEF_ID_", insertable = false, updatable = false)
     val processDefinition: CamundaProcessDefinition?,
 
-    @Column(name = "TENANT_ID_")
+    @Column(name = "TENANT_ID_", insertable = false, updatable = false)
     val tenantId: String?
 
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is CamundaIdentityLink) return false
+
+        if (id != other.id) return false
+        if (revision != other.revision) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + revision
+        return result
+    }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,17 @@ import com.ritense.processlink.web.rest.dto.ProcessLinkCreateRequestDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkExportResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkUpdateRequestDto
+import java.util.UUID
 
 interface ProcessLinkMapper {
     fun supportsProcessLinkType(processLinkType: String): Boolean
     fun toProcessLinkResponseDto(processLink: ProcessLink): ProcessLinkResponseDto
     fun toProcessLinkCreateRequestDto(deployDto: ProcessLinkDeployDto): ProcessLinkCreateRequestDto
+    fun toProcessLinkUpdateRequestDto(
+        deployDto: ProcessLinkDeployDto,
+        existingProcessLinkId: UUID
+    ): ProcessLinkUpdateRequestDto
+
     fun toProcessLinkExportResponseDto(processLink: ProcessLink): ProcessLinkExportResponseDto
     fun toNewProcessLink(createRequestDto: ProcessLinkCreateRequestDto): ProcessLink
     fun toUpdatedProcessLink(

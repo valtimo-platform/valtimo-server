@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.ritense.authorization.permission.condition
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.ritense.authorization.UserManagementServiceHolder
 import com.ritense.authorization.permission.condition.PermissionConditionOperator.EQUAL_TO
 import com.ritense.authorization.permission.condition.PermissionConditionOperator.GREATER_THAN
 import com.ritense.authorization.permission.condition.PermissionConditionOperator.LESS_THAN
@@ -27,6 +26,7 @@ import com.ritense.authorization.permission.condition.PermissionConditionOperato
 import com.ritense.authorization.testimpl.TestChildEntity
 import com.ritense.authorization.testimpl.TestEntity
 import com.ritense.valtimo.contract.authentication.UserManagementService
+import com.ritense.valtimo.contract.authorization.UserManagementServiceHolder
 import com.ritense.valtimo.contract.json.MapperSingleton
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
@@ -60,6 +60,7 @@ class FieldPermissionConditionTest {
         conditionTemplate = FieldPermissionCondition("child.property", EQUAL_TO, 100)
 
         val userManagementService = mock<UserManagementService>(defaultAnswer = Mockito.RETURNS_DEEP_STUBS)
+        whenever(userManagementService.currentUser.userIdentifier).thenReturn("91bb73e1-5f5b-46e3-8c60-ca424a5fcfcd")
         whenever(userManagementService.currentUser.id).thenReturn("91bb73e1-5f5b-46e3-8c60-ca424a5fcfcd")
         whenever(userManagementService.currentUser.email).thenReturn("example@ritense.com")
         UserManagementServiceHolder(userManagementService)
@@ -143,6 +144,16 @@ class FieldPermissionConditionTest {
             TestChildEntity("91bb73e1-5f5b-46e3-8c60-ca424a5fcfcd")
         )
         val condition = FieldPermissionCondition("child.property", EQUAL_TO, "\${currentUserId}")
+        val result = condition.isValid(entity)
+        assertTrue(result)
+    }
+
+    @Test
+    fun `should pass validation with resolved placeholder ${currentUserIdentifier}`() {
+        val entity = TestEntity(
+            TestChildEntity("91bb73e1-5f5b-46e3-8c60-ca424a5fcfcd")
+        )
+        val condition = FieldPermissionCondition("child.property", EQUAL_TO, "\${currentUserIdentifier}")
         val result = condition.isValid(entity)
         assertTrue(result)
     }

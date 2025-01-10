@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
+ *
+ * Licensed under EUPL, Version 1.2 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.ritense.exact.plugin
 
 import com.ritense.exact.client.endpoints.ExactGetRequest
@@ -12,10 +28,10 @@ import com.ritense.plugin.annotation.PluginAction
 import com.ritense.plugin.annotation.PluginActionProperty
 import com.ritense.plugin.annotation.PluginCategory
 import com.ritense.plugin.annotation.PluginProperty
-import com.ritense.plugin.domain.ActivityType
+import com.ritense.processlink.domain.ActivityTypeWithEventName
 import org.camunda.bpm.engine.delegate.DelegateExecution
 import org.springframework.context.ApplicationContext
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.client.RestClient
 import java.time.LocalDateTime
 
 @PluginCategory(key = "exact-supplier")
@@ -26,7 +42,7 @@ import java.time.LocalDateTime
 )
 class ExactPlugin(
     private val exactService: ExactService,
-    private val exactClient: WebClient,
+    private val exactClient: RestClient,
     private val context: ApplicationContext
 ) {
 
@@ -82,22 +98,21 @@ class ExactPlugin(
         key = "exact-get-request",
         title = "A GET call to Exact",
         description = "Make a GET call to Exact",
-        activityTypes = [ActivityType.SERVICE_TASK_START]
+        activityTypes = [ActivityTypeWithEventName.SERVICE_TASK_START]
     )
     fun getCallExact(execution: DelegateExecution, @PluginActionProperty properties: ExactCallProperties) {
         val token = exactService.refreshAccessTokens(exactService.getPluginConfiguration(this))
 
         if (properties.bean != null) {
             val bean = context.getBean(properties.bean, ExactGetRequest::class.java)
-            val response = bean.createRequest(execution, token)
-                .call(exactClient)
+            val response = bean.createRequest(execution, token).call(exactClient)
             bean.handleResponse(execution, response)
         } else {
             execution.setVariable(
                 "exactGetResult", GetEndpoint(
-                        token,
-                        properties.uri!!
-                    ).call(exactClient)
+                    token,
+                    properties.uri!!
+                ).call(exactClient)
             )
         }
     }
@@ -106,15 +121,17 @@ class ExactPlugin(
         key = "exact-post-request",
         title = "A POST call to Exact",
         description = "Make a POST call to Exact",
-        activityTypes = [ActivityType.SERVICE_TASK_START]
+        activityTypes = [ActivityTypeWithEventName.SERVICE_TASK_START]
     )
-    fun postCallExact(execution: DelegateExecution, @PluginActionProperty properties: ExactCallProperties) {
+    fun postCallExact(
+        execution: DelegateExecution,
+        @PluginActionProperty properties: ExactCallProperties
+    ) {
         val token = exactService.refreshAccessTokens(exactService.getPluginConfiguration(this))
 
         if (properties.bean != null) {
             val bean = context.getBean(properties.bean, ExactPostRequest::class.java)
-            val response = bean.createRequest(execution, token)
-                .call(exactClient)
+            val response = bean.createRequest(execution, token).call(exactClient)
             bean.handleResponse(execution, response)
         } else {
             execution.setVariable(
@@ -131,15 +148,14 @@ class ExactPlugin(
         key = "exact-put-request",
         title = "A PUT call to Exact",
         description = "Make a PUT call to Exact",
-        activityTypes = [ActivityType.SERVICE_TASK_START]
+        activityTypes = [ActivityTypeWithEventName.SERVICE_TASK_START]
     )
     fun putCallExact(execution: DelegateExecution, @PluginActionProperty properties: ExactCallProperties) {
         val token = exactService.refreshAccessTokens(exactService.getPluginConfiguration(this))
 
         if (properties.bean != null) {
             val bean = context.getBean(properties.bean, ExactPutRequest::class.java)
-            val response = bean.createRequest(execution, token)
-                .call(exactClient)
+            val response = bean.createRequest(execution, token).call(exactClient)
             bean.handleResponse(execution, response)
         } else {
             execution.setVariable(

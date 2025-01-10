@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 
 package com.ritense.valtimo.processlink
 
-import com.ritense.plugin.domain.ActivityType
+import com.ritense.logging.withLoggingContext
 import com.ritense.plugin.repository.PluginProcessLinkRepository
 import com.ritense.plugin.service.PluginService
+import com.ritense.processlink.domain.ActivityTypeWithEventName
 import org.camunda.bpm.engine.ActivityTypes
 import org.camunda.bpm.engine.delegate.DelegateExecution
 import org.camunda.bpm.engine.delegate.ExecutionListener
@@ -34,14 +35,16 @@ open class ProcessLinkCallActivityStartListener(
 
     @Transactional
     override fun notify(execution: DelegateExecution) {
-        val pluginProcessLinks = pluginProcessLinkRepository.findByProcessDefinitionIdAndActivityIdAndActivityType(
-            execution.processDefinitionId,
-            execution.currentActivityId,
-            ActivityType.CALL_ACTIVITY_START
-        )
+        withLoggingContext("com.ritense.document.domain.impl.JsonSchemaDocument", execution.processBusinessKey) {
+            val pluginProcessLinks = pluginProcessLinkRepository.findByProcessDefinitionIdAndActivityIdAndActivityType(
+                execution.processDefinitionId,
+                execution.currentActivityId,
+                ActivityTypeWithEventName.CALL_ACTIVITY_START
+            )
 
-        pluginProcessLinks.forEach { pluginProcessLink ->
-            pluginService.invoke(execution, pluginProcessLink)
+            pluginProcessLinks.forEach { pluginProcessLink ->
+                pluginService.invoke(execution, pluginProcessLink)
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,8 @@ internal class FormFlowInstanceTest : BaseTest() {
                 steps = mutableSetOf(
                     FormFlowStep(
                         id = FormFlowStepId.create("test"),
-                        type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition"))
+                        type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition")),
+                        onComplete = listOf("\${null}")
                     )
                 )
             )
@@ -102,32 +103,56 @@ internal class FormFlowInstanceTest : BaseTest() {
     }
 
     @Test
-    fun `complete should throw exception when step in not current active step`() {
-        val definition: FormFlowDefinition = mock()
-        val steps: Set<FormFlowStep> = mutableSetOf(
-            FormFlowStep(
-                id = FormFlowStepId.create("test"),
-                nextSteps = mutableListOf(
-                    FormFlowNextStep(null, "test2")
-                ),
-                type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition"))
-            ),
-            FormFlowStep(
-                id = FormFlowStepId.create("test2"),
-                type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition"))
+    fun `complete should throw error when no action exist on last step`() {
+        val instance = FormFlowInstance(
+            formFlowDefinition = FormFlowDefinition(
+                id = FormFlowDefinitionId("test", 1L),
+                startStep = "lastStep",
+                steps = mutableSetOf(
+                    FormFlowStep(
+                        id = FormFlowStepId.create("lastStep"),
+                        type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition"))
+                    )
+                )
             )
         )
 
-        whenever(definition.startStep).thenReturn("test")
-        whenever(definition.steps).thenReturn(steps)
+        val error = assertThrows<IllegalStateException> {
+            instance.complete(instance.currentFormFlowStepInstanceId!!, JSONObject("{\"data\":\"data\"}"))
+        }
 
+        assertEquals(
+            "Form flow end reached but no action was taken because the 'onComplete' is empty. For form flow step: 'test:1:lastStep'",
+            error.message
+        )
+    }
+
+    @Test
+    fun `complete should return current step when step in not current active step`() {
+        val definition = FormFlowDefinition(
+            id = FormFlowDefinitionId.newId("test"),
+            startStep = "step1",
+            steps = mutableSetOf(
+                FormFlowStep(
+                    id = FormFlowStepId.create("step1"),
+                    nextSteps = mutableListOf(
+                        FormFlowNextStep(null, "step2")
+                    ),
+                    type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition"))
+                ),
+                FormFlowStep(
+                    id = FormFlowStepId.create("step2"),
+                    type = FormFlowStepType("form", FormStepTypeProperties("my-form-definition"))
+                )
+            )
+        )
         val instance = FormFlowInstance(
             formFlowDefinition = definition
         )
 
-        assertThrows<AssertionError> {
-            instance.complete(FormFlowStepInstanceId.newId(), JSONObject("{\"data\": \"data\"}"))
-        }
+        val stepInstance = instance.complete(FormFlowStepInstanceId.newId(), JSONObject("{\"data\": \"data\"}"))
+
+        assertEquals("step1", stepInstance!!.definition.id.key)
     }
 
     @Test

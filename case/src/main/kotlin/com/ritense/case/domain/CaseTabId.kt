@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,5 +30,6 @@ data class CaseTabId(
     init {
         require(caseDefinitionName.isNotBlank()) { "caseDefinitionName was blank!" }
         require(key.isNotBlank()) { "key was blank!"}
+        require(key.matches(Regex("^[a-zA-Z0-9\\-]+$"))) { "key contains characters that are not allowed (only alphanumeric characters and dashes)"}
     }
 }

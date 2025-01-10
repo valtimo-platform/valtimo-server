@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.ritense.dashboard.web.rest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.dashboard.BaseIntegrationTest
 import com.ritense.dashboard.TestDataSourceProperties
 import com.ritense.dashboard.domain.WidgetConfiguration
@@ -75,7 +76,9 @@ class DashboardResourceIT @Autowired constructor(
 
     @Test
     fun `should get dashboards`() {
-        val dashboard = dashboardService.createDashboard("Test dashboard", "Test description")
+        val dashboard = runWithoutAuthorization {
+            dashboardService.createDashboard("Test dashboard", "Test description")
+        }
         widgetConfigurationRepository.save(
             WidgetConfiguration(
                 key = "doorlooptijd",
@@ -106,7 +109,9 @@ class DashboardResourceIT @Autowired constructor(
     @Test
     @Transactional
     fun `should get dashboards widget data`() {
-        val dashboard = dashboardService.createDashboard("Widget dashboard", "Test description")
+        val dashboard = runWithoutAuthorization {
+            dashboardService.createDashboard("Widget dashboard", "Test description")
+        }
         widgetConfigurationRepository.save(
             WidgetConfiguration(
                 key = "single-test",

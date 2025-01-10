@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,18 @@ import com.ritense.objectsapi.domain.ResultWrapper
 import com.ritense.objectsapi.domain.request.CreateObjectRequest
 import com.ritense.objectsapi.domain.request.ModifyObjectRequest
 import com.ritense.objectsapi.domain.request.ObjectSearchParameter
-import java.net.URI
-import java.util.UUID
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import mu.KLogger
 import mu.KotlinLogging
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.stereotype.Service
+import java.net.URI
+import java.util.UUID
 
-open class ObjectsApiService(
-    protected open var objectsApiProperties: ObjectsApiProperties,
+@Service
+@SkipComponentScan
+class ObjectsApiService(
+    protected var objectsApiProperties: ObjectsApiProperties,
 ) {
 
     /**

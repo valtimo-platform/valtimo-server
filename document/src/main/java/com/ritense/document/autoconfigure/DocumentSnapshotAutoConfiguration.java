@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.ritense.document.autoconfigure;
 
 import com.ritense.authorization.AuthorizationService;
+import com.ritense.document.JsonSchemaDocumentSnapshotSpecificationFactory;
 import com.ritense.document.domain.impl.listener.DocumentSnapshotCapturedEventListener;
 import com.ritense.document.domain.impl.listener.DocumentSnapshotCapturedEventPublisher;
 import com.ritense.document.domain.impl.listener.UndeployDocumentDefinitionEventListener;
@@ -32,12 +33,13 @@ import com.ritense.document.service.impl.JsonSchemaDocumentService;
 import com.ritense.document.service.impl.JsonSchemaDocumentSnapshotService;
 import com.ritense.document.web.rest.DocumentSnapshotResource;
 import com.ritense.document.web.rest.impl.JsonSchemaDocumentSnapshotResource;
+import com.ritense.valtimo.contract.database.QueryDialectHelper;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
 
 @AutoConfiguration
@@ -68,6 +70,15 @@ public class DocumentSnapshotAutoConfiguration {
         DocumentDefinitionService documentDefinitionService
     ) {
         return new JsonSchemaDocumentSnapshotResource(documentSnapshotService, documentDefinitionService);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(JsonSchemaDocumentSnapshotSpecificationFactory.class)
+    public JsonSchemaDocumentSnapshotSpecificationFactory jsonSchemaDocumentSnapshotSpecificationFactory(
+        QueryDialectHelper queryDialectHelper,
+        DocumentSnapshotRepository<JsonSchemaDocumentSnapshot> repository
+    ) {
+        return new JsonSchemaDocumentSnapshotSpecificationFactory(queryDialectHelper, repository);
     }
 
     @Bean

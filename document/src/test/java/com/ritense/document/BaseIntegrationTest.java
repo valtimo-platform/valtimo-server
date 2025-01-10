@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,15 @@
  */
 
 package com.ritense.document;
+
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.ASSIGN;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.ASSIGNABLE;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.CLAIM;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.CREATE;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.DELETE;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.MODIFY;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.VIEW;
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.VIEW_LIST;
 
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.authorization.permission.ConditionContainer;
@@ -45,31 +54,29 @@ import com.ritense.testutilscommon.junit.extension.LiquibaseRunnerExtension;
 import com.ritense.valtimo.contract.authentication.ManageableUser;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.authentication.model.ValtimoUserBuilder;
+import jakarta.inject.Inject;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.event.SimpleApplicationEventMulticaster;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import jakarta.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.ASSIGN;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.ASSIGNABLE;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.CLAIM;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.CREATE;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.MODIFY;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.VIEW;
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.VIEW_LIST;
 
 @SpringBootTest
 @Tag("integration")
 @ExtendWith({SpringExtension.class, LiquibaseRunnerExtension.class})
+@RecordApplicationEvents
 public abstract class BaseIntegrationTest extends BaseTest {
 
     @Inject
@@ -78,7 +85,7 @@ public abstract class BaseIntegrationTest extends BaseTest {
     @Inject
     protected DocumentService documentService;
 
-    @Inject
+    @SpyBean
     protected JsonSchemaDocumentRepository documentRepository;
 
     @Inject
@@ -99,7 +106,7 @@ public abstract class BaseIntegrationTest extends BaseTest {
     @MockBean
     public ResourceService resourceService;
 
-    @MockBean
+    @MockBean(answer = Answers.RETURNS_DEEP_STUBS)
     protected UserManagementService userManagementService;
 
     @MockBean
@@ -107,6 +114,9 @@ public abstract class BaseIntegrationTest extends BaseTest {
 
     @SpyBean
     protected OutboxService outboxService;
+
+    @Autowired
+    protected ApplicationEvents events;
 
     protected static final String FULL_ACCESS_ROLE = "full access role";
 
@@ -130,6 +140,7 @@ public abstract class BaseIntegrationTest extends BaseTest {
             .id(UUID.randomUUID().toString())
             .firstName(firstName)
             .lastName(lastName)
+            .roles(List.of(FULL_ACCESS_ROLE))
             .build();
     }
 
@@ -199,6 +210,13 @@ public abstract class BaseIntegrationTest extends BaseTest {
                 UUID.randomUUID(),
                 JsonSchemaDocument.class,
                 ASSIGNABLE,
+                new ConditionContainer(Collections.emptyList()),
+                role
+            ),
+            new Permission(
+                UUID.randomUUID(),
+                JsonSchemaDocument.class,
+                DELETE,
                 new ConditionContainer(Collections.emptyList()),
                 role
             ),

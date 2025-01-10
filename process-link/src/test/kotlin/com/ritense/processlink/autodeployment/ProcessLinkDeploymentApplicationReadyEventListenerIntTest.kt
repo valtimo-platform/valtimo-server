@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ class ProcessLinkDeploymentApplicationReadyEventListenerIntTest @Autowired const
     private val repositoryService: CamundaRepositoryService,
     private val processLinkRepository: ProcessLinkRepository,
     private val listener: ProcessLinkDeploymentApplicationReadyEventListener
-): BaseIntegrationTest() {
+) : BaseIntegrationTest() {
 
     @Test
     fun `should find 1 deployed process link on service task`() {
@@ -49,12 +49,12 @@ class ProcessLinkDeploymentApplicationReadyEventListenerIntTest @Autowired const
         val processLink = processLinks.first()
         assertThat(processLink, Matchers.isA(CustomProcessLink::class.java))
         processLink as CustomProcessLink
-        assertThat(processLink.someValue, Matchers.equalTo("test"))
+        assertThat(processLink.someValue, Matchers.equalTo("changed"))
     }
 
     private fun getLatestProcessDefinition(): CamundaProcessDefinition {
         return AuthorizationContext.runWithoutAuthorization {
-            repositoryService.findLatestProcessDefinition("auto-deploy-process-link")!!
+            repositoryService.findLatestProcessDefinition("auto-deploy-process-link-with-long-key")!!
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,34 @@ package com.ritense.catalogiapi.client
 
 import com.ritense.catalogiapi.CatalogiApiAuthentication
 import com.ritense.catalogiapi.domain.Besluittype
+import com.ritense.catalogiapi.domain.Eigenschap
 import com.ritense.catalogiapi.domain.Informatieobjecttype
 import com.ritense.catalogiapi.domain.Resultaattype
 import com.ritense.catalogiapi.domain.Roltype
 import com.ritense.catalogiapi.domain.Statustype
+import com.ritense.catalogiapi.domain.Zaaktype
 import com.ritense.catalogiapi.domain.ZaaktypeInformatieobjecttype
 import com.ritense.zgw.ClientTools
 import com.ritense.zgw.Page
-import org.springframework.web.reactive.function.client.WebClient
+import mu.KotlinLogging
+import org.springframework.cache.CacheManager
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import org.springframework.web.util.UriBuilder
 import java.net.URI
 
-class CatalogiApiClient(
-    private val webclientBuilder: WebClient.Builder
+open class CatalogiApiClient(
+    private val restClientBuilder: RestClient.Builder,
+    private val cacheManager: CacheManager
 ) {
-    fun getZaaktypeInformatieobjecttypes(
+    open fun getZaaktypeInformatieobjecttypes(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
         request: ZaaktypeInformatieobjecttypeRequest
     ): Page<ZaaktypeInformatieobjecttype> {
         validateUrlHost(baseUrl, request.zaaktype)
-        val result = buildWebclient(authentication)
+        val result = buildRestClient(authentication)
             .get()
             .uri {
                 ClientTools.baseUrlToBuilder(it, baseUrl)
@@ -51,35 +58,51 @@ class CatalogiApiClient(
                     .build()
             }
             .retrieve()
-            .toEntity(ClientTools.getTypedPage(ZaaktypeInformatieobjecttype::class.java))
-            .block()
-
-        return result?.body!!
+            .body<Page<ZaaktypeInformatieobjecttype>>()!!
+        return result
     }
 
-    fun getInformatieobjecttype(
+    open fun getInformatieobjecttypes(
+        authentication: CatalogiApiAuthentication,
+        baseUrl: URI,
+        request: InformatieobjecttypeRequest
+    ): Page<Informatieobjecttype> {
+        val result = buildRestClient(authentication)
+            .get()
+            .uri {
+                ClientTools.baseUrlToBuilder(it, baseUrl)
+                    .pathSegment("informatieobjecttypen")
+                    .addOptionalQueryParamFromRequest("status", request.status?.getSearchValue())
+                    .addOptionalQueryParamFromRequest("page", request.page)
+                    .build()
+            }.retrieve()
+            .body<Page<Informatieobjecttype>>()!!
+            .sortedBy { it.omschrijving }
+        return result
+    }
+
+    @Cacheable(INFORMATIEOBJECTTYPECACHE_KEY, key = "#informatieobjecttypeUrl")
+    open fun getInformatieobjecttype(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
         informatieobjecttypeUrl: URI
     ): Informatieobjecttype {
         validateUrlHost(baseUrl, informatieobjecttypeUrl)
-        val result = buildWebclient(authentication)
+        val result = buildRestClient(authentication)
             .get()
             .uri(informatieobjecttypeUrl)
             .retrieve()
-            .toEntity(Informatieobjecttype::class.java)
-            .block()
-
-        return result?.body!!
+            .body<Informatieobjecttype>()!!
+        return result
     }
 
-    fun getRoltypen(
+    open fun getRoltypen(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
         request: RoltypeRequest,
     ): Page<Roltype> {
         validateUrlHost(baseUrl, request.zaaktype)
-        val result = buildWebclient(authentication)
+        val result = buildRestClient(authentication)
             .get()
             .uri {
                 ClientTools.baseUrlToBuilder(it, baseUrl)
@@ -90,35 +113,32 @@ class CatalogiApiClient(
                     .addOptionalQueryParamFromRequest("page", request.page)
                     .build()
             }.retrieve()
-            .toEntity(ClientTools.getTypedPage(Roltype::class.java))
-            .block()
-
-        return result?.body!!
+            .body<Page<Roltype>>()!!
+            .sortedBy { it.omschrijving }
+        return result
     }
 
-    fun getStatustype(
+    open fun getStatustype(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
-        informatieobjecttypeUrl: URI
+        statustypeUrl: URI
     ): Statustype {
-        validateUrlHost(baseUrl, informatieobjecttypeUrl)
-        val result = buildWebclient(authentication)
+        validateUrlHost(baseUrl, statustypeUrl)
+        val result = buildRestClient(authentication)
             .get()
-            .uri(informatieobjecttypeUrl)
+            .uri(statustypeUrl)
             .retrieve()
-            .toEntity(Statustype::class.java)
-            .block()
-
-        return result?.body!!
+            .body<Statustype>()!!
+        return result
     }
 
-    fun getStatustypen(
+    open fun getStatustypen(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
         request: StatustypeRequest,
     ): Page<Statustype> {
         validateUrlHost(baseUrl, request.zaaktype)
-        val result = buildWebclient(authentication)
+        val result = buildRestClient(authentication)
             .get()
             .uri {
                 ClientTools.baseUrlToBuilder(it, baseUrl)
@@ -128,19 +148,32 @@ class CatalogiApiClient(
                     .addOptionalQueryParamFromRequest("page", request.page)
                     .build()
             }.retrieve()
-            .toEntity(ClientTools.getTypedPage(Statustype::class.java))
-            .block()
-
-        return result?.body!!
+            .body<Page<Statustype>>()!!
+            .sortedBy { it.omschrijving }
+        return result
     }
 
-    fun getResultaattypen(
+    open fun getResultaattype(
+        authentication: CatalogiApiAuthentication,
+        baseUrl: URI,
+        resultaattypeUrl: URI
+    ): Resultaattype {
+        validateUrlHost(baseUrl, resultaattypeUrl)
+        val result = buildRestClient(authentication)
+            .get()
+            .uri(resultaattypeUrl)
+            .retrieve()
+            .body<Resultaattype>()!!
+        return result
+    }
+
+    open fun getResultaattypen(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
         request: ResultaattypeRequest,
     ): Page<Resultaattype> {
         validateUrlHost(baseUrl, request.zaaktype)
-        val result = buildWebclient(authentication)
+        val result = buildRestClient(authentication)
             .get()
             .uri {
                 ClientTools.baseUrlToBuilder(it, baseUrl)
@@ -150,19 +183,18 @@ class CatalogiApiClient(
                     .addOptionalQueryParamFromRequest("page", request.page)
                     .build()
             }.retrieve()
-            .toEntity(ClientTools.getTypedPage(Resultaattype::class.java))
-            .block()
-
-        return result?.body!!
+            .body<Page<Resultaattype>>()!!
+            .sortedBy { it.omschrijving }
+        return result
     }
 
-    fun getBesluittypen(
+    open fun getBesluittypen(
         authentication: CatalogiApiAuthentication,
         baseUrl: URI,
         request: BesluittypeRequest,
     ): Page<Besluittype> {
         validateUrlHost(baseUrl, request.zaaktypen)
-        val result = buildWebclient(authentication)
+        val result = buildRestClient(authentication)
             .get()
             .uri {
                 ClientTools.baseUrlToBuilder(it, baseUrl)
@@ -174,10 +206,87 @@ class CatalogiApiClient(
                     .addOptionalQueryParamFromRequest("page", request.page)
                     .build()
             }.retrieve()
-            .toEntity(ClientTools.getTypedPage(Besluittype::class.java))
-            .block()
+            .body<Page<Besluittype>>()!!
+            .sortedBy { it.omschrijving ?: it.omschrijvingGeneriek ?: "" }
+        return result
+    }
 
-        return result?.body!!
+    open fun getEigenschappen(
+        authentication: CatalogiApiAuthentication,
+        baseUrl: URI,
+        request: EigenschapRequest,
+    ): Page<Eigenschap> {
+        validateUrlHost(baseUrl, request.zaaktype)
+        val result = buildRestClient(authentication)
+            .get()
+            .uri {
+                ClientTools.baseUrlToBuilder(it, baseUrl)
+                    .pathSegment("eigenschappen")
+                    .addOptionalQueryParamFromRequest("zaaktype", request.zaaktype)
+                    .addOptionalQueryParamFromRequest("status", request.status?.getSearchValue())
+                    .addOptionalQueryParamFromRequest("page", request.page)
+                    .build()
+            }
+            .retrieve()
+            .body<Page<Eigenschap>>()!!
+        return result
+    }
+
+    open fun getZaaktypen(
+        authentication: CatalogiApiAuthentication,
+        baseUrl: URI,
+        request: ZaaktypeRequest
+    ): Page<Zaaktype> {
+        val result = buildRestClient(authentication)
+            .get()
+            .uri {
+                ClientTools.baseUrlToBuilder(it, baseUrl)
+                    .pathSegment("zaaktypen")
+                    .addOptionalQueryParamFromRequest("catalogus", request.catalogus)
+                    .addOptionalQueryParamFromRequest("status", request.status?.getSearchValue())
+                    .addOptionalQueryParamFromRequest("page", request.page)
+                    .build()
+            }
+            .retrieve()
+            .body<Page<Zaaktype>>()!!
+            .sortedBy { it.omschrijving }
+        return result
+    }
+
+    open fun getZaaktype(
+        authentication: CatalogiApiAuthentication,
+        baseUrl: URI,
+        zaaktypeUrl: URI
+    ): Zaaktype {
+        validateUrlHost(baseUrl, zaaktypeUrl)
+        val result = buildRestClient(authentication)
+            .get()
+            .uri(zaaktypeUrl)
+            .retrieve()
+            .body<Zaaktype>()!!
+        return result
+    }
+
+    open fun prefillCache(authenticationPluginConfiguration: CatalogiApiAuthentication, url: URI) {
+        prefillInformatieobjecttypeCache(authenticationPluginConfiguration, url)
+    }
+
+    private fun prefillInformatieobjecttypeCache(
+        authenticationPluginConfiguration: CatalogiApiAuthentication,
+        url: URI
+    ) {
+        Page.getAll { page ->
+            getInformatieobjecttypes(
+                authenticationPluginConfiguration,
+                url,
+                InformatieobjecttypeRequest(
+                    status = InformatieobjecttypePublishedStatus.DEFINITIEF,
+                    page = page
+                )
+            )
+        }.forEach {
+            cacheManager.getCache(INFORMATIEOBJECTTYPECACHE_KEY)?.put(it.url!!, it)
+        }
     }
 
     private fun validateUrlHost(baseUrl: URI, url: URI?) {
@@ -188,10 +297,12 @@ class CatalogiApiClient(
         }
     }
 
-    private fun buildWebclient(authentication: CatalogiApiAuthentication): WebClient {
-        return webclientBuilder
+    private fun buildRestClient(authentication: CatalogiApiAuthentication): RestClient {
+        return restClientBuilder
             .clone()
-            .filter(authentication)
+            .apply {
+                authentication.applyAuth(it)
+            }
             .build()
     }
 
@@ -199,5 +310,10 @@ class CatalogiApiClient(
         if (value != null)
             this.queryParam(name, value.toString())
         return this
+    }
+
+    companion object {
+        val logger = KotlinLogging.logger {}
+        const val INFORMATIEOBJECTTYPECACHE_KEY = "zgw-catalogiapi-informatieobjecttype"
     }
 }

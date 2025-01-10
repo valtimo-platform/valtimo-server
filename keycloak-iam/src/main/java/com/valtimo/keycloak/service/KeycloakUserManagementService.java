@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,12 @@
 
 package com.valtimo.keycloak.service;
 
+import static com.ritense.valtimo.contract.Constants.SYSTEM_ACCOUNT;
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
+
+import com.ritense.valtimo.contract.OauthConfigHolder;
 import com.ritense.valtimo.contract.authentication.ManageableUser;
 import com.ritense.valtimo.contract.authentication.NamedUser;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
@@ -25,6 +31,13 @@ import com.ritense.valtimo.contract.authentication.model.ValtimoUser;
 import com.ritense.valtimo.contract.authentication.model.ValtimoUserBuilder;
 import com.ritense.valtimo.contract.utils.SecurityUtils;
 import jakarta.ws.rs.NotFoundException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.NotImplementedException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RoleResource;
@@ -35,30 +48,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import static com.ritense.valtimo.contract.Constants.SYSTEM_ACCOUNT;
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.naturalOrder;
-import static java.util.Comparator.nullsLast;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 
 public class KeycloakUserManagementService implements UserManagementService {
     private static final Logger logger = LoggerFactory.getLogger(KeycloakUserManagementService.class);
     protected static final int MAX_USERS = 1000;
     private static final String MAX_USERS_WARNING_MESSAGE = "Maximum number of users retrieved from keycloak: " + MAX_USERS + ".";
+    private static final ValtimoUser SYSTEM_VALTIMO_USER = new ValtimoUserBuilder().id(SYSTEM_ACCOUNT).lastName(SYSTEM_ACCOUNT).build();
 
     private final KeycloakService keycloakService;
     private final String clientName;
+    private final UserCache userCache;
 
-    public KeycloakUserManagementService(KeycloakService keycloakService, String keycloakClientName) {
+    public KeycloakUserManagementService(
+        KeycloakService keycloakService,
+        String keycloakClientName,
+        UserCache userCache
+    ) {
         this.keycloakService = keycloakService;
         this.clientName = keycloakClientName;
+        this.userCache = userCache;
     }
 
     @Override
@@ -126,7 +135,13 @@ public class KeycloakUserManagementService implements UserManagementService {
 
     @Override
     public Optional<ManageableUser> findByEmail(String email) {
-        return findUserRepresentationByEmail(email).map(this::toManageableUserByRetrievingRoles);
+        return Optional.ofNullable(
+            userCache.get(
+                CacheType.EMAIL,
+                email,
+                (emailToRetrieve) -> findUserRepresentationByEmail(emailToRetrieve).map(this::toManageableUserByRetrievingRoles).orElse(null)
+            )
+        );
     }
 
     @Override
@@ -135,12 +150,41 @@ public class KeycloakUserManagementService implements UserManagementService {
     }
 
     @Override
+    public ValtimoUser findByUserIdentifier(String userIdentifier) {
+        return userCache.get(
+            CacheType.USER_IDENTIFIER,
+            userIdentifier,
+            (identifier) -> {
+                UserRepresentation user = null;
+                try (Keycloak keycloak = keycloakService.keycloak()) {
+                    switch (OauthConfigHolder.getCurrentInstance().getIdentifierField()) {
+                        case USERID ->
+                            user = keycloakService.usersResource(keycloak).get(userIdentifier).toRepresentation();
+                        case USERNAME -> {
+                            var users = keycloakService.usersResource(keycloak).search(userIdentifier);
+                            if (!users.isEmpty()) {
+                                user = users.get(0);
+                            }
+                        }
+                    }
+                }
+                Boolean isUserEnabled = user != null ? user.isEnabled() : null;
+                return Boolean.TRUE.equals(isUserEnabled) ? toValtimoUserByRetrievingRoles(user) : null;
+            }
+        );
+    }
+
+    @Override
     public ValtimoUser findById(String userId) {
         UserRepresentation user;
-        try (Keycloak keycloak = keycloakService.keycloak()) {
-            user = keycloakService.usersResource(keycloak).get(userId).toRepresentation();
+        if (userId.equals(SYSTEM_ACCOUNT)) {
+            return SYSTEM_VALTIMO_USER;
+        } else {
+            try (Keycloak keycloak = keycloakService.keycloak()) {
+                user = keycloakService.usersResource(keycloak).get(userId).toRepresentation();
+            }
+            return Boolean.TRUE.equals(user.isEnabled()) ? toValtimoUserByRetrievingRoles(user) : null;
         }
-        return Boolean.TRUE.equals(user.isEnabled()) ? toValtimoUserByRetrievingRoles(user) : null;
     }
 
     @Override
@@ -183,12 +227,14 @@ public class KeycloakUserManagementService implements UserManagementService {
 
     @Override
     public ManageableUser getCurrentUser() {
-        if (SecurityUtils.getCurrentUserAuthentication() != null) {
+        if (SecurityUtils.getCurrentUserAuthentication() == null) {
+            return SYSTEM_VALTIMO_USER;
+        } else if (SecurityUtils.getCurrentUserAuthentication() instanceof AnonymousAuthenticationToken) {
+            return null;
+        } else {
             return findByEmail(SecurityUtils.getCurrentUserLogin()).orElseThrow(() ->
                 new IllegalStateException("No user found for email: ${currentUserService.currentUser.email}")
             );
-        } else {
-            return new ValtimoUserBuilder().id(SYSTEM_ACCOUNT).lastName(SYSTEM_ACCOUNT).build();
         }
     }
 
@@ -243,7 +289,10 @@ public class KeycloakUserManagementService implements UserManagementService {
             }
             try {
                 for (GroupRepresentation group : roleGroups) {
-                    usersList.add(keycloakService.realmResource(keycloak).groups().group(group.getId()).members(0, MAX_USERS));
+                    usersList.add(keycloakService.realmResource(keycloak)
+                        .groups()
+                        .group(group.getId())
+                        .members(0, MAX_USERS));
                 }
             } catch (NotFoundException e) {
                 logger.debug("Failed to find users by group. Error: {}", e.getMessage());
@@ -287,7 +336,8 @@ public class KeycloakUserManagementService implements UserManagementService {
             userRepresentation.getId(),
             userRepresentation.getEmail(),
             userRepresentation.getFirstName(),
-            userRepresentation.getLastName()
+            userRepresentation.getLastName(),
+            userRepresentation.getUsername()
         );
     }
 

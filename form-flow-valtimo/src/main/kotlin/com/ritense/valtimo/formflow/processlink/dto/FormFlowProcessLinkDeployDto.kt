@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.ritense.valtimo.formflow.processlink.dto
 
 import com.fasterxml.jackson.annotation.JsonTypeName
+import com.ritense.form.domain.FormDisplayType
+import com.ritense.form.domain.FormSizes
 import com.ritense.processlink.autodeployment.ProcessLinkDeployDto
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.valtimo.formflow.mapper.FormFlowProcessLinkMapper.Companion.PROCESS_LINK_TYPE_FORM_FLOW
@@ -27,6 +29,9 @@ data class FormFlowProcessLinkDeployDto(
     override val activityId: String,
     override val activityType: ActivityTypeWithEventName,
     val formFlowDefinitionId: String,
+    val formDisplayType: FormDisplayType = FormDisplayType.modal,
+    val formSize: FormSizes = FormSizes.medium,
+    val subtitles: List<String>?
 ) : ProcessLinkDeployDto {
     override val processLinkType: String
         get() = PROCESS_LINK_TYPE_FORM_FLOW

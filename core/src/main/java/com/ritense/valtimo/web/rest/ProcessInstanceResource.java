@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 
 package com.ritense.valtimo.web.rest;
 
+import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
+
 import com.ritense.authorization.AuthorizationContext;
+import com.ritense.logging.LoggableResource;
+import com.ritense.valtimo.camunda.domain.CamundaExecution;
 import com.ritense.valtimo.camunda.service.CamundaRuntimeService;
 import com.ritense.valtimo.contract.annotation.SkipComponentScan;
+import java.util.List;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
-
-import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @RestController
 @SkipComponentScan
@@ -44,7 +45,7 @@ public class ProcessInstanceResource {
 
     @PostMapping("/v1/process-instance/{id}/variables")
     public ResponseEntity<Map<String, Object>> getProcessInstanceVariables(
-        @PathVariable String id,
+        @LoggableResource(resourceType = CamundaExecution.class) @PathVariable String id,
         @RequestBody List<String> variableNames
     ) {
         final Map<String, Object> processVariables = AuthorizationContext

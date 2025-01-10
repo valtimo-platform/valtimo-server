@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,16 @@
 
 package com.ritense.document.service.impl;
 
+import static com.ritense.authorization.AuthorizationContext.runWithoutAuthorization;
+import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.CREATE;
+import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.DELETE;
+import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.MODIFY;
+import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.VIEW;
+import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.VIEW_LIST;
+import static com.ritense.logging.LoggingContextKt.withLoggingContext;
+import static com.ritense.valtimo.contract.utils.AssertionConcern.assertArgumentNotNull;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.InvalidPathException;
 import com.jayway.jsonpath.internal.path.ArrayPathToken;
 import com.jayway.jsonpath.internal.path.CompiledPath;
@@ -43,6 +53,15 @@ import com.ritense.document.service.result.DeployDocumentDefinitionResult;
 import com.ritense.document.service.result.DeployDocumentDefinitionResultFailed;
 import com.ritense.document.service.result.DeployDocumentDefinitionResultSucceeded;
 import com.ritense.document.service.result.error.DocumentDefinitionError;
+import com.ritense.logging.LoggableResource;
+import jakarta.validation.ValidationException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -53,20 +72,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
-import jakarta.validation.ValidationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-
-import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.CREATE;
-import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.DELETE;
-import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.MODIFY;
-import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.VIEW;
-import static com.ritense.document.service.JsonSchemaDocumentDefinitionActionProvider.VIEW_LIST;
-import static com.ritense.valtimo.contract.utils.AssertionConcern.assertArgumentNotNull;
 
 @Transactional
 public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionService {
@@ -116,14 +121,18 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
     }
 
     @Override
-    public JsonSchemaDocumentDefinitionId findIdByName(String name) {
+    public JsonSchemaDocumentDefinitionId findIdByName(
+        @LoggableResource("documentDefinitionName") String name
+    ) {
         return findLatestByName(name)
             .orElseThrow(() -> new UnknownDocumentDefinitionException(name))
             .getId();
     }
 
     @Override
-    public Optional<JsonSchemaDocumentDefinition> findBy(DocumentDefinition.Id id) {
+    public Optional<JsonSchemaDocumentDefinition> findBy(
+        @LoggableResource(resourceType = JsonSchemaDocumentDefinition.class) DocumentDefinition.Id id
+    ) {
         final var definition = documentDefinitionRepository.findById(id).orElse(null);
 
         if (definition != null) {
@@ -140,7 +149,9 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
     }
 
     @Override
-    public Optional<JsonSchemaDocumentDefinition> findLatestByName(String documentDefinitionName) {
+    public Optional<JsonSchemaDocumentDefinition> findLatestByName(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName
+    ) {
         final var definition = documentDefinitionRepository.findFirstByIdNameOrderByIdVersionDesc(
             documentDefinitionName
         ).orElse(null);
@@ -159,7 +170,25 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
     }
 
     @Override
-    public Optional<JsonSchemaDocumentDefinition> findByNameAndVersion(String documentDefinitionName, long version) {
+    public void requirePermission(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        Action action
+    ) {
+        var definition = runWithoutAuthorization(() -> findLatestByName(documentDefinitionName).orElseThrow());
+        authorizationService.requirePermission(
+            new EntityAuthorizationRequest<>(
+                JsonSchemaDocumentDefinition.class,
+                action,
+                definition
+            )
+        );
+    }
+
+    @Override
+    public Optional<JsonSchemaDocumentDefinition> findByNameAndVersion(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        long version
+    ) {
         final var documentDefinitionId = JsonSchemaDocumentDefinitionId.existingId(documentDefinitionName, version);
         final var optionalDefinition = documentDefinitionRepository.findById(documentDefinitionId);
 
@@ -175,7 +204,20 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
     }
 
     @Override
-    public List<Long> findVersionsByName(String documentDefinitionName) {
+    public List<String> getPropertyNames(DocumentDefinition definition) {
+        return withLoggingContext(JsonSchemaDocumentDefinition.class, definition.id(), () -> {
+            JsonSchemaDocumentDefinition jsonSchemaDocumentDefinition = (JsonSchemaDocumentDefinition) definition;
+            ObjectNode propertiesObjectNode = (ObjectNode) jsonSchemaDocumentDefinition.getSchema()
+                .asJson()
+                .get("properties");
+            return getPropertyNamesFromObjectNode(jsonSchemaDocumentDefinition, propertiesObjectNode, "/");
+        });
+    }
+
+    @Override
+    public List<Long> findVersionsByName(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName
+    ) {
         final var optionalDefinition = documentDefinitionRepository.findFirstByIdNameOrderByIdVersionDesc(
             documentDefinitionName
         );
@@ -251,46 +293,48 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
         //Authorization check is delegated to the store() method
         try {
             final var documentDefinitionName = jsonSchema.getSchema().getId().replace(".schema", "");
-            final var existingDefinition = findLatestByName(documentDefinitionName);
+            return withLoggingContext("documentDefinitionName", documentDefinitionName, () -> {
+                final var existingDefinition = findLatestByName(documentDefinitionName);
 
-            final JsonSchemaDocumentDefinitionId documentDefinitionId;
-            if (existingDefinition.isPresent()) {
-                var existingDocumentDefinition = existingDefinition.get();
+                final JsonSchemaDocumentDefinitionId documentDefinitionId;
+                if (existingDefinition.isPresent()) {
+                    var existingDocumentDefinition = existingDefinition.get();
 
-                // Check read-only of previous definition
-                if (existingDocumentDefinition.isReadOnly() && !force) {
-                    DocumentDefinitionError error = () -> "This schema cannot be updated, because its readonly in previous versions";
-                    return new DeployDocumentDefinitionResultFailed(List.of(error));
-                }
+                    // Check read-only of previous definition
+                    if (existingDocumentDefinition.isReadOnly() && !force) {
+                        DocumentDefinitionError error = () -> "This schema cannot be updated, because its readonly in previous versions";
+                        return new DeployDocumentDefinitionResultFailed(List.of(error));
+                    }
 
-                if (existingDocumentDefinition.getSchema().asJson().equals(jsonSchema.asJson())) {
-                    logger.info(
-                        "Schema already deployed - {} - {} ", existingDocumentDefinition.getId(),
-                        jsonSchema.getSchema().getId()
-                    );
-                    DocumentDefinitionError error = () -> "This exact schema is already deployed";
-                    return new DeployDocumentDefinitionResultFailed(List.of(error));
+                    if (existingDocumentDefinition.getSchema().asJson().equals(jsonSchema.asJson())) {
+                        logger.info(
+                            "Schema already deployed - {} - {} ", existingDocumentDefinition.getId(),
+                            jsonSchema.getSchema().getId()
+                        );
+                        DocumentDefinitionError error = () -> "This exact schema is already deployed";
+                        return new DeployDocumentDefinitionResultFailed(List.of(error));
+                    } else {
+                        // Definition changed increase version
+                        documentDefinitionId = JsonSchemaDocumentDefinitionId.nextVersion(existingDocumentDefinition.id());
+                        logger.info(
+                            "Schema changed. Deploying next version - {} - {} ", documentDefinitionId,
+                            jsonSchema.getSchema().getId()
+                        );
+                    }
                 } else {
-                    // Definition changed increase version
-                    documentDefinitionId = JsonSchemaDocumentDefinitionId.nextVersion(existingDocumentDefinition.id());
-                    logger.info(
-                        "Schema changed. Deploying next version - {} - {} ", documentDefinitionId,
-                        jsonSchema.getSchema().getId()
-                    );
+                    documentDefinitionId = JsonSchemaDocumentDefinitionId.newId(documentDefinitionName);
                 }
-            } else {
-                documentDefinitionId = JsonSchemaDocumentDefinitionId.newId(documentDefinitionName);
-            }
 
-            var documentDefinition = new JsonSchemaDocumentDefinition(documentDefinitionId, jsonSchema);
+                var documentDefinition = new JsonSchemaDocumentDefinition(documentDefinitionId, jsonSchema);
 
-            if (readOnly) {
-                documentDefinition.markReadOnly();
-            }
+                if (readOnly) {
+                    documentDefinition.markReadOnly();
+                }
 
-            store(documentDefinition);
-            logger.info("Deployed schema - {} - {} ", documentDefinitionId, jsonSchema.getSchema().getId());
-            return new DeployDocumentDefinitionResultSucceeded(documentDefinition);
+                store(documentDefinition);
+                logger.info("Deployed schema - {} - {} ", documentDefinitionId, jsonSchema.getSchema().getId());
+                return new DeployDocumentDefinitionResultSucceeded(documentDefinition);
+            });
         } catch (AccessDeniedException accessDeniedException) {
             throw accessDeniedException;
         } catch (Exception ex) {
@@ -302,47 +346,51 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
 
     @Override
     public void store(JsonSchemaDocumentDefinition documentDefinition) {
-        assertArgumentNotNull(documentDefinition, "documentDefinition is required");
+        withLoggingContext(JsonSchemaDocumentDefinition.class, documentDefinition.id().toString(), () -> {
+            assertArgumentNotNull(documentDefinition, "documentDefinition is required");
 
-        final var existingDocumentDefinition = documentDefinitionRepository.findById(documentDefinition.id()).orElse(
-            null);
-        if (existingDocumentDefinition != null) {
-            if (!existingDocumentDefinition.equals(documentDefinition)) {
-                throw new UnsupportedOperationException("Schema already deployed, will cannot redeploy");
+            final var existingDocumentDefinition = documentDefinitionRepository.findById(documentDefinition.id()).orElse(
+                    null);
+            if (existingDocumentDefinition != null) {
+                if (!existingDocumentDefinition.equals(documentDefinition)) {
+                    throw new UnsupportedOperationException("Schema already deployed, will cannot redeploy");
+                }
+            } else {
+                JsonSchemaDocumentDefinitionId latestDefinitionId = documentDefinitionRepository.findFirstByIdNameOrderByIdVersionDesc(
+                    documentDefinition.id().name()).map(JsonSchemaDocumentDefinition::getId).orElse(null);
+
+                authorizationService.requirePermission(
+                    new EntityAuthorizationRequest<>(
+                        JsonSchemaDocumentDefinition.class,
+                        latestDefinitionId == null ? CREATE : MODIFY,
+                        documentDefinition
+                    )
+                );
+
+                documentDefinitionRepository.saveAndFlush(documentDefinition);
             }
-        } else {
-            JsonSchemaDocumentDefinitionId latestDefinitionId = documentDefinitionRepository.findFirstByIdNameOrderByIdVersionDesc(
-                documentDefinition.id().name()).map(JsonSchemaDocumentDefinition::getId).orElse(null);
-
-            authorizationService.requirePermission(
-                new EntityAuthorizationRequest<>(
-                    JsonSchemaDocumentDefinition.class,
-                    latestDefinitionId == null ? CREATE : MODIFY,
-                    documentDefinition
-                )
-            );
-
-            documentDefinitionRepository.saveAndFlush(documentDefinition);
-        }
+        });
     }
 
     @Override
-    public void removeDocumentDefinition(String documentDefinitionName) {
-        findLatestByName(documentDefinitionName).ifPresent(documentDefinition -> {
-            authorizationService.requirePermission(
-                new EntityAuthorizationRequest<>(
-                    JsonSchemaDocumentDefinition.class,
-                    DELETE,
-                    documentDefinition
-                )
-            );
-        });
+    public void removeDocumentDefinition(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName
+    ) {
+        findLatestByName(documentDefinitionName).ifPresent(documentDefinition -> authorizationService.requirePermission(
+            new EntityAuthorizationRequest<>(
+                JsonSchemaDocumentDefinition.class,
+                DELETE,
+                documentDefinition
+            )
+        ));
 
         documentDefinitionRepository.deleteByIdName(documentDefinitionName);
     }
 
     @Override
-    public boolean currentUserCanAccessDocumentDefinition(String documentDefinitionName) {
+    public boolean currentUserCanAccessDocumentDefinition(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName
+    ) {
         return findLatestByName(documentDefinitionName)
             .map(documentDefinition -> authorizationService.hasPermission(
                 new EntityAuthorizationRequest<>(
@@ -354,7 +402,10 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
     }
 
     @Override
-    public void validateJsonPath(String documentDefinitionName, String jsonPathExpression) {
+    public void validateJsonPath(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        String jsonPathExpression
+    ) {
         var definition = findLatestByName(documentDefinitionName)
             .orElseThrow(() -> new UnknownDocumentDefinitionException(documentDefinitionName));
         if (jsonPathExpression.startsWith("doc:")) {
@@ -378,22 +429,27 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
 
     @Override
     public boolean isValidJsonPath(JsonSchemaDocumentDefinition definition, String jsonPathExpression) {
-        CompiledPath compiledJsonPath;
-        try {
-            compiledJsonPath = (CompiledPath) PathCompiler.compile(jsonPathExpression);
-        } catch (InvalidPathException e) {
-            logger.error(
-                "Failed to compile JsonPath '{}' for document definition '{}'", jsonPathExpression,
-                definition.id().name(), e
-            );
-            return false;
-        }
-        var jsonPointer = toJsonPointerRecursive(compiledJsonPath.getRoot());
-        return isValidJsonPointer(definition, jsonPointer);
+        return withLoggingContext(JsonSchemaDocumentDefinition.class, definition.id().toString(), () -> {
+            CompiledPath compiledJsonPath;
+            try {
+                compiledJsonPath = (CompiledPath) PathCompiler.compile(jsonPathExpression);
+            } catch (InvalidPathException e) {
+                logger.error(
+                    "Failed to compile JsonPath '{}' for document definition '{}'", jsonPathExpression,
+                    definition.id().name(), e
+                );
+                return false;
+            }
+            var jsonPointer = toJsonPointerRecursive(compiledJsonPath.getRoot());
+            return isValidJsonPointer(definition, jsonPointer);
+        });
     }
 
     @Override
-    public void validateJsonPointer(String documentDefinitionName, String jsonPointer) {
+    public void validateJsonPointer(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        String jsonPointer
+    ) {
         var definition = findLatestByName(documentDefinitionName)
             .orElseThrow(() -> new UnknownDocumentDefinitionException(documentDefinitionName));
         if (!isValidJsonPointer(definition, jsonPointer)) {
@@ -457,4 +513,45 @@ public class JsonSchemaDocumentDefinitionService implements DocumentDefinitionSe
         return ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(PATH);
     }
 
+    private List<String> getPropertyNamesFromObjectNode(
+        JsonSchemaDocumentDefinition definition,
+        ObjectNode node,
+        String parent
+    ) {
+        List<String> propertyNames = new ArrayList<>();
+        if (node != null) {
+            node.fields().forEachRemaining((jsonNode -> {
+                if (jsonNode.getValue().has("type")) {
+                    String propertyType = jsonNode.getValue().get("type").asText();
+                    if (isSimpleObject(propertyType)) {
+                        propertyNames.add(parent + jsonNode.getKey());
+                    } else if (propertyType.equals("object")) {
+                        ObjectNode objectNode = (ObjectNode) jsonNode.getValue();
+                        propertyNames.addAll(getPropertyNamesFromObjectNode(
+                            definition,
+                            (ObjectNode) objectNode.get("properties"),
+                            parent.concat(jsonNode.getKey() + "/")
+                        ));
+                    }
+                } else if (jsonNode.getValue().has("$ref")) {
+                    String internalDefinition = jsonNode.getValue().get("$ref").asText().substring(1);
+                    if (internalDefinition.startsWith("/")) {
+                        ObjectNode jsonNode1 = (ObjectNode) definition.schema().at(internalDefinition).get("properties");
+                        propertyNames.addAll(getPropertyNamesFromObjectNode(
+                            definition,
+                            jsonNode1,
+                            parent.concat(jsonNode.getKey() + "/")
+                        ));
+                    }
+                }
+            }));
+        }
+
+        return propertyNames;
+    }
+
+    private boolean isSimpleObject(String propertyType) {
+        List<String> simpleTypes = List.of("string", "boolean", "integer", "number");
+        return simpleTypes.contains(propertyType);
+    }
 }

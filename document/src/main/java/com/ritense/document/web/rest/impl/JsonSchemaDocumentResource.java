@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package com.ritense.document.web.rest.impl;
 
+import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
+
 import com.ritense.document.domain.Document;
+import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.document.domain.impl.JsonSchemaDocumentId;
 import com.ritense.document.domain.impl.request.AssignToDocumentsRequest;
 import com.ritense.document.domain.impl.request.GetDocumentCandidateUsersRequest;
@@ -28,9 +31,13 @@ import com.ritense.document.service.result.CreateDocumentResult;
 import com.ritense.document.service.result.DocumentResult;
 import com.ritense.document.service.result.ModifyDocumentResult;
 import com.ritense.document.web.rest.DocumentResource;
-import com.ritense.outbox.OutboxService;
+import com.ritense.logging.LoggableResource;
 import com.ritense.valtimo.contract.annotation.SkipComponentScan;
 import com.ritense.valtimo.contract.authentication.NamedUser;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -45,12 +52,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import jakarta.validation.Valid;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @Controller
 @SkipComponentScan
@@ -68,7 +69,8 @@ public class JsonSchemaDocumentResource implements DocumentResource {
     @Transactional
     @Override
     @GetMapping("/v1/document/{id}")
-    public ResponseEntity<? extends Document> getDocument(@PathVariable(name = "id") UUID id) {
+    public ResponseEntity<? extends Document> getDocument(
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "id") UUID id) {
         var document = documentService.findBy(JsonSchemaDocumentId.existingId(id)).orElse(null);
         if (document != null) {
             return ResponseEntity.ok(document);
@@ -94,9 +96,18 @@ public class JsonSchemaDocumentResource implements DocumentResource {
     }
 
     @Override
+    @DeleteMapping(value = "/v1/document/{id}")
+    public ResponseEntity<Void> deleteDocument(
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "id") UUID id
+    ) {
+        documentService.deleteDocument(JsonSchemaDocumentId.existingId(id));
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
     @PostMapping(value = "/v1/document/{document-id}/resource/{resource-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> assignResource(
-        @PathVariable(name = "document-id") UUID documentId,
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "document-id") UUID documentId,
         @PathVariable(name = "resource-id") UUID resourceId
     ) {
         documentService.assignResource(JsonSchemaDocumentId.existingId(documentId), resourceId);
@@ -106,7 +117,7 @@ public class JsonSchemaDocumentResource implements DocumentResource {
     @Override
     @DeleteMapping(value = "/v1/document/{document-id}/resource/{resource-id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> removeRelatedFile(
-        @PathVariable(name = "document-id") UUID documentId,
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "document-id") UUID documentId,
         @PathVariable(name = "resource-id") UUID resourceId
     ) {
         documentService.removeRelatedFile(JsonSchemaDocumentId.existingId(documentId), resourceId);
@@ -116,7 +127,7 @@ public class JsonSchemaDocumentResource implements DocumentResource {
     @Override
     @PostMapping("/v1/document/{documentId}/assign")
     public ResponseEntity<Void> assignHandlerToDocument(
-        @PathVariable(name = "documentId") UUID documentId,
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "documentId") UUID documentId,
         @RequestBody @Valid UpdateAssigneeRequest request
     ) {
         logger.debug("REST call /api/v1/document/{}/assign", documentId);
@@ -133,7 +144,8 @@ public class JsonSchemaDocumentResource implements DocumentResource {
 
     @Override
     @PostMapping("/v1/document/{documentId}/unassign")
-    public ResponseEntity<Void> unassignHandlerFromDocument(@PathVariable(name = "documentId") UUID documentId) {
+    public ResponseEntity<Void> unassignHandlerFromDocument(
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "documentId") UUID documentId) {
         logger.debug("REST call /api/v1/document/{}/unassign", documentId);
 
         try {
@@ -148,7 +160,7 @@ public class JsonSchemaDocumentResource implements DocumentResource {
     @Override
     @GetMapping("/v1/document/{document-id}/candidate-user")
     public ResponseEntity<List<NamedUser>> getCandidateUsers(
-        @PathVariable(name = "document-id") UUID documentId
+        @LoggableResource(resourceType = JsonSchemaDocument.class) @PathVariable(name = "document-id") UUID documentId
     ) {
         List<NamedUser> users = documentService.getCandidateUsers(JsonSchemaDocumentId.existingId(documentId));
         return ResponseEntity.ok(users);

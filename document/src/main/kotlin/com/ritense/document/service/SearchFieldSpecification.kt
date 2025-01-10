@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@ import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 
 class SearchFieldSpecification(
-        authRequest: AuthorizationRequest<SearchField>,
-        permissions: List<Permission>,
-        private val queryDialectHelper: QueryDialectHelper
+    authRequest: AuthorizationRequest<SearchField>,
+    permissions: List<Permission>,
+    private val queryDialectHelper: QueryDialectHelper
 ) : AuthorizationSpecification<SearchField>(authRequest, permissions) {
 
     override fun toPredicate(
@@ -50,7 +50,7 @@ class SearchFieldSpecification(
                     root,
                     query,
                     criteriaBuilder,
-                    authRequest.resourceType,
+                    authRequest,
                     queryDialectHelper
                 )
             }
@@ -58,6 +58,6 @@ class SearchFieldSpecification(
     }
 
     override fun identifierToEntity(identifier: String): SearchField {
-        TODO("Not yet implemented")
+        throw NotImplementedError()
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,18 +21,18 @@ import com.ritense.authorization.AuthorizationEntityMapper
 import com.ritense.authorization.AuthorizationEntityMapperResult
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
-import com.ritense.document.service.DocumentService
+import com.ritense.document.repository.impl.JsonSchemaDocumentRepository
 import com.ritense.note.domain.Note
-import java.util.UUID
 import jakarta.persistence.criteria.AbstractQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Root
+import java.util.UUID
 
 class NoteDocumentMapper(
-    private val documentService: DocumentService
+    private val documentRepository: JsonSchemaDocumentRepository
 ) : AuthorizationEntityMapper<Note, JsonSchemaDocument> {
     override fun mapRelated(entity: Note): List<JsonSchemaDocument> {
-        return runWithoutAuthorization { listOf(documentService.get(entity.documentId.toString()) as JsonSchemaDocument) }
+        return runWithoutAuthorization { listOf(documentRepository.findById(JsonSchemaDocumentId.existingId(entity.documentId)).get()) }
     }
 
     override fun mapQuery(root: Root<Note>, query: AbstractQuery<*>, criteriaBuilder: CriteriaBuilder): AuthorizationEntityMapperResult<JsonSchemaDocument> {

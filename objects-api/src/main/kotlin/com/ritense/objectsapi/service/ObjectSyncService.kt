@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,17 @@ import com.ritense.objectsapi.web.rest.result.CreateObjectSyncConfigResultSuccee
 import com.ritense.objectsapi.web.rest.result.ModifyObjectSyncConfigResult
 import com.ritense.objectsapi.web.rest.result.ModifyObjectSyncConfigResultFailed
 import com.ritense.objectsapi.web.rest.result.ModifyObjectSyncConfigResultSucceeded
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.result.OperationError
+import jakarta.validation.ConstraintViolationException
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
 import java.util.UUID
-import jakarta.validation.ConstraintViolationException
 
-open class ObjectSyncService(
+@Service
+@SkipComponentScan
+class ObjectSyncService(
     private val objectSyncConfigRepository: ObjectSyncConfigRepository,
     private val connectorTypeInstanceRepository: ConnectorTypeInstanceRepository
 ) {

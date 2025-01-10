@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package com.ritense.valueresolver
 
 import com.ritense.valueresolver.exception.ValueResolverValidationException
+import org.camunda.bpm.engine.delegate.VariableScope
 import java.util.UUID
 import java.util.function.Function
-import org.camunda.bpm.engine.delegate.VariableScope
 
 /**
  * A factory that creates a value resolver for a specific prefix.
@@ -67,7 +67,7 @@ interface ValueResolverFactory {
      */
     @Throws(ValueResolverValidationException::class)
     fun createValidator(documentDefinitionName: String)
-            : Function<String, Unit> = Function { }
+        : Function<String, Unit> = Function { }
 
     /**
      * This creates a requestedValue resolver within a certain context.
@@ -90,7 +90,7 @@ interface ValueResolverFactory {
      * @param variableScope An implementation of VariableScope.
      * @param values The values to handle. i.e. mapOf(doc:add:/firstname to John)
      */
-    fun handleValues(processInstanceId: String, variableScope: VariableScope?, values: Map<String, Any>)
+    fun handleValues(processInstanceId: String, variableScope: VariableScope?, values: Map<String, Any?>)
 
     /**
      * Handle values for a case where a process is not relevant or present in the current context.
@@ -98,7 +98,7 @@ interface ValueResolverFactory {
      * @param documentId The id of the document these values belong to
      * @param values The values to handle. i.e. mapOf(doc:add:/firstname to John)
      */
-    fun handleValues(documentId: UUID, values: Map<String, Any>) {
+    fun handleValues(documentId: UUID, values: Map<String, Any?>) {
         //empty default method for backwards compatibility
     }
 
@@ -108,7 +108,30 @@ interface ValueResolverFactory {
      *
      * @param values The values to handle. i.e. mapOf(doc:add:/firstname to John)
      */
-    fun preProcessValuesForNewCase(values: Map<String, Any>): Any {
+    fun preProcessValuesForNewCase(values: Map<String, Any?>): Any {
         return values
+    }
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions instead", ReplaceWith("getResolvableKeyOptions(documentDefinitionName, version)"))
+    fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
+        return emptyList()
+    }
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions instead", ReplaceWith("getResolvableKeyOptions(documentDefinitionName)"))
+    fun getResolvableKeys(documentDefinitionName: String): List<String> {
+        return emptyList()
+    }
+
+    fun getResolvableKeyOptions(documentDefinitionName: String, version: Long): List<ValueResolverOption> {
+        return emptyList()
+    }
+
+    fun getResolvableKeyOptions(documentDefinitionName: String): List<ValueResolverOption> {
+        return emptyList()
+    }
+
+    fun createFieldList(paths: List<String>): List<ValueResolverOption> {
+        val prefix = supportedPrefix()
+        return paths.map { ValueResolverOption("$prefix:$it", ValueResolverOptionType.FIELD) }
     }
 }

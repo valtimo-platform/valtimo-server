@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.RestClient
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFunction
@@ -66,26 +67,30 @@ class ZaakValueResolverValueIT @Autowired constructor(
 
     @Test
     fun `should prefill form with data from the Zaken API`() {
-        val documentId = runWithoutAuthorization {
-            documentService.createDocument(
+        runWithoutAuthorization {
+            val documentId = documentService.createDocument(
                 NewDocumentRequest("profile", objectMapper.createObjectNode())
             ).resultingDocument().get().id.id
-        }
-        val formDefinition = formDefinitionRepository.findByName("form-with-zaak-fields").get()
-        val prefilledFormDefinition = prefillFormService.getPrefilledFormDefinition(
-            formDefinition.id!!,
-            documentId
-        )
 
-        assertThat(JsonPath.read<List<String>>(prefilledFormDefinition.asJson().toString(), "$.components[?(@.properties.sourceKey=='zaak:identificatie')].defaultValue").toString())
-            .isEqualTo("""["ZK2023-00001"]""")
+            val formDefinition = formDefinitionRepository.findByName("form-with-zaak-fields").get()
+            val prefilledFormDefinition = prefillFormService.getPrefilledFormDefinition(
+                formDefinition.id!!,
+                documentId
+            )
+            assertThat(
+                JsonPath.read<List<String>>(
+                    prefilledFormDefinition.asJson().toString(),
+                    "$.components[?(@.properties.sourceKey=='zaak:identificatie')].defaultValue"
+                ).toString()
+            ).isEqualTo("""["ZK2023-00001"]""")
+        }
     }
 
     private fun setupMockZakenApiServer() {
-        server.dispatcher = object: Dispatcher() {
+        server.dispatcher = object : Dispatcher() {
             @Throws(InterruptedException::class)
             override fun dispatch(request: RecordedRequest): MockResponse {
-                val response = when(request.requestLine) {
+                val response = when (request.requestLine) {
                     "GET /zaken/57f66ff6-db7f-43bc-84ef-6847640d3609 HTTP/1.1" -> getZaakRequest()
                     else -> MockResponse().setResponseCode(404)
                 }
@@ -152,7 +157,11 @@ class ZaakValueResolverValueIT @Autowired constructor(
             .setBody(body)
     }
 
-    class TestAuthentication: ZakenApiAuthentication {
+    class TestAuthentication : ZakenApiAuthentication {
+        override fun applyAuth(builder: RestClient.Builder): RestClient.Builder {
+            return builder
+        }
+
         override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
             return next.exchange(request)
         }

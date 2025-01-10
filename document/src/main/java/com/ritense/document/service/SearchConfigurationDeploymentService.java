@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.document.domain.impl.searchfield.SearchField;
 import com.ritense.document.domain.search.SearchConfigurationDto;
+import com.ritense.document.exception.DocumentDefinitionDeploymentException;
 import com.ritense.document.exception.SearchConfigurationDeploymentException;
 import com.ritense.document.exception.SearchFieldConfigurationDeploymentException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Objects;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -35,10 +40,7 @@ import org.springframework.core.io.support.ResourcePatternUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
+import static com.ritense.logging.LoggingContextKt.withLoggingContext;
 
 @Transactional
 public class SearchConfigurationDeploymentService {
@@ -88,12 +90,22 @@ public class SearchConfigurationDeploymentService {
         }
     }
 
-    private void deploy(Resource searchResource) throws IOException {
+    private void deploy(Resource searchResource) {
         if (searchResource.getFilename() != null) {
             var fileName = Objects.requireNonNull(searchResource.getFilename());
             var documentDefinitionName = fileName.substring(0, fileName.lastIndexOf('.'));
-            var searchConfigurationJson = StreamUtils.copyToString(searchResource.getInputStream(), StandardCharsets.UTF_8);
-            deploy(documentDefinitionName, searchConfigurationJson);
+            withLoggingContext("documentDefinitionName", documentDefinitionName, () -> {
+                try {
+                    var searchConfigurationJson = StreamUtils.copyToString(searchResource.getInputStream(), StandardCharsets.UTF_8);
+                    deploy(documentDefinitionName, searchConfigurationJson);
+                } catch (IOException e) {
+                    throw new DocumentDefinitionDeploymentException(
+                        "Error deploying document definition " + documentDefinitionName,
+                        e
+                    );
+                }
+                return null;
+            });
         }
     }
 

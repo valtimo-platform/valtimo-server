@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,50 +27,41 @@ import com.ritense.objectenapi.event.ObjectsListed
 import com.ritense.outbox.OutboxService
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 class ObjectenApiClient(
-    private val webclientBuilder: WebClient.Builder,
+    private val restClientBuilder: RestClient.Builder,
     private val outboxService: OutboxService,
     private val objectMapper: ObjectMapper
-
 ) {
 
     fun getObject(
         authentication: ObjectenApiAuthentication,
         objectUrl: URI
     ): ObjectWrapper {
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .build()
+        val result = buildRestClient(authentication)
             .get()
             .uri(objectUrl)
             .retrieve()
-            .toEntity(ObjectWrapper::class.java)
-            .block()
+            .body<ObjectWrapper>()!!
 
-        val responseBody = result?.body!!
-
-        val response = if (responseBody.type.host == HOST_DOCKER_INTERNAL)
-            responseBody.copy(
+        val response = if (result.type.host == HOST_DOCKER_INTERNAL)
+            result.copy(
                 type = URI.create(
-                    responseBody.type.toString().replace(HOST_DOCKER_INTERNAL, "localhost")
+                    result.type.toString().replace(HOST_DOCKER_INTERNAL, "localhost")
                 )
-        ) else responseBody
+            ) else result
 
-        if (result.hasBody()) {
-            outboxService.send {
-                ObjectViewed(
-                    response.url.toString(),
-                    objectMapper.valueToTree(response)
-                )
-            }
+        outboxService.send {
+            ObjectViewed(
+                response.url.toString(),
+                objectMapper.valueToTree(response)
+            )
         }
-
-        return response
+        return result
     }
 
     fun getObjectsByObjecttypeUrl(
@@ -78,6 +69,7 @@ class ObjectenApiClient(
         objecttypesApiUrl: URI,
         objectsApiUrl: URI,
         objectypeId: String,
+        ordering: String? = "",
         pageable: Pageable
     ): ObjectsList {
         val host = if (objecttypesApiUrl.host == "localhost") {
@@ -92,33 +84,26 @@ class ObjectenApiClient(
             .pathSegment(objectypeId)
             .toUriString()
 
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .baseUrl(objectsApiUrl.toASCIIString())
-            .build()
+        val result = buildRestClient(authentication, objectsApiUrl.toASCIIString())
             .get()
             .uri { builder ->
                 builder.path("objects")
                     .queryParam("type", objectTypeUrl)
                     .queryParam("pageSize", pageable.pageSize)
                     .queryParam("page", pageable.pageNumber + 1) //objects api pagination starts at 1 instead of 0
+                    .queryParam("ordering", ordering)
                     .build()
             }
             .header(ACCEPT_CRS, EPSG_4326)
             .retrieve()
-            .toEntity(ObjectsList::class.java)
-            .block()
+            .body<ObjectsList>()!!
 
-        if (result.hasBody()) {
-            outboxService.send {
-                ObjectsListed(
-                    objectMapper.valueToTree(result.body.results)
-                )
-            }
+        outboxService.send {
+            ObjectsListed(
+                objectMapper.valueToTree(result.results)
+            )
         }
-
-        return result?.body!!
+        return result
     }
 
     fun getObjectsByObjecttypeUrlWithSearchParams(
@@ -127,6 +112,7 @@ class ObjectenApiClient(
         objectsApiUrl: URI,
         objectypeId: String,
         searchString: String,
+        ordering: String? = "",
         pageable: Pageable
     ): ObjectsList {
         val host = if (objecttypesApiUrl.host == "localhost") {
@@ -141,11 +127,7 @@ class ObjectenApiClient(
             .pathSegment(objectypeId)
             .toUriString()
 
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .baseUrl(objectsApiUrl.toASCIIString())
-            .build()
+        val result = buildRestClient(authentication, objectsApiUrl.toASCIIString())
             .get()
             .uri { builder ->
                 builder.path("objects")
@@ -153,22 +135,19 @@ class ObjectenApiClient(
                     .queryParam("pageSize", pageable.pageSize)
                     .queryParam("page", pageable.pageNumber + 1) //objects api pagination starts at 1 instead of 0
                     .queryParam("data_attrs", searchString)
+                    .queryParam("ordering", ordering)
                     .build()
             }
             .header(ACCEPT_CRS, EPSG_4326)
             .retrieve()
-            .toEntity(ObjectsList::class.java)
-            .block()
+            .body<ObjectsList>()!!
 
-        if (result.hasBody()) {
-            outboxService.send {
-                ObjectsListed(
-                    objectMapper.valueToTree(result.body.results)
-                )
-            }
+        outboxService.send {
+            ObjectsListed(
+                objectMapper.valueToTree(result.results)
+            )
         }
-
-        return result?.body!!
+        return result
     }
 
     fun createObject(
@@ -188,30 +167,22 @@ class ObjectenApiClient(
             objectRequest
         }
 
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .baseUrl(objectsApiUrl.toASCIIString())
-            .build()
+        val result = buildRestClient(authentication, objectsApiUrl.toASCIIString())
             .post()
             .uri("objects")
             .header(ACCEPT_CRS, EPSG_4326)
             .header(CONTENT_CRS, EPSG_4326)
-            .bodyValue(objectRequestCorrectedHost)
+            .body(objectRequestCorrectedHost)
             .retrieve()
-            .toEntity(ObjectWrapper::class.java)
-            .block()
+            .body<ObjectWrapper>()!!
 
-        if (result.hasBody()) {
-            outboxService.send {
-                ObjectCreated(
-                    result.body.url.toString(),
-                    objectMapper.valueToTree(result.body)
-                )
-            }
+        outboxService.send {
+            ObjectCreated(
+                result.url.toString(),
+                objectMapper.valueToTree(result)
+            )
         }
-
-        return result?.body!!
+        return result
     }
 
     fun objectPatch(
@@ -230,29 +201,21 @@ class ObjectenApiClient(
         } else {
             objectRequest
         }
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .build()
+        val result = buildRestClient(authentication)
             .patch()
             .uri(objectUrl)
             .header(CONTENT_CRS, EPSG_4326)
-            .bodyValue(objectRequestCorrectedHost)
+            .body(objectRequestCorrectedHost)
             .retrieve()
-            .toEntity(ObjectWrapper::class.java)
-            .block()
+            .body<ObjectWrapper>()!!
 
-
-        if (result.hasBody()) {
-            outboxService.send {
-                ObjectPatched(
-                    result.body.url.toString(),
-                    objectMapper.valueToTree(result.body)
-                )
-            }
+        outboxService.send {
+            ObjectPatched(
+                result.url.toString(),
+                objectMapper.valueToTree(result)
+            )
         }
-
-        return result?.body!!
+        return result
     }
 
     fun objectUpdate(
@@ -260,51 +223,56 @@ class ObjectenApiClient(
         objectUrl: URI,
         objectRequest: ObjectRequest
     ): ObjectWrapper {
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .build()
+        val objectRequestCorrectedHost = if (objectRequest.type.host == "localhost") {
+            objectRequest.copy(
+                type = UriComponentsBuilder
+                    .fromUri(objectRequest.type)
+                    .host(HOST_DOCKER_INTERNAL)
+                    .build()
+                    .toUri()
+            )
+        } else {
+            objectRequest
+        }
+        val result = buildRestClient(authentication)
             .put()
             .uri(objectUrl)
             .header(CONTENT_CRS, EPSG_4326)
-            .bodyValue(objectRequest)
+            .body(objectRequestCorrectedHost)
             .retrieve()
-            .toEntity(ObjectWrapper::class.java)
-            .block()
+            .body<ObjectWrapper>()!!
 
-        if (result.hasBody()) {
-            outboxService.send {
-                ObjectUpdated(
-                    result.body.url.toString(),
-                    objectMapper.valueToTree(result.body)
-                )
-            }
+        outboxService.send {
+            ObjectUpdated(
+                result.url.toString(),
+                objectMapper.valueToTree(result)
+            )
         }
-
-        return result?.body!!
+        return result
     }
 
     fun deleteObject(authentication: ObjectenApiAuthentication, objectUrl: URI): HttpStatus {
-        val result = webclientBuilder
-            .clone()
-            .filter(authentication)
-            .build()
+        val result = buildRestClient(authentication)
             .delete()
             .uri(objectUrl)
             .header(CONTENT_CRS, EPSG_4326)
             .retrieve()
             .toBodilessEntity()
-            .block()
 
-        if (result?.statusCode?.is2xxSuccessful == true) {
-            outboxService.send {
-                ObjectDeleted(
-                    objectUrl.toString()
-                )
-            }
+        outboxService.send {
+            ObjectDeleted(objectUrl.toString())
         }
+        return HttpStatus.valueOf(result.statusCode.value())
+    }
 
-        return HttpStatus.valueOf(result?.statusCode!!.value())
+    private fun buildRestClient(authentication: ObjectenApiAuthentication, baseURL: String? = null): RestClient {
+        return restClientBuilder
+            .clone()
+            .apply {
+                authentication.applyAuth(it)
+                baseURL?.let { url -> it.baseUrl(url) }
+            }
+            .build()
     }
 
     companion object {

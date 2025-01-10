@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@
 package com.ritense.dashboard.domain
 
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.ritense.valtimo.contract.repository.UriAttributeConverter
 import io.hypersistence.utils.hibernate.type.json.JsonType
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.Id
@@ -26,6 +28,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.Type
+import java.net.URI
 
 @Entity
 @Table(name = "dashboard_widget_configuration")
@@ -56,6 +59,10 @@ data class WidgetConfiguration(
     @Column(name = "display_type", nullable = false)
     val displayType: String,
 
+    @Column(name = "url")
+    @Convert(converter = UriAttributeConverter::class)
+    val url: URI? = null,
+
     @Column(name = "sort_order", nullable = false)
     val order: Int
 ) {
@@ -67,6 +74,7 @@ data class WidgetConfiguration(
             "dataSourceProperties=$dataSourceProperties, " +
             "displayTypeProperties=$displayTypeProperties, " +
             "displayType='$displayType', " +
-            "order=$order)"
+            "order=$order, " +
+            "url='$url')"
     }
 }

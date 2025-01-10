@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ package com.ritense.document.autoconfiguration
 import com.ritense.document.dashboard.DocumentWidgetDataSource
 import com.ritense.document.repository.impl.JsonSchemaDocumentRepository
 import com.ritense.valtimo.contract.database.QueryDialectHelper
+import jakarta.persistence.EntityManager
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 
 @AutoConfiguration
 class DocumentWidgetAutoConfiguration {
@@ -30,6 +31,7 @@ class DocumentWidgetAutoConfiguration {
     @ConditionalOnMissingBean(DocumentWidgetDataSource::class)
     fun documentWidgetDataSource(
         documentRepository: JsonSchemaDocumentRepository,
-        queryDialectHelper: QueryDialectHelper
-    ) = DocumentWidgetDataSource(documentRepository, queryDialectHelper)
+        queryDialectHelper: QueryDialectHelper,
+        entityManager: EntityManager
+    ) = DocumentWidgetDataSource(documentRepository, queryDialectHelper, entityManager)
 }

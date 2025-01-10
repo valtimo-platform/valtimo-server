@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 
 package com.ritense.processlink.service
 
+import com.ritense.authorization.AuthorizationService
+import com.ritense.document.service.DocumentService
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.web.rest.dto.ProcessLinkActivityResult
 import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -44,10 +48,34 @@ class ProcessLinkActivityServiceTest {
 
     lateinit var processLinkActivityService: ProcessLinkActivityService
 
+    @Mock
+    lateinit var authorizationService: AuthorizationService
+
+    @Mock
+    lateinit var camundaRepositoryService: CamundaRepositoryService
+
+    @Mock
+    lateinit var documentService: DocumentService
+
+    @Mock
+    lateinit var camundaTaskService: CamundaTaskService
+
+    @Mock
+    lateinit var camundaProcessService: CamundaProcessService
+
     @BeforeEach
     fun init() {
         MockitoAnnotations.openMocks(this)
-        processLinkActivityService = ProcessLinkActivityService(processLinkService, taskService, listOf(processLinkActivityHandler))
+        processLinkActivityService = ProcessLinkActivityService(
+            processLinkService,
+            taskService,
+            listOf(processLinkActivityHandler),
+            authorizationService,
+            camundaRepositoryService,
+            documentService,
+            camundaTaskService,
+            camundaProcessService,
+        )
     }
 
     @Test
@@ -59,9 +87,9 @@ class ProcessLinkActivityServiceTest {
         whenever(task.taskDefinitionKey).thenReturn("some-activity")
 
         val processLink: ProcessLink = mock()
-        val processLinkActivityResult = ProcessLinkActivityResult<Map<String,Any>>(UUID.randomUUID(), "test", mapOf())
+        val processLinkActivityResult = ProcessLinkActivityResult<Map<String, Any>>(UUID.randomUUID(), "test", mapOf())
 
-        whenever(taskService.findTask(any())).thenReturn(task)
+        whenever(taskService.findTaskOrThrow(any())).thenReturn(task)
         whenever(processLinkService.getProcessLinks(any(), any())).thenReturn(listOf(processLink))
         whenever(processLinkActivityHandler.supports(processLink)).thenReturn(true)
         whenever(processLinkActivityHandler.openTask(task, processLink)).thenReturn(processLinkActivityResult)

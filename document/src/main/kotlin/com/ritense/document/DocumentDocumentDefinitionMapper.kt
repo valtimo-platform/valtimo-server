@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,17 @@ import com.ritense.authorization.AuthorizationEntityMapperResult
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId
-import com.ritense.document.service.DocumentDefinitionService
+import com.ritense.document.repository.DocumentDefinitionRepository
 import jakarta.persistence.criteria.AbstractQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Root
 
 class DocumentDocumentDefinitionMapper(
-    private val documentDefinitionService: DocumentDefinitionService
+    private val documentDefinitionRepository: DocumentDefinitionRepository<JsonSchemaDocumentDefinition>
 ) : AuthorizationEntityMapper<JsonSchemaDocument, JsonSchemaDocumentDefinition> {
     override fun mapRelated(entity: JsonSchemaDocument): List<JsonSchemaDocumentDefinition> {
         return runWithoutAuthorization {
-            listOf(documentDefinitionService.findBy(entity.definitionId()).get() as JsonSchemaDocumentDefinition)
+            listOf(documentDefinitionRepository.findById(entity.definitionId()).get())
         }
     }
 

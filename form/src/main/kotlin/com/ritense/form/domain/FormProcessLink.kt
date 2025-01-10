@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,14 @@ package com.ritense.form.domain
 import com.ritense.form.mapper.FormProcessLinkMapper.Companion.PROCESS_LINK_TYPE_FORM
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLink
-import java.util.UUID
+import io.hypersistence.utils.hibernate.type.json.JsonType
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import org.hibernate.annotations.Type
+import java.util.UUID
 
 @Entity
 @DiscriminatorValue(PROCESS_LINK_TYPE_FORM)
@@ -32,8 +36,24 @@ class FormProcessLink(
     activityId: String,
     activityType: ActivityTypeWithEventName,
 
+    @Type(value = JsonType::class)
+    @Column(name = "subtitles", columnDefinition = "JSON", nullable = true)
+    val subtitles: List<String>? = null,
+
     @Column(name = "form_definition_id")
-    val formDefinitionId: UUID
+    val formDefinitionId: UUID,
+
+    @Column(name = "view_model_enabled")
+    val viewModelEnabled: Boolean = false,
+
+    @Column(name = "form_display_type")
+    @Enumerated(EnumType.STRING)
+    val formDisplayType: FormDisplayType = FormDisplayType.modal,
+
+    @Column(name = "form_size")
+    @Enumerated(EnumType.STRING)
+    val formSize: FormSizes = FormSizes.medium
+
 
 ) : ProcessLink(
     id,
@@ -57,13 +77,21 @@ class FormProcessLink(
         processDefinitionId: String = this.processDefinitionId,
         activityId: String = this.activityId,
         activityType: ActivityTypeWithEventName = this.activityType,
-        formDefinitionId: UUID = this.formDefinitionId
+        formDefinitionId: UUID = this.formDefinitionId,
+        viewModelEnabled: Boolean = this.viewModelEnabled,
+        formDisplayType: FormDisplayType = this.formDisplayType,
+        formSize: FormSizes = this.formSize,
+        subtitles: List<String>? = this.subtitles,
     ) = FormProcessLink(
         id = id,
         processDefinitionId = processDefinitionId,
         activityId = activityId,
         activityType = activityType,
-        formDefinitionId = formDefinitionId
+        formDefinitionId = formDefinitionId,
+        viewModelEnabled = viewModelEnabled,
+        formDisplayType = formDisplayType,
+        formSize = formSize,
+        subtitles = subtitles,
     )
 
     override fun equals(other: Any?): Boolean {
@@ -73,12 +101,22 @@ class FormProcessLink(
 
         other as FormProcessLink
 
-        return formDefinitionId == other.formDefinitionId
+        if (formDefinitionId != other.formDefinitionId) return false
+        if (viewModelEnabled != other.viewModelEnabled) return false
+        if (formDisplayType != other.formDisplayType) return false
+        if (formSize != other.formSize) return false
+        if (subtitles != other.subtitles) return false
+
+        return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
         result = 31 * result + formDefinitionId.hashCode()
+        result = 31 * result + viewModelEnabled.hashCode()
+        result = 31 * result + formDisplayType.hashCode()
+        result = 31 * result + formSize.hashCode()
+        result = 31 * result + subtitles.hashCode()
         return result
     }
 }

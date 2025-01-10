@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 package com.ritense.valtimo.contract.validation.listener
 
-import com.ritense.valtimo.contract.validation.Validatable
+import com.ritense.valtimo.contract.validation.ValidatorHolder
+import jakarta.validation.Validator
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
-import jakarta.validation.Validation
 
-class ValidatorReadyEventListener {
-
+class ValidatorReadyEventListener(
+    private val validator: Validator
+) {
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReady() {
-        Validatable.setValidator(Validation.buildDefaultValidatorFactory().validator)
+        ValidatorHolder.setValidator(validator)
     }
 }

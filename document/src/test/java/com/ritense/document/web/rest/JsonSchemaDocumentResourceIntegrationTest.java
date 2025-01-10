@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,36 @@
 
 package com.ritense.document.web.rest;
 
+import static com.ritense.valtimo.contract.utils.TestUtil.convertObjectToJsonBytes;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ritense.document.BaseIntegrationTest;
 import com.ritense.document.domain.Document;
 import com.ritense.document.domain.impl.JsonDocumentContent;
 import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.document.domain.impl.request.AssignToDocumentsRequest;
+import com.ritense.document.exception.DocumentNotFoundException;
 import com.ritense.document.repository.DocumentRepository;
 import com.ritense.document.web.rest.impl.JsonSchemaDocumentResource;
 import com.ritense.outbox.domain.BaseEvent;
+import com.ritense.valtimo.contract.event.DocumentDeletedEvent;
+import java.util.List;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,34 +56,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.function.Supplier;
-
-import static com.ritense.valtimo.contract.utils.TestUtil.convertObjectToJsonBytes;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @Transactional
 class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
     private static final String USER_EMAIL = "user@valtimo.nl";
 
-    private Document document;
+    private JsonSchemaDocument document;
     private JsonSchemaDocumentResource jsonSchemaDocumentResource;
     private MockMvc mockMvc;
-
-    @Autowired
-    private DocumentRepository documentRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -91,10 +91,11 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
     void shouldAssignUserToCase() throws Exception {
         var user = mockUser("John", "Doe");
         var loggedInUser = mockUser("Henk", "de Vries");
+        when(userManagementService.findByUserIdentifier(user.getUserIdentifier())).thenReturn(user);
         when(userManagementService.findById(user.getId())).thenReturn(user);
         when(userManagementService.getCurrentUser()).thenReturn(loggedInUser);
 
-        var postContent = "{ \"assigneeId\": \"" + user.getId() + "\"}";
+        var postContent = "{ \"assigneeId\": \"" + user.getUserIdentifier() + "\"}";
 
         mockMvc.perform(
                 post("/api/v1/document/{documentId}/assign", document.id().getId().toString())
@@ -111,7 +112,7 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
 
         var savedDocument = (JsonSchemaDocument) result.get();
         assertNotNull(savedDocument.assigneeId());
-        assertEquals(user.getId(), savedDocument.assigneeId());
+        assertEquals(user.getUserIdentifier(), savedDocument.assigneeId());
         assertNotNull(savedDocument.assigneeFullName());
         assertEquals(user.getFullName(), savedDocument.assigneeFullName());
     }
@@ -132,6 +133,7 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
 
         var user = mockUser("John", "Doe");
         var loggedInUser = mockUser("Henk", "de Vries");
+        when(userManagementService.findByUserIdentifier(user.getUserIdentifier())).thenReturn(user);
         when(userManagementService.findById(user.getId())).thenReturn(user);
         when(userManagementService.getCurrentUser()).thenReturn(loggedInUser);
 
@@ -156,13 +158,13 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
 
         var savedDocument = (JsonSchemaDocument) result1.get();
         assertNotNull(savedDocument.assigneeId());
-        assertEquals(user.getId(), savedDocument.assigneeId());
+        assertEquals(user.getUserIdentifier(), savedDocument.assigneeId());
         assertNotNull(savedDocument.assigneeFullName());
         assertEquals(user.getFullName(), savedDocument.assigneeFullName());
 
         var savedDocument2 = (JsonSchemaDocument) result2.get();
         assertNotNull(savedDocument2.assigneeId());
-        assertEquals(user.getId(), savedDocument2.assigneeId());
+        assertEquals(user.getUserIdentifier(), savedDocument2.assigneeId());
         assertNotNull(savedDocument2.assigneeFullName());
         assertEquals(user.getFullName(), savedDocument2.assigneeFullName());
     }
@@ -183,6 +185,7 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
 
         var user = mockUser("John", "Doe");
         var loggedInUser = mockUser("Henk", "de Vries");
+        when(userManagementService.findByUserIdentifier(user.getUserIdentifier())).thenReturn(user);
         when(userManagementService.findById(user.getId())).thenReturn(user);
         when(userManagementService.getCurrentUser()).thenReturn(loggedInUser);
 
@@ -207,7 +210,7 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
 
         var savedDocument = (JsonSchemaDocument) result1.get();
         assertNotNull(savedDocument.assigneeId());
-        assertEquals(user.getId(), savedDocument.assigneeId());
+        assertEquals(user.getUserIdentifier(), savedDocument.assigneeId());
         assertNotNull(savedDocument.assigneeFullName());
         assertEquals(user.getFullName(), savedDocument.assigneeFullName());
 
@@ -220,13 +223,13 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
     @WithMockUser(username = USER_EMAIL, authorities = {FULL_ACCESS_ROLE})
     void shouldNotAssignInvalidUserId() throws Exception {
         var user = mockUser("John", "Doe");
-        when(userManagementService.findById(user.getId())).thenReturn(null);
+        when(userManagementService.findByUserIdentifier(user.getUserIdentifier())).thenReturn(null);
 
         var postContent = "{ \"assigneeId\": \"" + user.getId() + "\"}";
 
         mockMvc.perform(
                 post("/api/v1/document/{documentId}/assign", document.id().getId().toString())
-                    .content(user.getId())
+                    .content(user.getUserIdentifier())
                     .contentType(MediaType.APPLICATION_JSON_VALUE))
             .andDo(print())
             .andExpect(status().isBadRequest());
@@ -236,6 +239,7 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
     @WithMockUser(username = USER_EMAIL, authorities = {FULL_ACCESS_ROLE})
     void shouldUnassignUserFromCase() throws Exception {
         var user = mockUser("John", "Doe");
+        when(userManagementService.findByUserIdentifier(user.getUserIdentifier())).thenReturn(user);
         when(userManagementService.findById(user.getId())).thenReturn(user);
 
         mockMvc.perform(
@@ -269,5 +273,27 @@ class JsonSchemaDocumentResourceIntegrationTest extends BaseIntegrationTest {
         assertEquals("com.ritense.document.domain.impl.JsonSchemaDocument", event.getResultType());
         assertEquals(document.id().toString(), event.getResultId());
         assertEquals(objectMapper.valueToTree(document), event.getResult());
+    }
+
+    @Test
+    @WithMockUser(username = USER_EMAIL, authorities = {FULL_ACCESS_ROLE})
+    void shouldDeleteDocumentAndSendEvent() throws Exception {
+        mockMvc.perform(delete("/api/v1/document/{documentId}", document.id().getId().toString()))
+            .andDo(print())
+            .andExpect(status().isOk());
+
+        verify(documentRepository, times(1)).delete(document);
+
+        assertEquals(1, events.stream(DocumentDeletedEvent.class).count());
+        var applicationEvent = events.stream(DocumentDeletedEvent.class).findFirst().orElseThrow();
+        assertEquals(document.id().getId(), applicationEvent.getDocumentId());
+
+        ArgumentCaptor<Supplier<BaseEvent>> outboxEventCaptor = ArgumentCaptor.forClass(Supplier.class);
+        verify(outboxService, times(2)).send(outboxEventCaptor.capture());
+        //first event is the viewed event, so we get the second one
+        var outboxEvent = outboxEventCaptor.getAllValues().get(1).get();
+        assertEquals("com.ritense.valtimo.document.deleted", outboxEvent.getType());
+        assertEquals("com.ritense.document.domain.impl.JsonSchemaDocument", outboxEvent.getResultType());
+        assertEquals(document.id().toString(), outboxEvent.getResultId());
     }
 }

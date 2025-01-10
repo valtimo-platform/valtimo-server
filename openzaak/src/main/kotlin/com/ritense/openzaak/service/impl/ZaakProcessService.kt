@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,13 @@ package com.ritense.openzaak.service.impl
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.openzaak.service.ZaakProcessService
 import com.ritense.openzaak.service.ZaakStatusService
-import java.util.UUID
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.springframework.stereotype.Service
+import java.util.UUID
 
+@Service
+@SkipComponentScan
 class ZaakProcessService(
     private val zaakStatusService: ZaakStatusService,
 ) : ZaakProcessService {

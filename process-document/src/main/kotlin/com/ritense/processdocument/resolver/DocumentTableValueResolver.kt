@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package com.ritense.processdocument.resolver
 
 import com.ritense.authorization.AuthorizationContext
 import com.ritense.document.domain.Document
-import com.ritense.valueresolver.ValueResolverFactory
 import com.ritense.document.service.DocumentService
 import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
+import com.ritense.valueresolver.ValueResolverFactory
+import com.ritense.valueresolver.ValueResolverOption
 import com.ritense.valueresolver.exception.ValueResolverValidationException
 import org.camunda.bpm.engine.delegate.VariableScope
-import java.lang.IllegalArgumentException
 import java.util.function.Function
 
 /**
@@ -61,25 +61,44 @@ class DocumentTableValueResolver(
         return AuthorizationContext.runWithoutAuthorization { createResolver(documentService.get(documentId)) }
     }
 
-    override fun handleValues(processInstanceId: String, variableScope: VariableScope?, values: Map<String, Any>) {
+    override fun handleValues(processInstanceId: String, variableScope: VariableScope?, values: Map<String, Any?>) {
         val firstValue = values.iterator().next()
         throw NotImplementedError("Unable to handle value: {${firstValue.key} to ${firstValue.value}}")
+    }
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String, version: Long) instead")
+    override fun getResolvableKeys(documentDefinitionName: String, version: Long): List<String> {
+        return TABLE_COLUMN_LIST
+    }
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeyOptions(documentDefinitionName: String) instead")
+    override fun getResolvableKeys(documentDefinitionName: String): List<String> {
+        return TABLE_COLUMN_LIST
+    }
+
+    override fun getResolvableKeyOptions(documentDefinitionName: String, version: Long): List<ValueResolverOption> {
+        return createFieldList(TABLE_COLUMN_LIST)
+    }
+
+    override fun getResolvableKeyOptions(documentDefinitionName: String): List<ValueResolverOption> {
+        return createFieldList(TABLE_COLUMN_LIST)
     }
 
     private fun createResolver(document: Document): Function<String, Any?> {
         return Function { requestedValue ->
             when (requestedValue) {
-                "id" -> document.id().id
-                "createdOn" -> document.createdOn()
+                "assigneeFullName" -> document.assigneeFullName()
+                "assigneeId" -> document.assigneeId()
                 "createdBy" -> document.createdBy()
-                "modifiedOn" -> document.modifiedOn().orElse(null)
+                "createdOn" -> document.createdOn()
                 "definitionId" -> document.definitionId()
                 "definitionId.name" -> document.definitionId().name()
                 "definitionId.version" -> document.definitionId().version()
-                "assigneeId" -> document.assigneeId()
-                "assigneeFullName" -> document.assigneeFullName()
-                "version" -> document.version()
+                "id" -> document.id().id
+                "internalStatus" -> document.internalStatus()
+                "modifiedOn" -> document.modifiedOn().orElse(null)
                 "sequence" -> document.sequence()
+                "version" -> document.version()
                 else -> throw IllegalArgumentException("Unknown document column with name: $requestedValue")
             }
         }
@@ -87,17 +106,17 @@ class DocumentTableValueResolver(
 
     companion object {
         val TABLE_COLUMN_LIST = listOf(
-            "id",
-            "createdOn",
+            "assigneeFullName",
+            "assigneeId",
             "createdBy",
-            "modifiedOn",
-            "definitionId",
+            "createdOn",
             "definitionId.name",
             "definitionId.version",
-            "assigneeId",
-            "assigneeFullName",
+            "id",
+            "internalStatus",
+            "modifiedOn",
+            "sequence",
             "version",
-            "sequence"
         )
     }
 }

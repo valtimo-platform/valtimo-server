@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ package com.ritense.search.autoconfigure
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.jsontype.NamedType
 import com.ritense.search.ObjectMapperConfigurer
+import com.ritense.search.autodeployment.SearchListColumnDefinitionDeploymentService
 import com.ritense.search.domain.DateFormatDisplayTypeParameter
 import com.ritense.search.domain.EnumDisplayTypeParameter
+import com.ritense.search.mapper.LegacySearchFieldV2Mapper
+import com.ritense.search.mapper.SearchFieldV2Mapper
 import com.ritense.search.repository.SearchFieldV2Repository
 import com.ritense.search.repository.SearchListColumnRepository
 import com.ritense.search.security.config.SearchHttpSecurityConfigurer
@@ -28,11 +31,13 @@ import com.ritense.search.service.SearchFieldV2Service
 import com.ritense.search.service.SearchListColumnService
 import com.ritense.search.web.rest.SearchFieldV2Resource
 import com.ritense.search.web.rest.SearchListColumnResource
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.core.annotation.Order
+import org.springframework.core.io.ResourceLoader
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @AutoConfiguration
@@ -63,10 +68,12 @@ class SearchAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(SearchFieldV2Service::class)
     fun searchFieldV2Service(
-        searchFieldV2Repository: SearchFieldV2Repository
+        searchFieldV2Repository: SearchFieldV2Repository,
+        searchFieldMappers: List<SearchFieldV2Mapper>
     ): SearchFieldV2Service {
         return SearchFieldV2Service(
-            searchFieldV2Repository
+            searchFieldV2Repository,
+            searchFieldMappers
         )
     }
 
@@ -105,4 +112,24 @@ class SearchAutoConfiguration {
         return ObjectMapperConfigurer(objectMapper, displayTypeParameterTypes)
     }
 
+    @Bean
+    @ConditionalOnMissingBean(LegacySearchFieldV2Mapper::class)
+    fun legacySearchFieldV2Mapper(
+        objectMapper: ObjectMapper
+    ): LegacySearchFieldV2Mapper {
+        return LegacySearchFieldV2Mapper(objectMapper)
+    }
+
+    @Bean
+    fun searchListColumnDefinitionDeploymentService(
+        resourceLoader: ResourceLoader,
+        applicationEventPublisher: ApplicationEventPublisher,
+        searchListColumnService: SearchListColumnService,
+        objectMapper: ObjectMapper
+    ) = SearchListColumnDefinitionDeploymentService(
+        resourceLoader,
+        applicationEventPublisher,
+        searchListColumnService,
+        objectMapper
+    )
 }

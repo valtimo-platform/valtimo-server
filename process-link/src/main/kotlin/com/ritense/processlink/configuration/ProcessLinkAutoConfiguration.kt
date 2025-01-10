@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.ritense.processlink.configuration
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.ritense.authorization.AuthorizationService
+import com.ritense.document.service.DocumentService
 import com.ritense.processlink.autodeployment.ProcessLinkDeploymentApplicationReadyEventListener
 import com.ritense.processlink.domain.SupportedProcessLinkTypeHandler
 import com.ritense.processlink.exporter.ProcessLinkExporter
@@ -33,15 +35,17 @@ import com.ritense.processlink.web.rest.ProcessLinkTaskResource
 import com.ritense.valtimo.autoconfiguration.ValtimoCamundaAutoConfiguration
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
 import com.ritense.valtimo.event.ProcessDefinitionDeployedEvent
+import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.core.annotation.Order
+import org.springframework.core.env.Environment
 import org.springframework.core.io.ResourceLoader
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
@@ -79,8 +83,22 @@ class ProcessLinkAutoConfiguration {
         processLinkService: ProcessLinkService,
         taskService: CamundaTaskService,
         processLinkActivityHandlers: List<ProcessLinkActivityHandler<*>>,
+        authorizationService: AuthorizationService,
+        camundaRepositoryService: CamundaRepositoryService,
+        documentService: DocumentService,
+        camundaTaskService: CamundaTaskService,
+        camundaProcessService: CamundaProcessService
     ): ProcessLinkActivityService {
-        return ProcessLinkActivityService(processLinkService, taskService, processLinkActivityHandlers)
+        return ProcessLinkActivityService(
+            processLinkService,
+            taskService,
+            processLinkActivityHandlers,
+            authorizationService,
+            camundaRepositoryService,
+            documentService,
+            camundaTaskService,
+            camundaProcessService
+        )
     }
 
     @Bean
@@ -116,11 +134,15 @@ class ProcessLinkAutoConfiguration {
     @ConditionalOnMissingBean(ProcessLinkDeploymentApplicationReadyEventListener::class)
     fun processLinkDeploymentApplicationReadyEventListener(
         resourceLoader: ResourceLoader,
-        processLinkImporter: ProcessLinkImporter
+        processLinkImporter: ProcessLinkImporter,
+        objectMapper: ObjectMapper,
+        environment: Environment
     ): ProcessLinkDeploymentApplicationReadyEventListener {
         return ProcessLinkDeploymentApplicationReadyEventListener(
             resourceLoader,
-            processLinkImporter
+            processLinkImporter,
+            objectMapper,
+            environment
         )
     }
 
@@ -128,10 +150,12 @@ class ProcessLinkAutoConfiguration {
     @ConditionalOnMissingBean(ProcessLinkExporter::class)
     fun processLinkExporter(
         objectMapper: ObjectMapper,
-        processLinkService: ProcessLinkService
+        processLinkService: ProcessLinkService,
+        repositoryService: CamundaRepositoryService
     ) = ProcessLinkExporter(
         objectMapper,
-        processLinkService
+        processLinkService,
+        repositoryService
     )
 
     @Bean

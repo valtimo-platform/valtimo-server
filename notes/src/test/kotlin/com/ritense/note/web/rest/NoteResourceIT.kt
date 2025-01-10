@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ internal class NoteResourceIT : BaseIntegrationTest() {
         )
             .andDo(print())
             // For some reason, the @ExceptionHandler is not picked up when using mockMvc
-            .andExpect(status().is5xxServerError)
+            .andExpect(status().isForbidden)
             .andExpect(jsonPath("$.detail").value("Unauthorized"))
     }
 

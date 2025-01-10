@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.ritense.case
 
 import com.ritense.valueresolver.ValueResolverFactory
-import java.util.function.Function
 import org.camunda.bpm.engine.delegate.VariableScope
+import java.util.function.Function
 
 /**
  * This resolver returns the requestedValue as the value.
@@ -50,7 +50,7 @@ class TestResolverFactory(
     override fun handleValues(
         processInstanceId: String,
         variableScope: VariableScope?,
-        values: Map<String, Any>
+        values: Map<String, Any?>
     ) {
         val firstValue = values.iterator().next()
         throw RuntimeException("Can't save fixed value (unknown destination): {${firstValue.key} to ${firstValue.value}}")
@@ -58,14 +58,18 @@ class TestResolverFactory(
 
     private fun createResolver(): Function<String, Any?> {
         return Function { requestedValue->
-            requestedValue.toBooleanStrictOrNull()
-                ?: requestedValue.toLongOrNull()
-                ?: requestedValue.toDoubleOrNull()
-                ?:  if (prefix.isEmpty()) {
-                        requestedValue
-                    } else {
-                        "$prefix:$requestedValue"
-                    }
+            if(requestedValue == "null") {
+                null
+            } else {
+                requestedValue.toBooleanStrictOrNull()
+                    ?: requestedValue.toLongOrNull()
+                    ?: requestedValue.toDoubleOrNull()
+                    ?:  if (prefix.isEmpty()) {
+                            requestedValue
+                        } else {
+                            "$prefix:$requestedValue"
+                        }
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,15 @@ package com.ritense.valtimo.formflow.exporter
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.exporter.ExportFile
+import com.ritense.exporter.ExportPrettyPrinter
 import com.ritense.exporter.ExportResult
 import com.ritense.exporter.Exporter
-import com.ritense.exporter.ExportPrettyPrinter
 import com.ritense.exporter.request.FormDefinitionExportRequest
 import com.ritense.exporter.request.FormFlowDefinitionExportRequest
 import com.ritense.formflow.domain.definition.configuration.FormFlowDefinition
 import com.ritense.formflow.domain.definition.configuration.step.FormStepTypeProperties
 import com.ritense.formflow.service.FormFlowService
+import com.ritense.logging.withLoggingContext
 import com.ritense.valtimo.formflow.handler.FormFlowStepTypeFormHandler
 import org.springframework.transaction.annotation.Transactional
 
@@ -38,24 +39,26 @@ class FormFlowDefinitionExporter(
     override fun supports() = FormFlowDefinitionExportRequest::class.java
 
     override fun export(request: FormFlowDefinitionExportRequest): ExportResult {
-        val definition = requireNotNull(formFlowService.findDefinition(request.formFlowDefinitionId))
+        return withLoggingContext(FormFlowDefinition::class, request.formFlowDefinitionId) {
+            val definition = requireNotNull(formFlowService.findDefinition(request.formFlowDefinitionId))
 
-        val relatedRequests = definition.steps.map { step ->
-            step.type
-        }.filter { type ->
-            type.name == FormFlowStepTypeFormHandler.TYPE
-        }.map { type ->
-            val formDefinitionName = (type.properties as FormStepTypeProperties).definition
-            FormDefinitionExportRequest(formDefinitionName)
-        }.toSet()
+            val relatedRequests = definition.steps.map { step ->
+                step.type
+            }.filter { type ->
+                type.name == FormFlowStepTypeFormHandler.TYPE
+            }.map { type ->
+                val formDefinitionName = (type.properties as FormStepTypeProperties).definition
+                FormDefinitionExportRequest(formDefinitionName)
+            }.toSet()
 
-        return ExportResult(
-            ExportFile(
-                PATH.format(definition.id.key),
-                objectMapper.writer(ExportPrettyPrinter()).writeValueAsBytes(FormFlowDefinition.fromEntity(definition))
-            ),
-            relatedRequests
-        )
+            ExportResult(
+                ExportFile(
+                    PATH.format(definition.id.key),
+                    objectMapper.writer(ExportPrettyPrinter()).writeValueAsBytes(FormFlowDefinition.fromEntity(definition))
+                ),
+                relatedRequests
+            )
+        }
     }
 
     companion object {

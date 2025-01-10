@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,71 +19,101 @@ package com.ritense.notificatiesapi.client
 import com.ritense.notificatiesapi.NotificatiesApiAuthentication
 import com.ritense.notificatiesapi.domain.Abonnement
 import com.ritense.notificatiesapi.domain.Kanaal
-import java.net.URI
 import org.springframework.http.MediaType
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBodilessEntity
-import org.springframework.web.reactive.function.client.awaitBody
-
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
+import java.net.URI
 
 class NotificatiesApiClient(
-    private val webclientBuilder: WebClient.Builder
+    private val restClientBuilder: RestClient.Builder
 ) {
 
-    internal suspend fun createAbonnement(
+    fun getAbonnement(
+        authentication: NotificatiesApiAuthentication,
+        baseUrl: URI,
+        abonnementId: String,
+    ): Abonnement {
+        return buildNotificatiesRestClient(authentication, baseUrl)
+            .get()
+            .uri("abonnement/$abonnementId")
+            .retrieve()
+            .body<Abonnement>()!!
+    }
+
+    fun updateAbonnement(
+        authentication: NotificatiesApiAuthentication,
+        baseUrl: URI,
+        abonnementId: String,
+        abonnement: Abonnement
+    ): Abonnement {
+        return buildNotificatiesRestClient(authentication, baseUrl)
+            .put()
+            .uri("abonnement/$abonnementId")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(abonnement)
+            .retrieve()
+            .body<Abonnement>()!!
+    }
+
+    fun createAbonnement(
         authentication: NotificatiesApiAuthentication,
         baseUrl: URI,
         abonnement: Abonnement
     ): Abonnement {
-
-        return buildNotificatiesWebClient(authentication, baseUrl)
+        return buildNotificatiesRestClient(authentication, baseUrl)
             .post()
             .uri("abonnement")
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(abonnement)
+            .body(abonnement)
             .retrieve()
-            .awaitBody()
+            .body<Abonnement>()!!
     }
 
-    internal suspend fun deleteAbonnement(
+    fun deleteAbonnement(
         authentication: NotificatiesApiAuthentication,
         baseUrl: URI,
         abonnementId: String
     ) {
-
-        buildNotificatiesWebClient(authentication, baseUrl)
+        buildNotificatiesRestClient(authentication, baseUrl)
             .delete()
             .uri("abonnement/$abonnementId")
             .retrieve()
-            .awaitBodilessEntity()
+            .toBodilessEntity()
     }
 
-    internal suspend fun createKanaal(
+    fun createKanaal(
         authentication: NotificatiesApiAuthentication,
         baseUrl: URI,
         kanaal: Kanaal
     ): Kanaal {
-        return buildNotificatiesWebClient(authentication, baseUrl)
+        return buildNotificatiesRestClient(authentication, baseUrl)
             .post()
             .uri("kanaal")
+            .body(kanaal)
             .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue(kanaal)
             .retrieve()
-            .awaitBody()
+            .body<Kanaal>()!!
     }
 
-    internal suspend fun getKanalen(authentication: NotificatiesApiAuthentication, baseUrl: URI): List<Kanaal> {
-        return buildNotificatiesWebClient(authentication, baseUrl)
+    fun getKanalen(
+        authentication: NotificatiesApiAuthentication,
+        baseUrl: URI
+    ): List<Kanaal> {
+        return buildNotificatiesRestClient(authentication, baseUrl)
             .get()
             .uri("kanaal")
             .retrieve()
-            .awaitBody()
+            .body<List<Kanaal>>()!!
     }
 
-    private fun buildNotificatiesWebClient(authentication: NotificatiesApiAuthentication, baseUrl: URI): WebClient =
-        webclientBuilder
-            .clone()
-            .filter(authentication)
-            .baseUrl(baseUrl.toASCIIString())
-            .build()
+    private fun buildNotificatiesRestClient(
+        authentication: NotificatiesApiAuthentication,
+        baseUrl: URI
+    ): RestClient = restClientBuilder
+        .clone()
+        .apply {
+            authentication.applyAuth(it)
+        }
+        .baseUrl(baseUrl.toASCIIString())
+        .build()
 }

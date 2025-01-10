@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,9 +42,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 import java.util.UUID
-import jakarta.transaction.Transactional
 
 @Transactional
 class PermissionResourceIT: BaseIntegrationTest() {
@@ -343,7 +343,7 @@ class PermissionResourceIT: BaseIntegrationTest() {
     }
 
     @Test
-    fun `requesting permission for not existing resource returns 403 forbidden`() {
+    fun `requesting permission for not existing resource returns available false`() {
 
         val permissionRequests = listOf(
             PermissionAvailableRequest(
@@ -363,11 +363,14 @@ class PermissionResourceIT: BaseIntegrationTest() {
                 .content(objectMapper.writeValueAsString(permissionRequests))
         )
             .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect { jsonPath("$[0].resource").value("test") }
+            .andExpect { jsonPath("$[0].action").value("update") }
+            .andExpect { jsonPath("$[0].available").value(false) }
     }
 
     @Test
-    fun `requesting permission for resource with no specification returns 403 forbidden`() {
+    fun `requesting permission for resource with no specification returns available false`() {
 
         val permissionRequests = listOf(
             PermissionAvailableRequest(
@@ -387,11 +390,14 @@ class PermissionResourceIT: BaseIntegrationTest() {
                 .content(objectMapper.writeValueAsString(permissionRequests))
         )
             .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect { jsonPath("$[0].resource").value("java.lang.String") }
+            .andExpect { jsonPath("$[0].action").value("view") }
+            .andExpect { jsonPath("$[0].available").value(false) }
     }
 
     @Test
-    fun `requesting permission for resource with context with no specification returns 403 forbidden`() {
+    fun `requesting permission for resource with context with no specification returns available false`() {
 
         val permissionRequests = listOf(
             PermissionAvailableRequest(
@@ -411,6 +417,9 @@ class PermissionResourceIT: BaseIntegrationTest() {
                 .content(objectMapper.writeValueAsString(permissionRequests))
         )
             .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().isForbidden)
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andExpect { jsonPath("$[0].resource").value("java.lang.String") }
+            .andExpect { jsonPath("$[0].action").value("view") }
+            .andExpect { jsonPath("$[0].available").value(false) }
     }
 }

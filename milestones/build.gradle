@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,11 +80,7 @@ dependencies {
     implementation "org.hibernate.orm:hibernate-core:${hibernateCoreVersion}"
     implementation "org.hibernate.orm:hibernate-envers:${hibernateCoreVersion}"
 
-    implementation "io.dropwizard.metrics:metrics-core"
-    implementation "io.dropwizard.metrics:metrics-annotation"
-
     testImplementation "org.springframework.security:spring-security-test"
-    testImplementation("com.mysql:mysql-connector-j")
 }
 
 apply from: "gradle/publishing.gradle"

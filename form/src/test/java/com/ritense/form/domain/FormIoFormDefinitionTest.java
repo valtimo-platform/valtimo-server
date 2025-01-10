@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,14 @@
 
 package com.ritense.form.domain;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,22 +35,14 @@ import com.ritense.form.autoconfigure.FormAutoConfiguration;
 import com.ritense.valtimo.contract.form.DataResolvingContext;
 import com.ritense.valtimo.contract.form.FormFieldDataResolver;
 import com.ritense.valtimo.contract.json.MapperSingleton;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.context.ApplicationContext;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationContext;
 
 public class FormIoFormDefinitionTest extends BaseTest {
 
@@ -120,14 +120,14 @@ public class FormIoFormDefinitionTest extends BaseTest {
     }
 
     @Test
-    public void shouldEscapeHtmlAtPreFill() throws IOException {
+    public void shouldNotEscapeHtmlAtPreFill() throws IOException {
         final var formDefinition = formDefinitionOf("process-variables-form-example");
 
         var content = content(Map.of("pv", Map.of("firstName", "</b>")));
 
         final var formDefinitionPreFilled = formDefinition.preFill(content);
 
-        assertThat(formDefinitionPreFilled.getFormDefinition().get("components").get(0).get("defaultValue").asText()).isEqualTo("&lt;/b&gt;");
+        assertThat(formDefinitionPreFilled.getFormDefinition().get("components").get(0).get("defaultValue").asText()).isEqualTo("</b>");
     }
 
     @Test
@@ -341,11 +341,43 @@ public class FormIoFormDefinitionTest extends BaseTest {
     }
 
     @Test
+    void shouldNotPrefillTextFieldsInsideEditGridOrDataGrid() throws IOException {
+        final var formDefinition = formDefinitionOf("editgrid");
+
+        formDefinition.preFill(MapperSingleton.get().readTree("""
+            {"voornaam":"James","editGrid":[{"voornaam":"Morgan"}],"dataGrid":[{"voornaam":"Asha"}]}
+        """));
+
+        final var components = formDefinition.asJson().get("components");
+        final var voornaamDefaultValue = components.get(0).get("defaultValue").asText();
+        final var editGridDefaultValue = components.get(1).get("defaultValue").toString();
+        final var dataGridDefaultValue = components.get(2).get("defaultValue").toString();
+        final var editGridVoornaamDefaultValue = components.get(1).get("components").get(0).get("defaultValue");
+        final var dataGridVoornaamDefaultValue = components.get(2).get("components").get(0).get("defaultValue");
+        assertEquals("James", voornaamDefaultValue);
+        assertEquals("[{\"voornaam\":\"Morgan\"}]", editGridDefaultValue);
+        assertEquals("[{\"voornaam\":\"Asha\"}]", dataGridDefaultValue);
+        assertNull(editGridVoornaamDefaultValue);
+        assertNull(dataGridVoornaamDefaultValue);
+    }
+
+    @Test
     void shouldNotOverrideDataTestIdAttributeIfAlreadyExist() throws IOException {
         final var formDefinition = formDefinitionOf("form-with-data-testid").asJson();
         final var lastNameNode = formDefinition.get("components").get(1);
 
         assertEquals("custom-testid-1234567890", lastNameNode.get("attributes").get("data-testid").asText());
+    }
+
+    @Test
+    void shouldMergeJsonDefaultValue() throws IOException {
+        final var formDefinition = formDefinitionOf("form-example");
+        formDefinition.preFill(Map.of("person.firstName", MapperSingleton.get().readTree("{\"array\":[1,2],\"nested\":{\"name\":\"John\",\"year\":\"1990\"}}")));
+
+        formDefinition.preFill(Map.of("person.firstName", MapperSingleton.get().readTree("{\"array\":[3,4],\"nested\":{\"name\":\"Henk\"},\"newKey\":\"value\"}")));
+
+        final var nameNodeDefaultValue = formDefinition.asJson().get("components").get(0).get("defaultValue");
+        assertEquals("{\"array\":[3,4],\"nested\":{\"name\":\"Henk\",\"year\":\"1990\"},\"newKey\":\"value\"}", nameNodeDefaultValue.toString());
     }
 
     private void assertExampleExternalField(

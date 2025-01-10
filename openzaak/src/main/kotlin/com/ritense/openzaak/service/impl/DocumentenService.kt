@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,23 @@ package com.ritense.openzaak.service.impl
 import com.ritense.openzaak.service.DocumentenService
 import com.ritense.openzaak.service.impl.model.documenten.DocumentCreatedResult
 import com.ritense.openzaak.service.impl.model.documenten.ZaakInformatieObjectCreatedResult
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.utils.SecurityUtils
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
+import mu.KotlinLogging
+import org.springframework.http.MediaType
+import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpStatusCodeException
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.multipart.MultipartFile
 import java.net.URI
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import java.util.UUID
-import mu.KotlinLogging
-import org.springframework.http.MediaType
-import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.client.RestTemplate
-import org.springframework.web.multipart.MultipartFile
 
+@Service
+@SkipComponentScan
 class DocumentenService(
     private val restTemplate: RestTemplate,
     private val openZaakConfigService: OpenZaakConfigService,

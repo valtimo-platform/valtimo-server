@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package com.ritense.document.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.document.BaseIntegrationTest;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition;
@@ -27,9 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
-import jakarta.transaction.Transactional;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import org.springframework.transaction.annotation.Transactional;
 
 @Tag("integration")
 @Transactional
@@ -48,6 +49,7 @@ class DocumentStatisticServiceIntTest extends BaseIntegrationTest {
         definition = definition();
 
         var user = new ValtimoUserBuilder().username(USERNAME).email(USERNAME).id(USER_ID).build();
+        when(userManagementService.findByUserIdentifier(USER_ID)).thenReturn(user);
         when(userManagementService.findById(USER_ID)).thenReturn(user);
         when(userManagementService.getCurrentUser()).thenReturn(user);
     }

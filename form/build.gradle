@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,11 @@ dockerCompose {
 }
 
 dependencies {
+    implementation project(":case")
     implementation project(":contract")
     implementation project(":core")
     implementation project(":document")
+    implementation project(":logging")
     implementation project(":process-document")
     implementation project(":process-link")
     implementation project(":resource")
@@ -44,6 +46,7 @@ dependencies {
     implementation project(":value-resolver")
     implementation project(":exporter")
     implementation project(":importer")
+    implementation project(":outbox")
 
     api "org.springframework.security:spring-security-core"
     api "org.springframework.boot:spring-boot"
@@ -70,6 +73,7 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test"
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "io.mockk:mockk:1.13.13"
 
     implementation "org.springframework.boot:spring-boot-autoconfigure"
 
@@ -79,7 +83,6 @@ dependencies {
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "com.jayway.jsonpath:json-path-assert:${jaywayJsonpathVersion}"
     testImplementation "org.mockito.kotlin:mockito-kotlin:${mockitoKotlinVersion}"
-    testImplementation("com.mysql:mysql-connector-j")
 
     jar {
         enabled = true

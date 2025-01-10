@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,11 +113,11 @@ class AuthorizationSpecificationTest {
             mock()
         )
 
-        whenever(permission.appliesTo(eq(TestEntity::class.java), any())).thenReturn(false)
+        whenever(permission.appliesTo(eq(TestEntity::class.java), any(), eq(null), eq(null))).thenReturn(false)
 
         val authorized = spec.isAuthorized()
         assertEquals(false, authorized)
 
-        verify(permission).appliesTo(eq(TestEntity::class.java), any())
+        verify(permission).appliesTo(eq(TestEntity::class.java), any(), eq(null), eq(null))
     }
 }

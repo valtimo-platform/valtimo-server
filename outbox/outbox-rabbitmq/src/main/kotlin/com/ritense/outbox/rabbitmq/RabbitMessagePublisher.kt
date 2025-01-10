@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,21 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-
 class RabbitMessagePublisher(
     private val rabbitTemplate: RabbitTemplate,
-    private val routingKey: String,
-    private val deliveryTimeout: Duration = Duration.ofSeconds(1)
-): MessagePublisher {
+    routingKey: String? = null,
+    private val deliveryTimeout: Duration = Duration.ofSeconds(1),
+    exchange: String? = null
+) : MessagePublisher {
+
+    private val exchange: String = exchange ?: run {
+        logger.debug { "Using Rabbit template default exchange: ${rabbitTemplate.exchange}" }
+        rabbitTemplate.exchange ?: ""
+    }
+    private val routingKey: String = routingKey ?: run {
+        logger.debug { "Using Rabbit template default routingKey: ${rabbitTemplate.exchange}" }
+        rabbitTemplate.routingKey ?: ""
+    }
 
     init {
         require(rabbitTemplate.connectionFactory.isPublisherConfirms) { "The RabbitMQ outbox publisher requires correlated publisher-confirm-type!" }
@@ -48,14 +57,14 @@ class RabbitMessagePublisher(
 
         //TODO: In favor of the inbox, changed the message to be created by a converter instead sending a bytearray directly.
 //        val msg = MessageBuilder.withBody(message.message.toByteArray()).build()
-        rabbitTemplate.convertAndSend(routingKey, null, message.message, correlationData)
+        rabbitTemplate.convertAndSend(exchange, routingKey, null, message.message, correlationData)
 
         try {
             val result = correlationData.future.get(deliveryTimeout.toMillis(), TimeUnit.MILLISECONDS)
             if (!result!!.isAck) {
                 throw MessagePublishingFailed("Outbox message was not acknowledged: reason=${result.reason}, routingKey=${routingKey}, msgId=${message.id}, correlationId= ${correlationData.id}\"")
             } else if (correlationData.returned != null) {
-                val returned = correlationData.returned
+                val returned = correlationData.returned!!
                 throw MessagePublishingFailed("Could not deliver outbox message: routingKey=${returned.routingKey}, code=${returned.replyCode}, msg=${returned.replyText}, routingKey=${routingKey}, msgId=${message.id}, correlationId= ${correlationData.id}\"")
             }
         } catch (timeoutException: TimeoutException) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,6 @@ class CamundaExecutionProcessDefinitionMapper : AuthorizationEntityMapper<Camund
     }
 
     override fun supports(fromClass: Class<*>, toClass: Class<*>): Boolean {
-        return fromClass == CamundaExecution::class && toClass == CamundaProcessDefinition::class
+        return fromClass == CamundaExecution::class.java && toClass == CamundaProcessDefinition::class.java
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package com.ritense.document.web.rest.impl;
 
+import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
+
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.document.domain.impl.searchfield.SearchFieldDto;
 import com.ritense.document.service.SearchFieldService;
 import com.ritense.document.web.rest.DocumentSearchFields;
+import com.ritense.logging.LoggableResource;
 import com.ritense.valtimo.contract.annotation.SkipComponentScan;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,9 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
-import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
 @Controller
 @SkipComponentScan
 @RequestMapping(value = "/api", produces = APPLICATION_JSON_UTF8_VALUE)
@@ -49,8 +50,9 @@ public class SearchFieldResource implements DocumentSearchFields {
     @Override
     @PostMapping("/v1/document-search/{documentDefinitionName}/fields")
     public ResponseEntity<Void> addSearchField(
-            @PathVariable String documentDefinitionName,
-            @RequestBody SearchFieldDto searchField) {
+        @LoggableResource("documentDefinitionName") @PathVariable String documentDefinitionName,
+        @RequestBody SearchFieldDto searchField
+    ) {
         if (documentDefinitionName == null
                 || documentDefinitionName.trim().isEmpty()
                 || searchField.getKey() == null
@@ -70,7 +72,8 @@ public class SearchFieldResource implements DocumentSearchFields {
     @Override
     @GetMapping("/v1/document-search/{documentDefinitionName}/fields")
     public ResponseEntity<List<SearchFieldDto>> getSearchFields(
-            @PathVariable String documentDefinitionName) {
+        @LoggableResource("documentDefinitionName") @PathVariable String documentDefinitionName
+    ) {
         return ResponseEntity.ok(SearchFieldMapper
                 .toDtoList(searchFieldService.getSearchFields(documentDefinitionName)));
     }
@@ -78,8 +81,9 @@ public class SearchFieldResource implements DocumentSearchFields {
     @Override
     @PutMapping("/v1/document-search/{documentDefinitionName}/fields")
     public ResponseEntity<Void> updateSearchField(
-            @PathVariable String documentDefinitionName,
-            @RequestBody List<SearchFieldDto> searchFieldDtos) {
+        @LoggableResource("documentDefinitionName") @PathVariable String documentDefinitionName,
+        @RequestBody List<SearchFieldDto> searchFieldDtos
+    ) {
         if (searchFieldDtos.stream().anyMatch(searchFieldDto -> searchFieldDto.getKey() == null || searchFieldDto.getKey().trim().isEmpty())) {
             return ResponseEntity.badRequest().build();
         }
@@ -96,8 +100,9 @@ public class SearchFieldResource implements DocumentSearchFields {
     @Override
     @DeleteMapping("/v1/document-search/{documentDefinitionName}/fields")
     public ResponseEntity<Void> deleteSearchField(
-            @PathVariable String documentDefinitionName,
-            @RequestParam String key) {
+        @LoggableResource("documentDefinitionName") @PathVariable String documentDefinitionName,
+        @RequestParam String key
+    ) {
         if (documentDefinitionName == null || documentDefinitionName.trim().isEmpty() || key == null || key.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }

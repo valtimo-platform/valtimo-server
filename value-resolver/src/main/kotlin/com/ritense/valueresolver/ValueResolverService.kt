@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.ritense.valueresolver
 
-import java.util.UUID
 import org.camunda.bpm.engine.delegate.VariableScope
+import java.util.UUID
 
 interface ValueResolverService {
     /**
@@ -81,17 +81,29 @@ interface ValueResolverService {
     fun handleValues(
         processInstanceId: String,
         variableScope: VariableScope?,
-        values: Map<String, Any>
+        values: Map<String, Any?>
     )
 
     fun handleValues(
         documentId: UUID,
-        values: Map<String, Any>
+        values: Map<String, Any?>
     )
 
     fun preProcessValuesForNewCase(
-        values: Map<String, Any>
-    ): Map<String, Any>
+        values: Map<String, Any?>
+    ): Map<String, Any?>
 
     fun supportsValue(value: String): Boolean
+
+    fun getValueResolvers(): List<String>
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeys with ValueResolverOptionRequest object instead")
+    fun getResolvableKeys(prefixes: List<String>, documentDefinitionName: String, version: Long): List<String>
+
+    @Deprecated("Deprecated since 12.6.0, Use getResolvableKeys with ValueResolverOptionRequest object instead")
+    fun getResolvableKeys(prefixes: List<String>, documentDefinitionName: String): List<String>
+
+    fun getResolvableKeys(request: ValueResolverOptionRequest, documentDefinitionName: String, version: Long): List<ValueResolverOption>
+
+    fun getResolvableKeys(request: ValueResolverOptionRequest, documentDefinitionName: String): List<ValueResolverOption>
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,15 @@ import com.ritense.valueresolver.ProcessVariableValueResolverFactory
 import com.ritense.valueresolver.ValueResolverFactory
 import com.ritense.valueresolver.ValueResolverService
 import com.ritense.valueresolver.ValueResolverServiceImpl
+import com.ritense.valueresolver.security.config.ValueResolverHttpSecurityConfigurer
+import com.ritense.valueresolver.web.rest.ValueResolverResource
 import org.camunda.bpm.engine.RuntimeService
+import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.Lazy
+import org.springframework.core.annotation.Order
 
 @AutoConfiguration
 class ValueResolverAutoConfiguration {
@@ -64,5 +67,18 @@ class ValueResolverAutoConfiguration {
         runtimeService: RuntimeService,
     ): ValueResolverFactory {
         return ProcessVariableValueResolverFactory(runtimeService)
+    }
+
+    @Bean
+    @Order(271)
+    fun valueResolverHttpSecurityConfigurer(): ValueResolverHttpSecurityConfigurer {
+        return ValueResolverHttpSecurityConfigurer()
+    }
+
+    @Bean
+    fun valueResolverResource(
+        valueResolverService: ValueResolverService
+    ): ValueResolverResource {
+        return ValueResolverResource(valueResolverService)
     }
 }

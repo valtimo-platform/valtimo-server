@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.authorization.AuthorizationService
+import com.ritense.authorization.request.AuthorizationResourceContext
 import com.ritense.authorization.request.EntityAuthorizationRequest
+import com.ritense.authorization.request.RelatedEntityAuthorizationRequest
 import com.ritense.document.domain.Document
+import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.request.ModifyDocumentRequest
 import com.ritense.document.domain.impl.request.NewDocumentRequest
 import com.ritense.document.exception.DocumentNotFoundException
@@ -37,6 +40,8 @@ import com.ritense.form.service.PrefillFormService
 import com.ritense.form.web.rest.dto.FormSubmissionResult
 import com.ritense.form.web.rest.dto.FormSubmissionResultFailed
 import com.ritense.form.web.rest.dto.FormSubmissionResultSucceeded
+import com.ritense.logging.LoggableResource
+import com.ritense.logging.withLoggingContext
 import com.ritense.processdocument.domain.ProcessDocumentDefinition
 import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey
 import com.ritense.processdocument.domain.impl.request.ModifyDocumentAndCompleteTaskRequest
@@ -50,10 +55,13 @@ import com.ritense.processlink.domain.ActivityTypeWithEventName.START_EVENT_STAR
 import com.ritense.processlink.domain.ActivityTypeWithEventName.USER_TASK_CREATE
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.service.ProcessLinkService
+import com.ritense.valtimo.camunda.authorization.CamundaExecutionActionProvider
 import com.ritense.valtimo.camunda.authorization.CamundaTaskActionProvider.Companion.COMPLETE
+import com.ritense.valtimo.camunda.domain.CamundaExecution
 import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.event.ExternalDataSubmittedEvent
 import com.ritense.valtimo.contract.json.JsonMerger
 import com.ritense.valtimo.contract.json.patch.JsonPatch
@@ -64,13 +72,16 @@ import com.ritense.valueresolver.ValueResolverService
 import com.ritense.valueresolver.ValueResolverServiceImpl
 import mu.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 import com.ritense.processdocument.resolver.DocumentJsonValueResolverFactory.Companion.PREFIX as DOC_PREFIX
 import com.ritense.valueresolver.ProcessVariableValueResolverFactory.Companion.PREFIX as PV_PREFIX
 
-open class DefaultFormSubmissionService(
+@Service
+@SkipComponentScan
+class DefaultFormSubmissionService(
     private val processLinkService: ProcessLinkService,
     private val formDefinitionService: FormIoFormDefinitionService,
     private val documentService: JsonSchemaDocumentService,
@@ -87,19 +98,19 @@ open class DefaultFormSubmissionService(
 
     @Transactional
     override fun handleSubmission(
-        processLinkId: UUID,
+        @LoggableResource(resourceType = ProcessLink::class) processLinkId: UUID,
         formData: JsonNode,
-        documentDefinitionName: String?,
-        documentId: String?,
-        taskInstanceId: String?,
+        @LoggableResource("documentDefinitionName") documentDefinitionName: String?,
+        @LoggableResource(resourceType = JsonSchemaDocument::class) documentId: String?,
+        @LoggableResource(resourceType = CamundaTask::class) taskInstanceId: String?,
     ): FormSubmissionResult {
         return try {
             // TODO: Implement else, done by verifying what the processLink contains
-            requireCompleteTaskPermission(taskInstanceId)
-
-            val processLink = processLinkService.getProcessLink(processLinkId, FormProcessLink::class.java)
             val document = documentId
                 ?.let { runWithoutAuthorization { documentService.get(documentId) } }
+            val processLink = processLinkService.getProcessLink(processLinkId, FormProcessLink::class.java)
+            requirePermission(taskInstanceId, document, processLink.processDefinitionId)
+
             val processDefinition = getProcessDefinition(processLink)
             val documentDefinitionNameToUse = document?.definitionId()?.name()
                 ?: documentDefinitionName
@@ -108,7 +119,7 @@ open class DefaultFormSubmissionService(
             val processVariables = getProcessVariables(taskInstanceId)
             val formDefinition = formDefinitionService.getFormDefinitionById(processLink.formDefinitionId).orElseThrow()
 
-            val categorizedKeyValues = getCategorizedSubmitValues(formDefinition, formData)
+            val categorizedKeyValues = getCategorizedSubmitValues(formDefinition, formData, document)
             val formFields = getFormFields(formDefinition, formData)
             // Merge the document results from 'legacy' mapping and value-resolvers.
             val submittedDocumentContent = JsonMerger.merge(
@@ -155,14 +166,28 @@ open class DefaultFormSubmissionService(
         }
     }
 
-    private fun requireCompleteTaskPermission(taskInstanceId: String?) {
+    private fun requirePermission(taskInstanceId: String?, document: JsonSchemaDocument?, processDefinitionId: String) {
         if (taskInstanceId != null) {
-            camundaTaskService.findTaskById(taskInstanceId)
+            val task = camundaTaskService.findTaskById(taskInstanceId)
             authorizationService.requirePermission(
                 EntityAuthorizationRequest(
                     CamundaTask::class.java,
                     COMPLETE,
-                    camundaTaskService.findTaskById(taskInstanceId)
+                    task
+                )
+            )
+        } else if (document != null) {
+            authorizationService.hasPermission<CamundaExecution>(
+                RelatedEntityAuthorizationRequest<CamundaExecution>(
+                    CamundaExecution::class.java,
+                    CamundaExecutionActionProvider.CREATE,
+                    CamundaProcessDefinition::class.java,
+                    processDefinitionId
+                ).withContext(
+                    AuthorizationResourceContext(
+                        JsonSchemaDocument::class.java,
+                        document
+                    )
                 )
             )
         }
@@ -174,7 +199,8 @@ open class DefaultFormSubmissionService(
      */
     private fun getCategorizedSubmitValues(
         formDefinition: FormIoFormDefinition,
-        formData: JsonNode
+        formData: JsonNode,
+        document: Document?
     ): CategorizedSubmitValues {
         val categorizedMap = formDefinition.inputFields
             .mapNotNull { field ->
@@ -182,7 +208,7 @@ open class DefaultFormSubmissionService(
             }.groupBy { (key, _) ->
                 val prefix = key.substringBefore(ValueResolverServiceImpl.DELIMITER, missingDelimiterValue = "")
                 when (prefix) {
-                    DOC_PREFIX -> DOC_PREFIX
+                    DOC_PREFIX -> if (document == null) DOC_PREFIX else OTHER
                     PV_PREFIX -> PV_PREFIX
                     else -> OTHER
                 }
@@ -329,6 +355,9 @@ open class DefaultFormSubmissionService(
         preJsonPatch: JsonPatch
     ): Request {
         return if (processLink.activityType == START_EVENT_START) {
+            check(taskInstanceId == null) {
+                "Process link configuration error: START_EVENT_START shouldn't be linked to a user-task. For process-definition: '${processLink.processDefinitionId}' with activity-id: '${processLink.activityId}'"
+            }
             if (document == null) {
                 newDocumentAndStartProcessRequest(
                     documentDefinitionName,
@@ -346,9 +375,12 @@ open class DefaultFormSubmissionService(
                 )
             }
         } else if (processLink.activityType == USER_TASK_CREATE) {
+            check(document != null && taskInstanceId != null) {
+                "Process link configuration error: USER_TASK_CREATE shouldn't be linked to a start-event. For process-definition: '${processLink.processDefinitionId}' with activity-id: '${processLink.activityId}'"
+            }
             modifyDocumentAndCompleteTaskRequest(
-                document!!,
-                taskInstanceId!!,
+                document,
+                taskInstanceId,
                 submittedDocumentContent,
                 formDefinedProcessVariables,
                 preJsonPatch
@@ -418,10 +450,12 @@ open class DefaultFormSubmissionService(
                 FormSubmissionResultFailed(result.errors())
             } else {
                 val submittedDocument = result.resultingDocument().orElseThrow()
-                formFields.forEach { it.postProcess(submittedDocument) }
-                publishExternalDataSubmittedEvent(externalFormData, documentDefinitionName, submittedDocument)
-                valueResolverService.handleValues(submittedDocument.id.id, remainingValueResolverValues)
-                FormSubmissionResultSucceeded(submittedDocument.id().toString())
+                withLoggingContext(JsonSchemaDocument::class, submittedDocument.id()) {
+                    formFields.forEach { it.postProcess(submittedDocument) }
+                    publishExternalDataSubmittedEvent(externalFormData, documentDefinitionName, submittedDocument)
+                    valueResolverService.handleValues(submittedDocument.id.id, remainingValueResolverValues)
+                    FormSubmissionResultSucceeded(submittedDocument.id().toString())
+                }
             }
         } catch (ex: RuntimeException) {
             val referenceId = UUID.randomUUID()

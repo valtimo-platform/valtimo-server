@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,14 @@ class TemporaryResourceStorageServiceTempDirIntegrationTest @Autowired construct
         val exception = assertThrows<java.nio.file.NoSuchFileException> {
             temporaryResourceStorageService.store("My file data".byteInputStream())
         }
-        assertThat(exception.message).startsWith("/my/non-existing/directory/for/temporary/files/temporaryResource")
+        var message = exception.message
+
+        if (message != null && message.startsWith("\\")) {
+            // Convert backslash path delimiters to forward slashes (e.g. for Windows)
+            message = message.replace("\\", "/")
+        }
+
+        assertThat(message).startsWith("/my/non-existing/directory/for/temporary/files/temporaryResource")
     }
 
 }

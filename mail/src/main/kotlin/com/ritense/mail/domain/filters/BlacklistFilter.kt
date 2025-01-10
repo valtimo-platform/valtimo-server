@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ package com.ritense.mail.domain.filters
 import com.ritense.mail.config.MailingProperties
 import com.ritense.mail.service.BlacklistService
 import com.ritense.valtimo.contract.mail.MailFilter
+import com.ritense.valtimo.contract.mail.model.HasRecipients
 import com.ritense.valtimo.contract.mail.model.RawMailMessage
 import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage
+import mu.KLogger
+import mu.KotlinLogging
 import java.util.Optional
 
 /**
@@ -41,17 +44,24 @@ class BlacklistFilter(
 ) : MailFilter {
 
     override fun doFilter(rawMailMessage: RawMailMessage): Optional<RawMailMessage> {
-        rawMailMessage
-            .recipients
-            .filterBy { !blacklistService.isBlacklisted(it.email.get()) }
-        return Optional.of(rawMailMessage)
+        return doFilterInternal(rawMailMessage)
     }
 
     override fun doFilter(templatedMailMessage: TemplatedMailMessage): Optional<TemplatedMailMessage> {
-        templatedMailMessage
+        return doFilterInternal(templatedMailMessage)
+    }
+
+    private fun <T: HasRecipients> doFilterInternal(mailMessage: T): Optional<T> {
+        mailMessage
             .recipients
             .filterBy { !blacklistService.isBlacklisted(it.email.get()) }
-        return Optional.of(templatedMailMessage)
+
+        return if (mailMessage.recipients.isPresent) {
+            Optional.of(mailMessage)
+        } else {
+            logger.debug { "No mail recipients left after filtering!" }
+            Optional.empty()
+        }
     }
 
     override fun isEnabled(): Boolean {
@@ -62,4 +72,7 @@ class BlacklistFilter(
         return mailingProperties.blacklistFilterPriority
     }
 
+    companion object {
+        private val logger: KLogger = KotlinLogging.logger {}
+    }
 }

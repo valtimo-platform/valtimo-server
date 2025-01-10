@@ -7,6 +7,8 @@ management:
     endpoint:
         health:
             show-details: when_authorized
+            roles:
+                - ROLE_ACTUATOR
 spring:
     application:
         name: gzac
@@ -23,7 +25,6 @@ spring:
         driver-class-name: org.postgresql.Driver
         url: jdbc:postgresql://localhost:54320/gzac
         username: gzac
-        password: password
         hikari:
             auto-commit: false
             maximum-pool-size: 25
@@ -47,6 +48,24 @@ spring:
                 serverTimezone: UTC
                 stringtype: unspecified
                 allowPublicKeyRetrieval: true
+    security:
+        oauth2:
+            resourceserver:
+                jwt:
+                    jwk-set-uri: http://localhost:8081/auth/realms/valtimo/protocol/openid-connect/certs
+            client:
+                provider:
+                    keycloakjwt:
+                        issuer-uri: http://localhost:8081/auth/realms/valtimo
+                    keycloakapi:
+                        issuer-uri: http://localhost:8081/auth/realms/valtimo
+                registration:
+                    keycloakjwt:
+                        client-id: valtimo-console
+                    keycloakapi:
+                        client-id: valtimo-user-m2m-client
+                        authorization-grant-type: authorization_code
+                        scope: openid
 
     groovy:
         template:
@@ -54,7 +73,7 @@ spring:
     liquibase:
         enabled: false
     jpa:
-        database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
         show_sql: false
         open-in-view: false
         properties:
@@ -76,6 +95,10 @@ spring:
     messages:
         basename: i18n/messages
     main.allow-bean-definition-overriding: true
+    servlet:
+        multipart:
+            max-file-size: 10MB
+            max-request-size: 10MB
     jersey:
         application-path: /api/camunda-rest
     autoconfigure:
@@ -132,8 +155,6 @@ mailing:
     sendRedirectedMailsTo:
 
 valtimo:
-    keycloak:
-        client: valtimo-console
     app:
         scheme: http
     database: postgres
@@ -145,7 +166,7 @@ valtimo:
         reminderTemplate: bpc-task-reminder
     oauth:
         tokenValidityInSeconds: 3600 # Token is valid 1 hour
-        public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAooyECQIi6v4TLKOYWwXClDhJcrGcGfKZj7LQIgY/Ajm2nAKv5kiZRoS8GzMzIGKkkilAJyWQCoKlP//azHqzIxO6WZWCqGFxd04vK5JYujsiMMTNvTggfFSM7VxbzU/wv+aAEvBaGUMYp2Oamn5szzYzkzsowujvDZp+CE8ryZWTVmA+8WZE4aoU6VzfXmMDmPxvRXvktPRsJkA7hkv65TTJwUZF38goRg62kRD0hOP1sIy6vwKDSkjafLV1bYNBRiWXNReJNBXauhy74GeiHODGrI62NwUJXSgZ62cViPt6cx/3A7VBPLpEPnpnlZcIDfsFpSUuNEXc7HoLRuldbQIDAQAB
+        identifier-field: username
 
     hardening:
         allowStacktraceOnIps:
@@ -169,10 +190,6 @@ valtimo:
     portal:
         hostname: localhost:4201
         scheme: http
-    connector-encryption:
-        secret: "0123456789101112"
-    plugin:
-        encryption-secret: "abcdefghijklmnop"
     web:
         cors:
             corsConfiguration:
@@ -187,7 +204,6 @@ valtimo:
     openklant:
         url: "http://localhost:8006"
         clientId: "valtimo_client"
-        secret: "e09b8bc5-5831-4618-ab28-41411304309d"
         rsin: "051845623"
 
     genericTemplateName: "template-name"
@@ -197,15 +213,19 @@ valtimo:
         acceptedMimeTypes:
             - text/plain
             - application/pdf
-            - image/jpeg
             - application/xml
+            - image/jpeg
+            - image/png
     changelog:
-        dashboard:
-            clear-tables: true
         pbac:
-            clear-tables: true
+            clear-tables: false
         case-tabs:
-            clear-tables: true
+            clear-tables: false
+        zgw-document-list-column:
+            clear-tables: false
+        task-search-fields:
+            clear-tables: false
+
     outbox:
         enabled: true
         publisher:
@@ -214,6 +234,12 @@ valtimo:
                 routing-key: valtimo-events
                 delivery-timeout: "PT0.5S"
             polling.rate: "PT1M"
+
+    authorization:
+        dashboard:
+            enabled: true
+    logging:
+        retentionInMinutes: 1440
 
 spring-actuator:
     username: admin
@@ -244,16 +270,6 @@ camunda:
             password: admin
             first-name: Admin account
 
-# ==================
-# keycloak server to server config
-# ==================
-keycloak:
-    realm: valtimo
-    auth-server-url: http://localhost:8081/auth
-    resource: valtimo-user-m2m-client
-    credentials:
-        secret: 6ef6ca16-6b86-482a-a3d9-0561704c1db9
-
 external:
     case:
         links:
@@ -263,5 +279,3 @@ external:
             bezwaar:
                 caseKey: bezwaar
                 processDefinitionKey: bezwaar
-
-valtimo.changelog.dashboard.clear-tables: true

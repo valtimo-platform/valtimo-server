@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 plugins {
     id "idea"
@@ -35,11 +38,11 @@ plugins {
     id "com.avast.gradle.docker-compose" version "${dockerComposePluginVersion}"
     id "com.github.jk1.dependency-license-report" version "${dependencyLicenseReportVersion}"
     id "project-report"
-    id "org.owasp.dependencycheck" version "8.4.0"
+    id "org.owasp.dependencycheck" version "8.4.3"
 }
 
 jacoco {
-    toolVersion = "0.8.9"
+    toolVersion = "0.8.12"
 }
 
 def allTestCoverageFile = "${rootDir}/build/reports/jacoco/testCodeCoverageReport/testCodeCoverageReport.xml"
@@ -71,7 +74,8 @@ sonar {
 }
 
 dockerCompose {
-    useDockerComposeV2 = false
+    useDockerComposeV2 = true
+    removeOrphans = true
 }
 
 configurations {
@@ -133,7 +137,6 @@ subprojects { subproject ->
         apply plugin: "kotlin"
         apply plugin: "kotlin-spring"
         apply plugin: "kotlin-jpa"
-        apply plugin: "kotlin-allopen"
         apply from: "$rootProject.projectDir/gradle/test.gradle"
         apply plugin: "com.avast.gradle.docker-compose"
         apply plugin: "org.jetbrains.dokka"
@@ -143,6 +146,10 @@ subprojects { subproject ->
         tasks.register("allDeps", DependencyReportTask) {}
         tasks.register("allDepInsight", DependencyInsightReportTask) {
             showingAllVariants.set(false)
+        }
+
+        allOpen {
+            annotation("com.ritense.valtimo.contract.annotation.AllOpen")
         }
 
         java {
@@ -159,12 +166,17 @@ subprojects { subproject ->
         }
 
         dockerCompose {
-            useDockerComposeV2 = false
+            useDockerComposeV2 = true
+            if (DefaultNativePlatform.currentOperatingSystem.macOsX) {
+                executable = "/usr/local/bin/docker-compose"
+                dockerExecutable = "/usr/local/bin/docker"
+            }
         }
 
         tasks.withType(KotlinCompile).configureEach {
-            kotlinOptions {
-                jvmTarget = JavaVersion.VERSION_17
+            compilerOptions {
+                jvmTarget = JvmTarget.JVM_17
+                freeCompilerArgs.add("-Xemit-jvm-type-annotations")
             }
         }
 

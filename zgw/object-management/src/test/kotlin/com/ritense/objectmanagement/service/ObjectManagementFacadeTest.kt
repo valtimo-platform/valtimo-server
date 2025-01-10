@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -75,6 +76,7 @@ internal class ObjectManagementFacadeTest {
         val expectedUrl = URI.create("www.ritense.com/objects/$objectUuid")
         val expectedResult = createObjectWrapper(url = expectedUrl, uuid = objectUuid)
         whenever(objectenApiPlugin.getObject(expectedUrl)).thenReturn(expectedResult)
+        whenever(objectenApiPlugin.getObjectUrl(any())).thenCallRealMethod()
 
         val result = objectManagementFacade.getObjectByUuid(objectName, objectUuid)
 
@@ -104,6 +106,7 @@ internal class ObjectManagementFacadeTest {
         val expectedResult2 = createObjectWrapper(url = expectedUrl2, uuid = objectUuid2)
         whenever(objectenApiPlugin.getObject(expectedUrl1)).thenReturn(expectedResult1)
         whenever(objectenApiPlugin.getObject(expectedUrl2)).thenReturn(expectedResult2)
+        whenever(objectenApiPlugin.getObjectUrl(any())).thenCallRealMethod()
 
         val result = objectManagementFacade.getObjectsByUuids(objectName, listOf(objectUuid1, objectUuid2))
 
@@ -173,6 +176,7 @@ internal class ObjectManagementFacadeTest {
     fun shouldGetObjectsPagedWithSearchString() {
         val objectName = "myObject"
         val searchString = "mySearchString"
+        val ordering = "myOrdering"
         val pageNumber = 1
         val pageSize = 20
 
@@ -189,10 +193,11 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl,
             objecttypeId = objectTypeId,
             searchString = searchString,
+            ordering = ordering,
             pageable = expectedPageRequest)
         ).thenReturn(expectedObjectsList)
 
-        val result = objectManagementFacade.getObjectsPaged(objectName, searchString, pageNumber, pageSize)
+        val result = objectManagementFacade.getObjectsPaged(objectName, searchString, pageNumber, ordering, pageSize)
 
         verify(objectManagementRepository).findByTitle(objectName)
         verify(pluginService).createInstance<ObjectenApiPlugin>(objectenApiPluginConfigurationId)
@@ -203,8 +208,9 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl,
             objecttypeId = objectTypeId,
             searchString = searchString,
+            ordering = ordering,
             pageable = expectedPageRequest)
-        verify(objectenApiPlugin, never()).getObjectsByObjectTypeId(any(), any(), any(), any())
+        verify(objectenApiPlugin, never()).getObjectsByObjectTypeId(any(), any(), any(), any(), any())
         assertThat(result).isEqualTo(expectedObjectsList)
     }
 
@@ -212,6 +218,7 @@ internal class ObjectManagementFacadeTest {
     fun shouldGetObjectsPagedWithoutSearchString() {
         val objectName = "myObject"
         val searchString = null
+        val ordering = null
         val pageNumber = 1
         val pageSize = 20
 
@@ -230,10 +237,11 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl1,
             objectsApiUrl = expectedUrl2,
             objecttypeId = objectTypeId,
+            ordering = ordering,
             pageable = expectedPageRequest)
         ).thenReturn(expectedObjectsList)
 
-        val result = objectManagementFacade.getObjectsPaged(objectName, searchString, pageNumber, pageSize)
+        val result = objectManagementFacade.getObjectsPaged(objectName, searchString, pageNumber, ordering, pageSize)
 
         verify(objectManagementRepository).findByTitle(objectName)
         verify(pluginService).createInstance<ObjectenApiPlugin>(objectenApiPluginConfigurationId)
@@ -244,8 +252,9 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl1,
             objectsApiUrl = expectedUrl2,
             objecttypeId = objectTypeId,
+            ordering = ordering,
             pageable = expectedPageRequest)
-        verify(objectenApiPlugin, never()).getObjectsByObjectTypeIdWithSearchParams(any(), any(), any(), any())
+        verify(objectenApiPlugin, never()).getObjectsByObjectTypeIdWithSearchParams(any(), any(), any(), any(), any())
         assertThat(result).isEqualTo(expectedObjectsList)
     }
 
@@ -253,6 +262,7 @@ internal class ObjectManagementFacadeTest {
     fun shouldGetObjectsUnpagedWithSearchString() {
         val objectName = "myObject"
         val searchString = "mySearchString"
+        val ordering = "myOrdering"
 
         val objectenApiPlugin = mock<ObjectenApiPlugin>()
         val objecttypenApiPlugin = mock<ObjecttypenApiPlugin>()
@@ -267,10 +277,11 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl,
             objecttypeId = objectTypeId,
             searchString = searchString,
+            ordering = ordering,
             pageable = expectedPageRequest)
         ).thenReturn(expectedObjectsList)
 
-        val result = objectManagementFacade.getObjectsUnpaged(objectName, searchString)
+        val result = objectManagementFacade.getObjectsUnpaged(objectName, searchString, ordering)
 
         verify(objectManagementRepository).findByTitle(objectName)
         verify(pluginService).createInstance<ObjectenApiPlugin>(objectenApiPluginConfigurationId)
@@ -281,8 +292,9 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl,
             objecttypeId = objectTypeId,
             searchString = searchString,
+            ordering = ordering,
             pageable = expectedPageRequest)
-        verify(objectenApiPlugin, never()).getObjectsByObjectTypeId(any(), any(), any(), any())
+        verify(objectenApiPlugin, never()).getObjectsByObjectTypeId(any(), any(), any(), any(), any())
         assertThat(result.count).isEqualTo(expectedObjectsList.count)
         assertThat(result.next).isEqualTo(expectedObjectsList.next)
         assertThat(result.previous).isEqualTo(expectedObjectsList.previous)
@@ -293,6 +305,7 @@ internal class ObjectManagementFacadeTest {
     fun shouldGetObjectsUnpagedWithoutSearchString() {
         val objectName = "myObject"
         val searchString = null
+        val ordering = null
 
         val objectenApiPlugin = mock<ObjectenApiPlugin>()
         val objecttypenApiPlugin = mock<ObjecttypenApiPlugin>()
@@ -309,10 +322,11 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl1,
             objectsApiUrl = expectedUrl2,
             objecttypeId = objectTypeId,
+            ordering = ordering,
             pageable = expectedPageRequest)
         ).thenReturn(expectedObjectsList)
 
-        val result = objectManagementFacade.getObjectsUnpaged(objectName, searchString)
+        val result = objectManagementFacade.getObjectsUnpaged(objectName, searchString, ordering)
 
         verify(objectManagementRepository).findByTitle(objectName)
         verify(pluginService).createInstance<ObjectenApiPlugin>(objectenApiPluginConfigurationId)
@@ -323,8 +337,9 @@ internal class ObjectManagementFacadeTest {
             objecttypesApiUrl = expectedUrl1,
             objectsApiUrl = expectedUrl2,
             objecttypeId = objectTypeId,
+            ordering = ordering,
             pageable = expectedPageRequest)
-        verify(objectenApiPlugin, never()).getObjectsByObjectTypeIdWithSearchParams(any(), any(), any(), any())
+        verify(objectenApiPlugin, never()).getObjectsByObjectTypeIdWithSearchParams(any(), any(), any(), any(), any())
         assertThat(result.count).isEqualTo(expectedObjectsList.count)
         assertThat(result.next).isEqualTo(expectedObjectsList.next)
         assertThat(result.previous).isEqualTo(expectedObjectsList.previous)
@@ -366,6 +381,83 @@ internal class ObjectManagementFacadeTest {
         assertThat(actualObjectRecord.typeVersion).isEqualTo(objectTypeVersion)
         assertThat(actualObjectRecord.data).isEqualTo(data)
         assertThat(actualObjectRecord.startAt).isEqualTo(LocalDate.now())
+    }
+
+    @Test
+    fun shouldUpdateObject() {
+        val objectName = "myObject"
+        val objectUuid = UUID.randomUUID()
+        val data: JsonNode = JsonNodeFactory(false).objectNode()
+        val updateData: JsonNode = JsonNodeFactory(false).objectNode().put("test", "test")
+
+        val objectenApiPlugin = mock<ObjectenApiPlugin>()
+        val objecttypenApiPlugin = mock<ObjecttypenApiPlugin>()
+        prepareAccessObject(objectName, objectenApiPlugin, objecttypenApiPlugin)
+
+        val expectedUrl = URI.create("www.ritense.com")
+        whenever(objecttypenApiPlugin.getObjectTypeUrlById(objectTypeId)).thenReturn(expectedUrl)
+        whenever(objectenApiPlugin.url).thenReturn(expectedUrl)
+        whenever(objectenApiPlugin.getObjectUrl(any())).thenCallRealMethod()
+
+        val objectRecord = ObjectRecord(
+            typeVersion = objectTypeVersion,
+            data = data,
+            startAt = LocalDate.now()
+        )
+
+        val expectedObjectRequest = ObjectRequest(expectedUrl, objectRecord)
+
+        objectManagementFacade.createObject(objectName, data)
+
+        clearInvocations(objectManagementRepository, pluginService, objectenApiPlugin)
+
+        objectManagementFacade.updateObject(
+            objectId = objectUuid,
+            objectName = objectName,
+            data = updateData
+        )
+
+        verify(objectManagementRepository).findByTitle(objectName)
+        verify(pluginService).createInstance<ObjectenApiPlugin>(objectenApiPluginConfigurationId)
+        verify(pluginService).createInstance<ObjecttypenApiPlugin>(objecttypenApiPluginConfigurationId)
+        verifyNoMoreInteractions(objectManagementRepository, pluginService)
+
+        val objectRequestCaptor = argumentCaptor<ObjectRequest>()
+        verify(objectenApiPlugin).objectUpdate(any(), objectRequestCaptor.capture())
+        val actualObjectRequest = objectRequestCaptor.firstValue
+        assertThat(actualObjectRequest.type).isEqualTo(expectedObjectRequest.type)
+        val actualObjectRecord = actualObjectRequest.record
+        assertThat(actualObjectRecord.typeVersion).isEqualTo(objectTypeVersion)
+        assertThat(actualObjectRecord.data).isEqualTo(updateData)
+        assertThat(actualObjectRecord.startAt).isEqualTo(LocalDate.now())
+    }
+
+    @Test
+    fun shouldDeleteObject() {
+        val objectName = "myObject"
+        val data: JsonNode = JsonNodeFactory(false).objectNode()
+
+        val objectenApiPlugin = mock<ObjectenApiPlugin>()
+        val objecttypenApiPlugin = mock<ObjecttypenApiPlugin>()
+        prepareAccessObject(objectName, objectenApiPlugin, objecttypenApiPlugin)
+
+        val expectedUrl = URI.create("www.ritense.com")
+        whenever(objecttypenApiPlugin.getObjectTypeUrlById(objectTypeId)).thenReturn(expectedUrl)
+        whenever(objectenApiPlugin.url).thenReturn(expectedUrl)
+        whenever(objectenApiPlugin.getObjectUrl(any())).thenCallRealMethod()
+
+        objectManagementFacade.createObject(objectName, data)
+
+        clearInvocations(objectManagementRepository, pluginService, objectenApiPlugin)
+
+        objectManagementFacade.deleteObject(objectName, UUID.randomUUID())
+
+        verify(objectManagementRepository).findByTitle(objectName)
+        verify(pluginService).createInstance<ObjectenApiPlugin>(objectenApiPluginConfigurationId)
+        verify(pluginService).createInstance<ObjecttypenApiPlugin>(objecttypenApiPluginConfigurationId)
+        verifyNoMoreInteractions(objectManagementRepository, pluginService)
+
+        verify(objectenApiPlugin).deleteObject(any())
     }
 
     private fun prepareAccessObject(

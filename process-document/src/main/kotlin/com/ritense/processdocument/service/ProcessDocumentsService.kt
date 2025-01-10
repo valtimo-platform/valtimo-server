@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,13 @@ import com.ritense.document.domain.Document
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.exception.DocumentNotFoundException
 import com.ritense.document.service.DocumentService
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.service.CamundaProcessService
+import org.springframework.stereotype.Service
 import java.util.UUID
 
-
+@Service
+@SkipComponentScan
 class ProcessDocumentsService(
     private val documentService: DocumentService,
     private val camundaProcessService: CamundaProcessService,
@@ -44,16 +47,19 @@ class ProcessDocumentsService(
         val processInstance = runWithoutAuthorization {
             camundaProcessService.startProcess(processDefinitionKey, businessKey, variables)
         }
+        require(processInstance.processDefinition.name != null) {
+            "Process definition with id '${processInstance.processDefinition.id}' doesn't have a name"
+        }
         associateDocumentToProcess(
             processInstance.processInstanceDto.id,
-            processInstance.processDefinition.name,
+            processInstance.processDefinition.name!!,
             businessKey
         )
     }
 
     private fun associateDocumentToProcess(
         processInstanceId: String?,
-        processName: String?,
+        processName: String,
         businessKey: String
     ) {
         runWithoutAuthorization {

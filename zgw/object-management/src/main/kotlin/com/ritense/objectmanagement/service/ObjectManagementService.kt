@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,17 @@ import com.ritense.search.domain.FieldType.RANGE
 import com.ritense.search.domain.FieldType.SINGLE
 import com.ritense.search.domain.FieldType.SINGLE_SELECT_DROPDOWN
 import com.ritense.search.domain.FieldType.TEXT_CONTAINS
+import com.ritense.search.domain.LEGACY_OWNER_TYPE
 import com.ritense.search.domain.SearchFieldV2
 import com.ritense.search.service.SearchFieldV2Service
 import com.ritense.search.service.SearchListColumnService
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
+import mu.KotlinLogging
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
@@ -59,6 +63,8 @@ import java.time.ZonedDateTime
 import java.util.UUID
 
 @Transactional(readOnly = true)
+@Service
+@SkipComponentScan
 class ObjectManagementService(
     private val objectManagementRepository: ObjectManagementRepository,
     private val pluginService: PluginService,
@@ -67,7 +73,8 @@ class ObjectManagementService(
 ) {
 
     @Transactional
-    fun create(objectManagement: ObjectManagement): ObjectManagement =
+    fun create(objectManagement: ObjectManagement): ObjectManagement {
+        logger.info { "Create $objectManagement" }
         with(objectManagementRepository.findByTitle(objectManagement.title)) {
             if (this != null) {
                 throw ResponseStatusException(
@@ -78,9 +85,11 @@ class ObjectManagementService(
             val result = objectManagementRepository.save(objectManagement)
             return result
         }
+    }
 
     @Transactional
-    fun update(objectManagement: ObjectManagement): ObjectManagement =
+    fun update(objectManagement: ObjectManagement): ObjectManagement {
+        logger.info { "Update $objectManagement" }
         with(objectManagementRepository.findByTitle(objectManagement.title)) {
             val result = if (this != null && objectManagement.id != id) {
                 objectManagementRepository.save(objectManagement.copy(id = this.id))
@@ -89,6 +98,7 @@ class ObjectManagementService(
             }
             return result
         }
+    }
 
     fun getById(id: UUID): ObjectManagement? = objectManagementRepository.findByIdOrNull(id)
 
@@ -98,11 +108,13 @@ class ObjectManagementService(
 
     @Transactional
     fun deleteById(id: UUID) {
+        logger.info { "Delete by id=$id" }
         objectManagementRepository.deleteById(id)
     }
 
     @Transactional
     fun getObjects(id: UUID, pageable: Pageable): PageImpl<ObjectsListRowDto> {
+        logger.debug { "Get objects id=$id pageable=$pageable" }
         val objectManagement = getById(id) ?: let {
             throw IllegalArgumentException("The requested Id is not configured as a object management configuration. The requested id was: $id")
         }
@@ -112,10 +124,10 @@ class ObjectManagementService(
         val objectenPluginInstance = getObjectenApiPlugin(objectManagement.objectenApiPluginConfigurationId)
 
         val objectsList = objectenPluginInstance.getObjectsByObjectTypeId(
-            objectTypePluginInstance.url,
-            objectenPluginInstance.url,
-            objectManagement.objecttypeId,
-            pageable
+            objecttypesApiUrl = objectTypePluginInstance.url,
+            objectsApiUrl = objectenPluginInstance.url,
+            objecttypeId = objectManagement.objecttypeId,
+            pageable = pageable
         )
 
         val objectsListDto = objectsList.results.map {
@@ -136,10 +148,13 @@ class ObjectManagementService(
         id: UUID,
         pageable: Pageable
     ): PageImpl<ObjectsListRowDto> {
+        logger.debug {
+            "Get objects with searchParams searchWithConfigRequest=$searchWithConfigRequest id=$id pageable=$pageable"
+        }
         val objectManagement = getById(id)
             ?: throw IllegalStateException("The requested Id is not configured as a object management configuration. The requested id was: $id")
 
-        val searchFieldList = searchFieldV2Service.findAllByOwnerId(id.toString())!!
+        val searchFieldList = searchFieldV2Service.findAllByOwnerTypeAndOwnerId(LEGACY_OWNER_TYPE, id.toString())
 
         val searchDtoList = searchFieldList.flatMap { searchField ->
             searchWithConfigRequest.otherFilters
@@ -148,9 +163,7 @@ class ObjectManagementService(
         }
 
         val objectsList = getObjectsWithSearchParams(objectManagement, searchDtoList, pageable)
-
         val objectsListDto = mapToObjectListRowDto(objectsList.toList(), id)
-
         return PageImpl(objectsListDto, pageable, objectsList.totalElements)
     }
 
@@ -159,6 +172,9 @@ class ObjectManagementService(
         searchParameters: List<ObjectSearchParameter>,
         pageable: Pageable
     ): PageImpl<ObjectWrapper> {
+        logger.debug {
+            "Get objects with searchParams objectManagement=$objectManagement searchParameters=$searchParameters pageable=$pageable"
+        }
         val searchString = ObjectSearchParameter.toQueryParameter(searchParameters)
 
         val objectTypePluginInstance = getObjectTypenApiPlugin(objectManagement.objecttypenApiPluginConfigurationId)
@@ -166,10 +182,10 @@ class ObjectManagementService(
         val objectenPluginInstance = getObjectenApiPlugin(objectManagement.objectenApiPluginConfigurationId)
 
         val objectsList = objectenPluginInstance.getObjectsByObjectTypeIdWithSearchParams(
-            objectTypePluginInstance.url,
-            objectManagement.objecttypeId,
-            searchString,
-            pageable
+            objecttypesApiUrl = objectTypePluginInstance.url,
+            objecttypeId = objectManagement.objecttypeId,
+            searchString = searchString,
+            pageable = pageable
         )
 
         return PageImpl(objectsList.results, pageable, objectsList.count.toLong())
@@ -328,4 +344,8 @@ class ObjectManagementService(
         ) as ObjecttypenApiPlugin
 
     fun findByObjectTypeId(id: String) = objectManagementRepository.findByObjecttypeId(id)
+
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 }

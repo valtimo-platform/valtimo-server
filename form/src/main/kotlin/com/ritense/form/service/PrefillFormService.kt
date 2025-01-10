@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
+import com.ritense.authorization.AuthorizationService
 import com.ritense.document.domain.Document
 import com.ritense.document.domain.patch.JsonPatchFilterFlag
 import com.ritense.document.domain.patch.JsonPatchService
 import com.ritense.document.service.DocumentService
 import com.ritense.form.domain.FormIoFormDefinition
 import com.ritense.form.service.impl.FormIoFormDefinitionService
+import com.ritense.logging.LoggableResource
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.valtimo.camunda.domain.CamundaExecution
+import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.form.DataResolvingContext
 import com.ritense.valtimo.contract.form.FormFieldDataResolver
 import com.ritense.valtimo.contract.json.JsonPointerHelper
@@ -39,11 +43,13 @@ import com.ritense.valtimo.contract.json.patch.JsonPatchBuilder
 import com.ritense.valtimo.service.CamundaProcessService
 import com.ritense.valtimo.service.CamundaTaskService
 import com.ritense.valueresolver.ValueResolverService
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-
 @Transactional
+@Service
+@SkipComponentScan
 class PrefillFormService(
     private val documentService: DocumentService,
     private val formDefinitionService: FormIoFormDefinitionService,
@@ -52,13 +58,14 @@ class PrefillFormService(
     private val formFieldDataResolvers: List<FormFieldDataResolver>,
     private val processDocumentAssociationService: ProcessDocumentAssociationService,
     private val valueResolverService: ValueResolverService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val authorizationService: AuthorizationService,
 ) {
 
     fun getPrefilledFormDefinition(
         formDefinitionId: UUID,
-        processInstanceId: String,
-        taskInstanceId: String,
+        @LoggableResource(resourceType = CamundaExecution::class) processInstanceId: String,
+        @LoggableResource(resourceType = CamundaTask::class) taskInstanceId: String,
     ): FormIoFormDefinition {
         val processInstance = runWithoutAuthorization {
             camundaProcessService.findExecutionByProcessInstanceId(processInstanceId)
@@ -80,7 +87,7 @@ class PrefillFormService(
         val formDefinition = formDefinitionService.getFormDefinitionById(formDefinitionId)
             .orElseThrow { RuntimeException("Form definition not found by id $formDefinitionId") }
         if (documentId != null) {
-            val document = runWithoutAuthorization { documentService.get(documentId.toString()) }
+            val document = documentService.get(documentId.toString())
             prefillFormDefinition(formDefinition, document, null, null)
         }
         return formDefinition

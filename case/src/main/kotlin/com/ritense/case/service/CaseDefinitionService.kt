@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,25 @@ import com.ritense.case.exception.InvalidListColumnException
 import com.ritense.case.exception.UnknownCaseDefinitionException
 import com.ritense.case.repository.CaseDefinitionListColumnRepository
 import com.ritense.case.repository.CaseDefinitionSettingsRepository
-import com.ritense.case.service.validations.CaseDefinitionColumnValidator
-import com.ritense.case.service.validations.CreateColumnValidator
+import com.ritense.case.service.validations.CreateCaseListColumnValidator
+import com.ritense.case.service.validations.ListColumnValidator
 import com.ritense.case.service.validations.Operation
-import com.ritense.case.service.validations.UpdateColumnValidator
+import com.ritense.case.service.validations.UpdateCaseListColumnValidator
 import com.ritense.case.web.rest.dto.CaseListColumnDto
 import com.ritense.case.web.rest.dto.CaseSettingsDto
 import com.ritense.case.web.rest.mapper.CaseListColumnMapper
 import com.ritense.document.domain.DocumentDefinition
 import com.ritense.document.exception.UnknownDocumentDefinitionException
 import com.ritense.document.service.DocumentDefinitionService
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valueresolver.ValueResolverService
-import kotlin.jvm.optionals.getOrNull
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.jvm.optionals.getOrNull
 
 @Transactional
+@Service
+@SkipComponentScan
 class CaseDefinitionService(
     private val caseDefinitionSettingsRepository: CaseDefinitionSettingsRepository,
     private val caseDefinitionListColumnRepository: CaseDefinitionListColumnRepository,
@@ -47,13 +51,13 @@ class CaseDefinitionService(
     valueResolverService: ValueResolverService,
     private val authorizationService: AuthorizationService
 ) {
-    var validators: Map<Operation, CaseDefinitionColumnValidator> = mapOf(
-        Operation.CREATE to CreateColumnValidator(
+    var validators: Map<Operation, ListColumnValidator<CaseListColumnDto>> = mapOf(
+        Operation.CREATE to CreateCaseListColumnValidator(
             caseDefinitionListColumnRepository,
             documentDefinitionService,
             valueResolverService
         ),
-        Operation.UPDATE to UpdateColumnValidator(
+        Operation.UPDATE to UpdateCaseListColumnValidator(
             caseDefinitionListColumnRepository,
             documentDefinitionService,
             valueResolverService

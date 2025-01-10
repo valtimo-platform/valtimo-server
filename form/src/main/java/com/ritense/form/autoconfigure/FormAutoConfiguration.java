@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.ritense.form.autoconfigure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ritense.authorization.AuthorizationService;
 import com.ritense.document.service.DocumentService;
 import com.ritense.form.autodeployment.FormApplicationReadyEventListener;
 import com.ritense.form.autodeployment.FormDefinitionDeploymentService;
@@ -41,20 +42,20 @@ import com.ritense.valtimo.contract.form.FormFieldDataResolver;
 import com.ritense.valtimo.service.CamundaProcessService;
 import com.ritense.valtimo.service.CamundaTaskService;
 import com.ritense.valueresolver.ValueResolverService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import java.util.List;
-
 @AutoConfiguration
 @EnableJpaRepositories(basePackages = "com.ritense.form.repository")
-@EntityScan("com.ritense.form.domain")
+@EntityScan({"com.ritense.form"})
 public class FormAutoConfiguration {
     private static boolean ignoreDisabledFields = false;
 
@@ -106,6 +107,7 @@ public class FormAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(ResourceService.class)
     @ConditionalOnMissingBean(FormFileResource.class)
     public FormIoFormFileResource formFileResource(ResourceService resourceService) {
         return new FormIoFormFileResource(resourceService);
@@ -148,7 +150,8 @@ public class FormAutoConfiguration {
         List<FormFieldDataResolver> formFieldDataResolvers,
         ProcessDocumentAssociationService processDocumentAssociationService,
         ValueResolverService valueResolverService,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        AuthorizationService authorizationService
     ) {
         return new PrefillFormService(
             documentService,
@@ -158,16 +161,16 @@ public class FormAutoConfiguration {
             formFieldDataResolvers,
             processDocumentAssociationService,
             valueResolverService,
-            objectMapper
+            objectMapper,
+            authorizationService
         );
     }
 
     @Bean
     @ConditionalOnMissingBean(FormProcessLinkActivityHandler.class)
     public FormProcessLinkActivityHandler formProcessLinkTaskProvider(
-        FormIoFormDefinitionService formDefinitionService,
         PrefillFormService prefillFormService
     ) {
-        return new FormProcessLinkActivityHandler(formDefinitionService,prefillFormService);
+        return new FormProcessLinkActivityHandler(prefillFormService);
     }
 }

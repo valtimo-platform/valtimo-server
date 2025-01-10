@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,13 +42,36 @@ data class FormFlowDefinition(
         steps.forEach { step -> step.id.formFlowDefinition = this }
     }
 
-    fun createInstance(additionalProperties: Map<String, Any>) : FormFlowInstance {
-        return FormFlowInstance(formFlowDefinition = this,
-            additionalProperties = additionalProperties.toMutableMap())
+    fun createInstance(additionalProperties: Map<String, Any>): FormFlowInstance {
+        return FormFlowInstance(
+            formFlowDefinition = this,
+            additionalProperties = additionalProperties.toMutableMap()
+        )
     }
 
     fun getStepByKey(key: String): FormFlowStep {
         return steps.first { it.id.key == key }
+    }
+
+    fun getOrderedSteps(): List<FormFlowStep> {
+        val orderedSteps = getOrderedSteps(startStep)
+        if (orderedSteps.size != steps.size) {
+            orderedSteps += steps
+                .filter { orderedSteps.none { step -> it.id == step.id } }
+                .sortedBy { it.id.key }
+        }
+        return orderedSteps
+    }
+
+    private fun getOrderedSteps(
+        stepKey: String,
+        result: MutableList<FormFlowStep> = mutableListOf()
+    ): MutableList<FormFlowStep> {
+        if (result.any { stepKey == it.id.key }) return result
+        val step = steps.firstOrNull { it.id.key == stepKey } ?: return result
+        result += step
+        step.nextSteps.forEach { getOrderedSteps(it.step, result) }
+        return result
     }
 
 }

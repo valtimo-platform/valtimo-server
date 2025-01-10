@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.ritense.dashboard.web.rest.dto
 
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.dashboard.domain.WidgetConfiguration
+import java.net.URI
 
 data class AdminWidgetConfigurationResponseDto(
     val key: String,
@@ -25,7 +26,8 @@ data class AdminWidgetConfigurationResponseDto(
     val dataSourceKey: String,
     val displayType: String,
     val dataSourceProperties: ObjectNode,
-    val displayTypeProperties: ObjectNode
+    val displayTypeProperties: ObjectNode,
+    val url: URI?,
 ) {
     companion object {
         fun of(widget: WidgetConfiguration) = AdminWidgetConfigurationResponseDto(
@@ -34,7 +36,8 @@ data class AdminWidgetConfigurationResponseDto(
             dataSourceKey = widget.dataSourceKey,
             displayType = widget.displayType,
             dataSourceProperties = widget.dataSourceProperties,
-            displayTypeProperties = widget.displayTypeProperties
+            displayTypeProperties = widget.displayTypeProperties,
+            url = widget.url
         )
     }
 }

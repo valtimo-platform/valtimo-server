@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.document.domain.impl.request.NewDocumentRequest
-import com.ritense.plugin.domain.ActivityType
+import com.ritense.documentenapi.client.DocumentInformatieObject
 import com.ritense.plugin.domain.PluginConfiguration
 import com.ritense.plugin.domain.PluginConfigurationId
 import com.ritense.plugin.domain.PluginProcessLink
@@ -28,6 +28,7 @@ import com.ritense.plugin.domain.PluginProcessLinkId
 import com.ritense.plugin.repository.PluginProcessLinkRepository
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest
 import com.ritense.processdocument.service.ProcessDocumentService
+import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.resource.domain.MetadataType
 import com.ritense.resource.service.TemporaryResourceStorageService
 import okhttp3.mockwebserver.Dispatcher
@@ -45,6 +46,8 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.RestClient
 import org.springframework.web.reactive.function.client.ClientRequest
 import org.springframework.web.reactive.function.client.ClientResponse
 import org.springframework.web.reactive.function.client.ExchangeFunction
@@ -52,7 +55,6 @@ import reactor.core.publisher.Mono
 import java.time.LocalDate
 import java.util.Optional
 import java.util.UUID
-import jakarta.transaction.Transactional
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
@@ -63,7 +65,7 @@ internal class DocumentenApiPluginIT @Autowired constructor(
     private val processDocumentService: ProcessDocumentService,
     private val pluginProcessLinkRepository: PluginProcessLinkRepository,
     private val temporaryResourceStorageService: TemporaryResourceStorageService,
-    private val objectMapper: ObjectMapper,
+    private val objectMapper: ObjectMapper
 ) : BaseIntegrationTest() {
 
     lateinit var server: MockWebServer
@@ -73,6 +75,8 @@ internal class DocumentenApiPluginIT @Autowired constructor(
 
     @BeforeEach
     internal fun setUp() {
+        objectMapper.addMixIn(DocumentInformatieObject::class.java, DocumentInformatieObjectMixin::class.java)
+
         server = MockWebServer()
         setupMockDocumentenApiServer()
         server.start()
@@ -125,14 +129,15 @@ internal class DocumentenApiPluginIT @Autowired constructor(
         """.trimIndent()
         )
         val documentId = temporaryResourceStorageService.store(
-            "test".byteInputStream()
+            "test".byteInputStream(), mutableMapOf(MetadataType.FILE_SIZE.key to 4L)
         )
 
         val newDocumentRequest = NewDocumentRequest(DOCUMENT_DEFINITION_KEY, objectMapper.createObjectNode())
         val request = NewDocumentAndStartProcessRequest(PROCESS_DEFINITION_KEY, newDocumentRequest)
             .withProcessVars(mapOf("localDocumentVariableName" to documentId))
 
-        runWithoutAuthorization { processDocumentService.newDocumentAndStartProcess(request) }
+        val newDocumentAndStartProcessResult =
+            runWithoutAuthorization { processDocumentService.newDocumentAndStartProcess(request) }
 
         val resourceId = runtimeService.createVariableInstanceQuery()
             .variableName("storedDocumentVariableName")
@@ -152,13 +157,14 @@ internal class DocumentenApiPluginIT @Autowired constructor(
         assertEquals("description", parsedOutput["beschrijving"])
         assertEquals("GZAC", parsedOutput["auteur"])
         assertEquals("test.ext", parsedOutput["bestandsnaam"])
+        assertEquals(4, parsedOutput["bestandsomvang"])
         assertEquals("nld", parsedOutput["taal"])
         assertEquals("dGVzdA==", parsedOutput["inhoud"])
         assertEquals("testtype", parsedOutput["informatieobjecttype"])
         assertEquals("in_bewerking", parsedOutput["status"])
         assertEquals(false, parsedOutput["indicatieGebruiksrecht"])
 
-        assertEquals("http://example.com", resourceId)
+        assertEquals(server.url("/").toString(), resourceId)
     }
 
     @Test
@@ -256,7 +262,7 @@ internal class DocumentenApiPluginIT @Autowired constructor(
                 objectMapper.readTree(generateDocumentActionProperties) as ObjectNode,
                 pluginConfiguration.id,
                 pluginActionDefinitionKey,
-                ActivityType.SERVICE_TASK_START
+                ActivityTypeWithEventName.SERVICE_TASK_START
             )
         )
     }
@@ -268,13 +274,13 @@ internal class DocumentenApiPluginIT @Autowired constructor(
                 val path = request.path?.substringBefore('?')
                 val response = when (path) {
                     "/enkelvoudiginformatieobjecten"
-                    -> handleDocumentRequest()
+                        -> handleDocumentRequest()
 
                     "/enkelvoudiginformatieobjecten/$DOCUMENT_ID"
-                    -> handleDocumentRequest()
+                        -> handleDocumentRequest("+02:00")
 
                     "/enkelvoudiginformatieobjecten/$DOCUMENT_ID/download"
-                    -> handleDocumentDownloadRequest()
+                        -> handleDocumentDownloadRequest()
 
                     else -> MockResponse().setResponseCode(404)
                 }
@@ -284,10 +290,10 @@ internal class DocumentenApiPluginIT @Autowired constructor(
         server.dispatcher = dispatcher
     }
 
-    private fun handleDocumentRequest(): MockResponse {
+    private fun handleDocumentRequest(zone: String = "Z"): MockResponse {
         val body = """
             {
-              "url": "http://example.com",
+              "url": "${server.url("/")}",
               "identificatie": "string",
               "bronorganisatie": "404797441",
               "creatiedatum": "2019-08-24",
@@ -298,7 +304,7 @@ internal class DocumentenApiPluginIT @Autowired constructor(
               "formaat": "string",
               "taal": "str",
               "versie": 0,
-              "beginRegistratie": "2019-08-24T14:15:22Z",
+              "beginRegistratie": "2019-08-24T14:15:22$zone",
               "bestandsnaam": "passport.jpg",
               "inhoud": "string",
               "bestandsomvang": 0,
@@ -317,7 +323,8 @@ internal class DocumentenApiPluginIT @Autowired constructor(
                 "datum": "2019-08-24"
               },
               "informatieobjecttype": "http://example.com",
-              "locked": true
+              "locked": true,
+              "bestandsdelen": []
             }
         """.trimIndent()
         return mockResponse(body)
@@ -330,6 +337,10 @@ internal class DocumentenApiPluginIT @Autowired constructor(
     }
 
     class TestAuthentication : DocumentenApiAuthentication {
+        override fun applyAuth(builder: RestClient.Builder): RestClient.Builder {
+            return builder
+        }
+
         override fun filter(request: ClientRequest, next: ExchangeFunction): Mono<ClientResponse> {
             return next.exchange(request)
         }

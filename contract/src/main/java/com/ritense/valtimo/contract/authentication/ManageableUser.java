@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package com.ritense.valtimo.contract.authentication;
+
+import com.ritense.valtimo.contract.OauthConfigHolder;
 
 public interface ManageableUser extends AuthorizedUser {
 
@@ -45,5 +47,12 @@ public interface ManageableUser extends AuthorizedUser {
     void deactivate();
 
     boolean isBlocked();
+
+    default String getUserIdentifier() {
+        return switch (OauthConfigHolder.getCurrentInstance().getIdentifierField()) {
+            case USERID -> getId();
+            case USERNAME -> getUsername();
+        };
+    }
 
 }

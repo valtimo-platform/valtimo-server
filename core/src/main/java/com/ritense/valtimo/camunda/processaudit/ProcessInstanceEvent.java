@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.ritense.valtimo.contract.audit.AuditMetaData;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+import org.apache.ibatis.jdbc.Null;
 
 public abstract class ProcessInstanceEvent extends AuditMetaData implements AuditEvent {
 
@@ -59,7 +60,7 @@ public abstract class ProcessInstanceEvent extends AuditMetaData implements Audi
     public UUID getDocumentId() {
         try {
             return UUID.fromString(businessKey);
-        } catch (IllegalArgumentException iae) {
+        } catch (NullPointerException | IllegalArgumentException ex) {
             return null;
         }
     }

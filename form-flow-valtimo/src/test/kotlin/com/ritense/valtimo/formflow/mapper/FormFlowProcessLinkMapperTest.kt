@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.ritense.valtimo.formflow.mapper
 
 import com.ritense.exporter.request.FormFlowDefinitionExportRequest
+import com.ritense.form.domain.FormDisplayType
+import com.ritense.form.domain.FormSizes
 import com.ritense.formflow.service.FormFlowService
 import com.ritense.processlink.domain.ActivityTypeWithEventName.SERVICE_TASK_START
 import com.ritense.valtimo.contract.json.MapperSingleton
@@ -60,7 +62,10 @@ internal class FormFlowProcessLinkMapperTest {
             processDefinitionId = "processDefinitionId",
             activityId = "activityId",
             activityType = SERVICE_TASK_START,
-            formFlowDefinitionId = "formFlowDefinitionId:latest"
+            formFlowDefinitionId = "formFlowDefinitionId:latest",
+            formDisplayType = FormDisplayType.panel,
+            formSize = FormSizes.small,
+            subtitles = SUBTITLES
         )
 
         val formFlowProcessLinkResponseDto = formFlowProcessLinkMapper.toProcessLinkResponseDto(formFlowProcessLink)
@@ -71,6 +76,8 @@ internal class FormFlowProcessLinkMapperTest {
         assertEquals(formFlowProcessLink.activityId, formFlowProcessLinkResponseDto.activityId)
         assertEquals(formFlowProcessLink.activityType, formFlowProcessLinkResponseDto.activityType)
         assertEquals(formFlowProcessLink.formFlowDefinitionId, formFlowProcessLinkResponseDto.formFlowDefinitionId)
+        assertEquals(formFlowProcessLink.subtitles, formFlowProcessLinkResponseDto.subtitles)
+
     }
 
     @Test
@@ -80,7 +87,10 @@ internal class FormFlowProcessLinkMapperTest {
             processDefinitionId = "processDefinitionId",
             activityId = "activityId",
             activityType = SERVICE_TASK_START,
-            formFlowDefinitionId = "formFlowDefinitionId:3"
+            formFlowDefinitionId = "formFlowDefinitionId:3",
+            formDisplayType = FormDisplayType.panel,
+            formSize = FormSizes.small,
+            subtitles = SUBTITLES
         )
 
         val dto = formFlowProcessLinkMapper.toProcessLinkExportResponseDto(formFlowProcessLink)
@@ -89,6 +99,9 @@ internal class FormFlowProcessLinkMapperTest {
         assertEquals(formFlowProcessLink.activityId, dto.activityId)
         assertEquals(formFlowProcessLink.activityType, dto.activityType)
         assertEquals("formFlowDefinitionId:latest", dto.formFlowDefinitionId)
+        assertEquals(formFlowProcessLink.formDisplayType, dto.formDisplayType)
+        assertEquals(formFlowProcessLink.formSize, dto.formSize)
+        assertEquals(formFlowProcessLink.subtitles, dto.subtitles)
     }
 
     @Test
@@ -97,7 +110,10 @@ internal class FormFlowProcessLinkMapperTest {
             processDefinitionId = "processDefinitionId",
             activityId = "activityId",
             activityType = SERVICE_TASK_START,
-            formFlowDefinitionId = "formFlowDefinitionId:latest"
+            formFlowDefinitionId = "formFlowDefinitionId:latest",
+            formDisplayType = FormDisplayType.panel,
+            formSize = FormSizes.small,
+            subtitles = SUBTITLES
         )
         whenever(formFlowService.findDefinition(createRequestDto.formFlowDefinitionId)).thenReturn(mock())
 
@@ -108,6 +124,9 @@ internal class FormFlowProcessLinkMapperTest {
         assertEquals(createRequestDto.activityId, formFlowProcessLink.activityId)
         assertEquals(createRequestDto.activityType, formFlowProcessLink.activityType)
         assertEquals(createRequestDto.formFlowDefinitionId, formFlowProcessLink.formFlowDefinitionId)
+        assertEquals(createRequestDto.formDisplayType, formFlowProcessLink.formDisplayType)
+        assertEquals(createRequestDto.formSize, formFlowProcessLink.formSize)
+        assertEquals(createRequestDto.subtitles, formFlowProcessLink.subtitles)
     }
 
     @Test
@@ -121,7 +140,10 @@ internal class FormFlowProcessLinkMapperTest {
         )
         val updateRequestDto = FormFlowProcessLinkUpdateRequestDto(
             id = processLinkToUpdate.id,
-            formFlowDefinitionId = "formFlowDefinitionId:latest"
+            formFlowDefinitionId = "formFlowDefinitionId:latest",
+            formDisplayType = FormDisplayType.panel,
+            formSize = FormSizes.small,
+            subtitles = SUBTITLES
         )
         whenever(formFlowService.findDefinition(updateRequestDto.formFlowDefinitionId)).thenReturn(mock())
 
@@ -132,6 +154,9 @@ internal class FormFlowProcessLinkMapperTest {
         assertEquals(processLinkToUpdate.activityId, formFlowProcessLink.activityId)
         assertEquals(processLinkToUpdate.activityType, formFlowProcessLink.activityType)
         assertEquals(updateRequestDto.formFlowDefinitionId, formFlowProcessLink.formFlowDefinitionId)
+        assertEquals(updateRequestDto.formDisplayType, formFlowProcessLink.formDisplayType)
+        assertEquals(updateRequestDto.formSize, formFlowProcessLink.formSize)
+        assertEquals(updateRequestDto.subtitles, formFlowProcessLink.subtitles)
     }
 
     @Test
@@ -147,7 +172,10 @@ internal class FormFlowProcessLinkMapperTest {
             formFlowProcessLinkMapper.toNewProcessLink(createRequestDto)
         }
 
-        assertEquals("FormFlow definition not found with id ${createRequestDto.formFlowDefinitionId}", exception.message)
+        assertEquals(
+            "FormFlow definition not found with id ${createRequestDto.formFlowDefinitionId}",
+            exception.message
+        )
     }
 
     @Test
@@ -168,7 +196,10 @@ internal class FormFlowProcessLinkMapperTest {
             formFlowProcessLinkMapper.toUpdatedProcessLink(processLinkToUpdate, updateRequestDto)
         }
 
-        assertEquals("FormFlow definition not found with id ${updateRequestDto.formFlowDefinitionId}", exception.message)
+        assertEquals(
+            "FormFlow definition not found with id ${updateRequestDto.formFlowDefinitionId}",
+            exception.message
+        )
     }
 
     @Test
@@ -186,5 +217,9 @@ internal class FormFlowProcessLinkMapperTest {
         Assertions.assertThat(relatedExportRequests).contains(
             FormFlowDefinitionExportRequest("testing:latest")
         )
+    }
+
+    companion object {
+        val SUBTITLES = listOf("test", "test2")
     }
 }

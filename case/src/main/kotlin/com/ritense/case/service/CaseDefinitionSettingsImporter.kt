@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.ritense.importer.ImportRequest
 import com.ritense.importer.Importer
 import com.ritense.importer.ValtimoImportTypes.Companion.CASE_DEFINITION_SETTINGS
 import com.ritense.importer.ValtimoImportTypes.Companion.DOCUMENT_DEFINITION
+import com.ritense.logging.withLoggingContext
 
 class CaseDefinitionSettingsImporter(
     private val deploymentService: CaseDefinitionDeploymentService
@@ -32,7 +33,9 @@ class CaseDefinitionSettingsImporter(
 
     override fun import(request: ImportRequest) {
         val caseDefinitionName = FILENAME_REGEX.matchEntire(request.fileName)!!.groupValues[1]
-        deploymentService.deploy(caseDefinitionName, request.content.toString(Charsets.UTF_8), true)
+        withLoggingContext("jsonSchemaDocumentName" to caseDefinitionName) {
+            deploymentService.deploy(caseDefinitionName, request.content.toString(Charsets.UTF_8), true)
+        }
     }
 
     private companion object {

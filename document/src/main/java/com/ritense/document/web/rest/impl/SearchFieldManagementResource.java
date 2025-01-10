@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package com.ritense.document.web.rest.impl;
 
+import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
+
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.document.domain.impl.searchfield.SearchFieldDto;
 import com.ritense.document.service.SearchFieldService;
 import com.ritense.document.web.rest.DocumentSearchFieldsManagement;
-import java.util.List;
-
+import com.ritense.logging.LoggableResource;
 import com.ritense.valtimo.contract.annotation.SkipComponentScan;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
 
 @Controller
 @SkipComponentScan
@@ -44,7 +45,7 @@ public class SearchFieldManagementResource implements DocumentSearchFieldsManage
     @Override
     @GetMapping("/v1/document-search/{documentDefinitionName}/fields")
     public ResponseEntity<List<SearchFieldDto>> getAdminSearchFields(
-        @PathVariable String documentDefinitionName) {
+        @LoggableResource("documentDefinitionName") @PathVariable String documentDefinitionName) {
         return AuthorizationContext.runWithoutAuthorization(() -> ResponseEntity.ok(SearchFieldMapper
                 .toDtoList(searchFieldService.getSearchFields(documentDefinitionName))));
     }

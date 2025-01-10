@@ -1,7 +1,6 @@
-version: '3.9'
 services:
     db:
-        image: mysql:8.0-oracle
+        image: mysql:8.3.0
         cap_add:
             - SYS_NICE  # CAP_SYS_NICE
         command:
@@ -63,5 +62,12 @@ services:
 #   url: jdbc:mysql://localhost:3346/contract-test
 #   url: jdbc:mysql://localhost:3347/outbox-test
 #   url: jdbc:mysql://localhost:3348/outbox-rabbitmq-test
+#   url: jdbc:mysql://localhost:3349/localization-test
+#   url: jdbc:mysql://localhost:3351/zaakdetails-test
+#   url: jdbc:mysql://localhost:3352/form-view-model-test
+#   url: jdbc:mysql://localhost:3353/command-handling-test
+#   url: jdbc:mysql://localhost:3354/keycloak-iam-test
+#   url: jdbc:mysql://localhost:3355/logging-test
+#   url: jdbc:mysql://localhost:3356/process-link-url-test
 #   url: localhost:55672 <--outbox rabbitmq
 #   url: localhost:55673 <--inbox rabbitmq

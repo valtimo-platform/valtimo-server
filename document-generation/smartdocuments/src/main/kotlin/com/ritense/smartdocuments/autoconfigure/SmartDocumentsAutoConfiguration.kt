@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,17 +30,19 @@ import com.ritense.smartdocuments.service.CamundaSmartDocumentGenerator
 import com.ritense.smartdocuments.service.SmartDocumentGenerator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanDefinition
+import org.springframework.boot.autoconfigure.AutoConfiguration
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
-import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.context.annotation.Scope
-import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.client.RestClient
 
 @AutoConfiguration
 class SmartDocumentsAutoConfiguration {
 
     @Bean
+    @ConditionalOnBean(SmartDocumentGenerator::class)
     @ConditionalOnMissingBean(CamundaSmartDocumentGenerator::class)
     fun camundaSmartDocumentGenerator(
         smartDocumentGenerator: SmartDocumentGenerator,
@@ -57,6 +59,7 @@ class SmartDocumentsAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnBean(ResourceService::class)
     @ConditionalOnMissingBean(SmartDocumentGenerator::class)
     fun smartDocumentGenerator(
         connectorService: ConnectorService,
@@ -76,13 +79,13 @@ class SmartDocumentsAutoConfiguration {
     @ConditionalOnMissingBean(SmartDocumentsClient::class)
     fun smartDocumentsClient(
         smartDocumentsConnectorProperties: SmartDocumentsConnectorProperties,
-        smartDocumentsWebClientBuilder: WebClient.Builder,
+        smartDocumentsRestClientBuilder: RestClient.Builder,
         @Value("\${valtimo.smartdocuments.max-file-size-mb:10}") maxFileSize: Int,
         temporaryResourceStorageService: TemporaryResourceStorageService,
     ): SmartDocumentsClient {
         return SmartDocumentsClient(
             smartDocumentsConnectorProperties,
-            smartDocumentsWebClientBuilder,
+            smartDocumentsRestClientBuilder,
             maxFileSize,
             temporaryResourceStorageService,
         )

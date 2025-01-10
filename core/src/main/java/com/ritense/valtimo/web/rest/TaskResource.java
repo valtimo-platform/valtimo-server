@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
 
 package com.ritense.valtimo.web.rest;
 
+import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
+import static com.ritense.logging.LoggingContextKt.withLoggingContext;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import com.ritense.logging.LoggableResource;
 import com.ritense.valtimo.camunda.domain.CamundaTask;
 import com.ritense.valtimo.camunda.dto.TaskExtended;
 import com.ritense.valtimo.contract.annotation.SkipComponentScan;
@@ -29,8 +34,13 @@ import com.ritense.valtimo.web.rest.dto.BatchAssignTaskDTO;
 import com.ritense.valtimo.web.rest.dto.CustomTaskDto;
 import com.ritense.valtimo.web.rest.dto.TaskCompletionDTO;
 import com.ritense.valtimo.web.rest.util.PaginationUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import java.beans.PropertyEditorSupport;
+import java.util.List;
+import java.util.Map;
 import org.camunda.bpm.engine.FormService;
 import org.camunda.bpm.engine.task.Comment;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +53,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.servlet.http.HttpServletRequest;
-import java.beans.PropertyEditorSupport;
-import java.util.List;
-
-import static com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
 @SkipComponentScan
@@ -64,8 +67,14 @@ public class TaskResource extends AbstractTaskResource {
         super(formService, camundaTaskService, camundaProcessService);
     }
 
+    /**
+     * Endpoint that return a list of tasks.
+     *
+     * @deprecated since 12.0.0, use v2 instead
+     */
     @GetMapping("/v1/task")
-    public ResponseEntity<List<? extends TaskExtended>> getTasks(
+    @Deprecated(since = "12.0.0", forRemoval = true)
+    public ResponseEntity<List<TaskExtended>> getTasks(
         @RequestParam CamundaTaskService.TaskFilter filter,
         @PageableDefault(sort = {"created"}, direction = DESC) Pageable pageable
     ) throws Exception {
@@ -74,8 +83,20 @@ public class TaskResource extends AbstractTaskResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
+    @GetMapping("/v2/task")
+    public ResponseEntity<Page<TaskExtended>> getTasksPaged(
+        @RequestParam CamundaTaskService.TaskFilter filter,
+        @PageableDefault(sort = {"created"}, direction = DESC) Pageable pageable
+    ) {
+        var page = camundaTaskService.findTasksFiltered(filter, pageable);
+        return ResponseEntity.ok(page);
+    }
+
     @GetMapping("/v1/task/{taskId}")
-    public ResponseEntity<CustomTaskDto> getTask(@PathVariable String taskId, HttpServletRequest request) {
+    public ResponseEntity<CustomTaskDto> getTask(
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId,
+        HttpServletRequest request
+    ) {
         CustomTaskDto customTaskDto;
         try {
             customTaskDto = createCustomTaskDto(taskId, request);
@@ -86,7 +107,10 @@ public class TaskResource extends AbstractTaskResource {
     }
 
     @PostMapping("/v1/task/{taskId}/assign")
-    public ResponseEntity<Void> assign(@PathVariable String taskId, @RequestBody AssigneeRequest assigneeRequest) {
+    public ResponseEntity<Void> assign(
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId,
+        @RequestBody AssigneeRequest assigneeRequest
+    ) {
         camundaTaskService.assign(taskId, assigneeRequest.getAssignee());
         return ResponseEntity.ok().build();
     }
@@ -99,14 +123,16 @@ public class TaskResource extends AbstractTaskResource {
     }
 
     @PostMapping("/v1/task/{taskId}/unassign")
-    public ResponseEntity<Void> unassign(@PathVariable String taskId) {
+    public ResponseEntity<Void> unassign(
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId
+    ) {
         camundaTaskService.unassign(taskId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/v1/task/{taskId}/complete")
     public ResponseEntity<Void> complete(
-        @PathVariable String taskId,
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId,
         @RequestBody TaskCompletionDTO taskCompletionDTO
     ) {
         camundaTaskService.completeTaskAndDeleteFiles(taskId, taskCompletionDTO);
@@ -116,9 +142,11 @@ public class TaskResource extends AbstractTaskResource {
     @PostMapping("/v1/task/batch-complete")
     public ResponseEntity<Void> batchComplete(@RequestBody List<String> taskIdList) {
         taskIdList.forEach(taskId -> {
-            if (!camundaTaskService.hasTaskFormData(taskId)) {
-                camundaTaskService.complete(taskId);
-            }
+            withLoggingContext(CamundaTask.class, taskId, () -> {
+                if (!camundaTaskService.hasTaskFormData(taskId)) {
+                    camundaTaskService.complete(taskId);
+                }
+            });
         });
         return ResponseEntity.ok().build();
     }
@@ -129,7 +157,9 @@ public class TaskResource extends AbstractTaskResource {
      */
     @Deprecated(since = "11.1.0", forRemoval = true)
     @GetMapping("/v1/task/{taskId}/comments")
-    public ResponseEntity<List<Comment>> getProcessInstanceComments(@PathVariable String taskId) {
+    public ResponseEntity<List<Comment>> getProcessInstanceComments(
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId
+    ) {
         final CamundaTask task = camundaTaskService.findTaskById(taskId);
         List<Comment> taskComments = camundaTaskService.getTaskComments(task.getId());
         taskComments.addAll(camundaTaskService.getProcessInstanceComments(task.getProcessInstanceId()));
@@ -139,13 +169,17 @@ public class TaskResource extends AbstractTaskResource {
 
     @Deprecated(since = "10.8.0", forRemoval = true)
     @GetMapping("/v1/task/{taskId}/candidate-user")
-    public ResponseEntity<List<ManageableUser>> getTaskCandidateUsers(@PathVariable String taskId) {
+    public ResponseEntity<List<ManageableUser>> getTaskCandidateUsers(
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId
+    ) {
         List<ManageableUser> users = camundaTaskService.getCandidateUsers(taskId);
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/v2/task/{taskId}/candidate-user")
-    public ResponseEntity<List<NamedUser>> getNamedCandidateUsers(@PathVariable String taskId) {
+    public ResponseEntity<List<NamedUser>> getNamedCandidateUsers(
+        @LoggableResource(resourceType = CamundaTask.class) @PathVariable String taskId
+    ) {
         List<NamedUser> users = camundaTaskService.getNamedCandidateUsers(taskId);
         return ResponseEntity.ok(users);
     }

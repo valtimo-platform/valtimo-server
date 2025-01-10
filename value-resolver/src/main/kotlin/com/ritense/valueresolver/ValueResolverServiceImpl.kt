@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,15 @@
 
 package com.ritense.valueresolver
 
-import java.util.UUID
+import com.ritense.logging.LoggableResource
+import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import org.camunda.bpm.engine.delegate.VariableScope
+import org.springframework.stereotype.Service
+import java.util.UUID
 
-open class ValueResolverServiceImpl(
+@Service
+@SkipComponentScan
+class ValueResolverServiceImpl(
     valueResolverFactories: List<ValueResolverFactory>
 ) : ValueResolverService {
 
@@ -35,8 +40,55 @@ open class ValueResolverServiceImpl(
             }.toMap()
     }
 
-    override fun supportsValue(value: String) : Boolean {
+    override fun supportsValue(value: String): Boolean {
         return resolverFactoryMap.containsKey(getPrefix(value))
+    }
+
+    override fun getValueResolvers(): List<String> {
+        return resolverFactoryMap.keys.filter { prefix -> prefix != "" }.toList()
+    }
+
+    @Deprecated("Use getResolvableKeys with ValueResolverOptionRequest object instead")
+    override fun getResolvableKeys(
+        prefixes: List<String>,
+        @LoggableResource("documentDefinitionName") documentDefinitionName: String
+    ): List<String> {
+        return prefixes.fold(emptyList()) { acc, prefix ->
+            (acc + (addPrefixToResolvableKeys(prefix, resolverFactoryMap[prefix]?.getResolvableKeys(documentDefinitionName))))
+        }
+    }
+
+    @Deprecated("Use getResolvableKeys with ValueResolverOptionRequest object instead")
+    override fun getResolvableKeys(
+        prefixes: List<String>,
+        @LoggableResource("documentDefinitionName") documentDefinitionName: String,
+        version: Long
+    ): List<String> {
+        return prefixes.fold(emptyList()) { acc, prefix ->
+            (acc + (addPrefixToResolvableKeys(prefix, resolverFactoryMap[prefix]?.getResolvableKeys(documentDefinitionName, version))))
+        }
+    }
+
+
+    override fun getResolvableKeys(
+        request: ValueResolverOptionRequest,
+        @LoggableResource("documentDefinitionName") documentDefinitionName: String
+    ): List<ValueResolverOption> {
+        return request.prefixes.fold(emptyList()) { list, prefix ->
+            val newOptions = resolverFactoryMap[prefix]?.getResolvableKeyOptions(documentDefinitionName) ?: emptyList()
+            list + newOptions.filter { option -> request.type.equals(option.type) }
+        }
+    }
+
+    override fun getResolvableKeys(
+        request: ValueResolverOptionRequest,
+        @LoggableResource("documentDefinitionName") documentDefinitionName: String,
+        version: Long
+    ): List<ValueResolverOption> {
+        return request.prefixes.fold(emptyList()) { list, prefix ->
+            val newOptions = resolverFactoryMap[prefix]?.getResolvableKeyOptions(documentDefinitionName, version) ?: emptyList()
+            list + newOptions.filter { option -> request.type.equals(option.type) }
+        }
     }
 
     /**
@@ -53,7 +105,7 @@ open class ValueResolverServiceImpl(
      * @return A map where the key is the requestedValue, and the value the resolved value.
      */
     override fun resolveValues(
-        processInstanceId: String,
+        @LoggableResource("com.ritense.valtimo.camunda.domain.CamundaExecution") processInstanceId: String,
         variableScope: VariableScope,
         requestedValues: Collection<String>
     ): Map<String, Any?> {
@@ -78,7 +130,7 @@ open class ValueResolverServiceImpl(
      * @param requestedValues The requestedValues that should be validated.
      */
     override fun validateValues(
-        documentDefinitionName: String,
+        @LoggableResource("documentDefinitionName") documentDefinitionName: String,
         requestedValues: List<String>
     ) {
         toResolverFactoryMap(requestedValues).forEach { (resolverFactory, requestedValues) ->
@@ -103,7 +155,7 @@ open class ValueResolverServiceImpl(
      * @return A map where the key is the requestedValue, and the value the resolved value.
      */
     override fun resolveValues(
-        documentInstanceId: String,
+        @LoggableResource("com.ritense.document.domain.impl.JsonSchemaDocument") documentInstanceId: String,
         requestedValues: Collection<String>
     ): Map<String, Any?> {
         return toResolverFactoryMap(requestedValues).map { (resolverFactory, requestedValues) ->
@@ -123,9 +175,9 @@ open class ValueResolverServiceImpl(
      * @param values mapOf(doc:add:/firstname to John)
      */
     override fun handleValues(
-        processInstanceId: String,
+        @LoggableResource("com.ritense.valtimo.camunda.domain.CamundaExecution") processInstanceId: String,
         variableScope: VariableScope?,
-        values: Map<String, Any>
+        values: Map<String, Any?>
     ) {
         toResolverFactoryMap(values.keys).forEach { (resolverFactory, propertyPaths) ->
 
@@ -138,8 +190,8 @@ open class ValueResolverServiceImpl(
     }
 
     override fun handleValues(
-        documentId: UUID,
-        values: Map<String, Any>
+        @LoggableResource("com.ritense.document.domain.impl.JsonSchemaDocument") documentId: UUID,
+        values: Map<String, Any?>
     ) {
         toResolverFactoryMap(values.keys).forEach { (resolverFactory, propertyPaths) ->
 
@@ -151,7 +203,7 @@ open class ValueResolverServiceImpl(
     }
 
     override fun preProcessValuesForNewCase(
-        values: Map<String, Any>
+        values: Map<String, Any?>
     ): Map<String, Any> {
         return toResolverFactoryMap(values.keys).mapValues { (resolverFactory, propertyPaths) ->
             resolverFactory.preProcessValuesForNewCase(
@@ -164,8 +216,8 @@ open class ValueResolverServiceImpl(
 
     private fun mapPropertyPaths(
         propertyPaths: List<String>,
-        values: Map<String, Any>
-    ) = propertyPaths.associate { propertyPath -> trimPrefix(propertyPath) to values[propertyPath]!! }
+        values: Map<String, Any?>
+    ) = propertyPaths.associate { propertyPath -> trimPrefix(propertyPath) to values[propertyPath] }
 
     private fun toResolverFactoryMap(requestedValues: Collection<String>): Map<ValueResolverFactory, List<String>> {
         //Group by prefix
@@ -180,8 +232,12 @@ open class ValueResolverServiceImpl(
     }
 
 
-    private fun getPrefix(value:String) = value.substringBefore(DELIMITER, missingDelimiterValue = "")
-    private fun trimPrefix(value:String) = value.substringAfter(DELIMITER)
+    private fun getPrefix(value: String) = value.substringBefore(DELIMITER, missingDelimiterValue = "")
+    private fun trimPrefix(value: String) = value.substringAfter(DELIMITER)
+
+    private fun addPrefixToResolvableKeys(prefix: String, resolvableKeys: List<String>?): List<String> {
+        return (resolvableKeys ?: emptyList()).map { "$prefix:$it" }
+    }
 
     companion object {
         const val DELIMITER = ":"

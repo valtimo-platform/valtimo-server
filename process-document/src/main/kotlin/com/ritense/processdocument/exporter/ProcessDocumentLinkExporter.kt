@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.ritense.processdocument.exporter
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.exporter.ExportFile
+import com.ritense.exporter.ExportPrettyPrinter
 import com.ritense.exporter.ExportResult
 import com.ritense.exporter.Exporter
-import com.ritense.exporter.ExportPrettyPrinter
 import com.ritense.exporter.request.DocumentDefinitionExportRequest
 import com.ritense.exporter.request.ProcessDefinitionExportRequest
 import com.ritense.processdocument.domain.config.ProcessDocumentLinkConfigItem
@@ -37,7 +37,7 @@ class ProcessDocumentLinkExporter(
 
     override fun export(request: DocumentDefinitionExportRequest): ExportResult {
         val exportItems = processDocumentAssociationService.findProcessDocumentDefinitions(
-            request.name
+            request.name, null,null
         ).map { definition ->
             ProcessDocumentLinkConfigItem().apply {
                 val processDefinitionKey = definition.processDocumentDefinitionId().processDefinitionKey().toString()
@@ -51,7 +51,7 @@ class ProcessDocumentLinkExporter(
             return ExportResult()
         }
 
-        val relatedRequests = exportItems.map { it.processDefinitionKey }
+        val relatedRequests = exportItems.asSequence().map { it.processDefinitionKey }
             .distinct()
             .map { key -> requireNotNull(camundaRepositoryService.findLatestProcessDefinition(key)) }
             .map { processDefinition ->

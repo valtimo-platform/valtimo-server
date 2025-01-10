@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package com.ritense.valtimo.contract.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.ritense.valtimo.contract.OauthConfigHolder;
+import javax.annotation.Nonnull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
@@ -45,6 +48,7 @@ public class ValtimoProperties {
         this.oauth = oauth != null ? oauth : new Oauth();
         this.portal = portal != null ? portal : new Portal();
         this.process = process != null ? process : new Process();
+        new OauthConfigHolder(this.oauth);
     }
 
     public App getApp() {
@@ -144,6 +148,7 @@ public class ValtimoProperties {
     public static class Oauth {
         private String publicKey;
         private long tokenValidityInSeconds = 180000;
+        private IdentifierField identifierField = IdentifierField.USERID;
 
         public String getPublicKey() {
             return publicKey;
@@ -159,6 +164,14 @@ public class ValtimoProperties {
 
         public void setTokenValidityInSeconds(long tokenValidityInSeconds) {
             this.tokenValidityInSeconds = tokenValidityInSeconds;
+        }
+
+        public IdentifierField getIdentifierField() {
+            return identifierField;
+        }
+
+        public void setIdentifierField(IdentifierField identifierField) {
+            this.identifierField = identifierField;
         }
     }
 
@@ -197,6 +210,32 @@ public class ValtimoProperties {
 
         public void setSystemProcessUpdatable(boolean systemProcessUpdatable) {
             this.systemProcessUpdatable = systemProcessUpdatable;
+        }
+    }
+
+    public enum IdentifierField {
+        USERID("userId"), USERNAME("userName");
+
+        private final String fieldName;
+
+        IdentifierField(String fieldName) {
+            this.fieldName = fieldName;
+        }
+
+        @Nonnull
+        @JsonCreator
+        public static IdentifierField fromString(String text) {
+            for (IdentifierField identifierField : IdentifierField.values()) {
+                if (identifierField.fieldName.equalsIgnoreCase(text)) {
+                    return identifierField;
+                }
+            }
+            throw new IllegalStateException(String.format("Cannot create Identifier from string %s", text));
+        }
+
+        @Override
+        public String toString() {
+            return this.fieldName;
         }
     }
 

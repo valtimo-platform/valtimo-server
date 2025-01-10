@@ -1,7 +1,6 @@
-version: '3.9'
 services:
     db:
-        image: postgres:14.9
+        image: postgres:14.13
         #ports:
            # - "5432:5432" #needs overriding "XXXX:5432" XXXX=your-own-port-per-module-test
         environment:
@@ -55,5 +54,11 @@ services:
 #   url: jdbc:postgresql://localhost:3346/contract-test
 #   url: jdbc:postgresql://localhost:3347/outbox-test
 #   url: jdbc:postgresql://localhost:3348/outbox-rabbitmq-test
+#   url: jdbc:postgresql://localhost:3349/localization-test
+#   url: jdbc:postgresql://localhost:3351/zaakdetails-test
+#   url: jdbc:postgresql://localhost:3352/form-view-model-test
+#   url: jdbc:postgresql://localhost:3353/command-handling-test
+#   url: jdbc:postgresql://localhost:3354/keycloak-iam-test
+#   url: jdbc:postgresql://localhost:3355/logging-test
 #   url: localhost:55672 <--rabbitmq
 #   url: localhost:55673 <--rabbitmq

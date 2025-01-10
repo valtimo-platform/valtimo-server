@@ -12,6 +12,8 @@ import com.ritense.plugin.domain.PluginConfiguration
 import com.ritense.plugin.domain.PluginConfigurationId
 import com.ritense.plugin.service.PluginService
 import com.ritense.valtimo.contract.json.MapperSingleton
+import java.time.Duration
+import java.time.LocalDateTime
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.jupiter.api.AfterAll
@@ -27,16 +29,14 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import org.springframework.web.reactive.function.client.WebClient
-import java.time.Duration
-import java.time.LocalDateTime
+import org.springframework.web.client.RestClient
 
 @TestInstance(Lifecycle.PER_CLASS)
 internal class ExactServiceTest {
 
     lateinit var mockWebServer: MockWebServer
     lateinit var exactService: ExactService
-    lateinit var exactClient: WebClient
+    lateinit var exactClient: RestClient
     lateinit var pluginService: PluginService
     lateinit var objectMapper: ObjectMapper
 

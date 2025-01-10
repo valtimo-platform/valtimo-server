@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (delegateTaskHelper.isTaskBeingAssigned(task)) {
             final String userId = task.getAssignee();
             if (userId != null) {
-                var user = userManagementService.findById(userId);
+                var user = userManagementService.findByUserIdentifier(userId);
                 notifyUserAboutTaskAssignment(user, task, template, "nl");
             }
         } else if (delegateTaskHelper.isTaskBeingCreated(task)) {

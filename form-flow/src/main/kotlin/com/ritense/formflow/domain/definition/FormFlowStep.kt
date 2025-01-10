@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ data class FormFlowStep(
     @JsonProperty("key")
     val id: FormFlowStepId,
 
+    @Column(name = "title")
+    val title: String? = null,
+
     @Type(value = JsonType::class)
     @Column(name = "next_steps", columnDefinition = "JSON")
     val nextSteps: List<FormFlowNextStep> = listOf(),
@@ -52,4 +55,13 @@ data class FormFlowStep(
     @Type(value = JsonType::class)
     @Column(name = "type", columnDefinition = "JSON", nullable = false)
     val type: FormFlowStepType
-)
+) {
+    constructor(
+        id: FormFlowStepId,
+        nextSteps: List<FormFlowNextStep> = listOf(),
+        onBack: List<String> = listOf(),
+        onOpen: List<String> = listOf(),
+        onComplete: List<String> = listOf(),
+        type: FormFlowStepType
+    ) : this(id, null, nextSteps, onBack, onOpen, onComplete, type)
+}

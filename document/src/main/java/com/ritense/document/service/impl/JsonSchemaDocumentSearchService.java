@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
 
 package com.ritense.document.service.impl;
 
+import static com.ritense.document.service.JsonSchemaDocumentActionProvider.VIEW_LIST;
+import static com.ritense.logging.LoggingContextKt.withLoggingContext;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ritense.authorization.AuthorizationService;
 import com.ritense.authorization.request.EntityAuthorizationRequest;
@@ -30,6 +35,7 @@ import com.ritense.document.domain.search.SearchWithConfigRequest;
 import com.ritense.document.event.DocumentsListed;
 import com.ritense.document.service.DocumentSearchService;
 import com.ritense.document.service.SearchFieldService;
+import com.ritense.logging.LoggableResource;
 import com.ritense.outbox.OutboxService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.database.QueryDialectHelper;
@@ -39,16 +45,11 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Order;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
-import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,12 +62,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.ritense.document.service.JsonSchemaDocumentActionProvider.VIEW_LIST;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class JsonSchemaDocumentSearchService implements DocumentSearchService {
@@ -77,8 +82,17 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
     private static final String SEQUENCE = "sequence";
     private static final String CONTENT = "content";
     private static final String ASSIGNEE_ID = "assigneeId";
+    private static final String INTERNAL_STATUS = "internalStatus";
+    private static final String INTERNAL_STATUS_KEY = "internalStatus.id.key";
+    private static final String INTERNAL_STATUS_ORDER = "internalStatus.order";
     private static final String DOC_PREFIX = "doc:";
     private static final String CASE_PREFIX = "case:";
+
+    private static final Map<String, String> DOCUMENT_FIELD_MAP = Map.of(
+        "definitionId.name", "documentDefinitionId.name",
+        "definitionId.version", "documentDefinitionId.key",
+        INTERNAL_STATUS, INTERNAL_STATUS_ORDER
+    );
 
     private final EntityManager entityManager;
     private final QueryDialectHelper queryDialectHelper;
@@ -112,14 +126,20 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
         final SearchRequest searchRequest,
         final Pageable pageable
     ) {
-        return search(
-            (cb, query, documentRoot) -> buildQueryWhere(searchRequest, cb, query, documentRoot),
-            pageable
+        return withLoggingContext("documentDefinitionName", searchRequest.getDocumentDefinitionName(), () ->
+            search(
+                (cb, query, documentRoot) -> buildQueryWhere(searchRequest, cb, query, documentRoot),
+                pageable
+            )
         );
     }
 
     @Override
-    public Page<JsonSchemaDocument> search(String documentDefinitionName, SearchWithConfigRequest searchWithConfigRequest, Pageable pageable) {
+    public Page<JsonSchemaDocument> search(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        SearchWithConfigRequest searchWithConfigRequest,
+        Pageable pageable
+    ) {
         ZoneOffset zoneOffset = RequestHelper.getZoneOffset();
         var searchFieldMap = searchFieldService.getSearchFields(documentDefinitionName).stream()
             .collect(toMap(SearchField::getKey, searchField -> searchField));
@@ -138,7 +158,11 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
     }
 
     @Override
-    public Page<JsonSchemaDocument> search(String documentDefinitionName, AdvancedSearchRequest advancedSearchRequest, Pageable pageable) {
+    public Page<JsonSchemaDocument> search(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        AdvancedSearchRequest advancedSearchRequest,
+        Pageable pageable
+    ) {
         SearchRequestValidator.validate(advancedSearchRequest);
         return search(
             (cb, query, documentRoot) -> buildQueryWhere(documentDefinitionName, advancedSearchRequest, cb, query, documentRoot),
@@ -147,7 +171,10 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
     }
 
     @Override
-    public Long count(String documentDefinitionName, AdvancedSearchRequest advancedSearchRequest) {
+    public Long count(
+        @LoggableResource("documentDefinitionName") String documentDefinitionName,
+        AdvancedSearchRequest advancedSearchRequest
+    ) {
         return count(
             (cb, query, documentRoot) -> buildQueryWhere(documentDefinitionName, advancedSearchRequest, cb, query, documentRoot)
         );
@@ -160,8 +187,7 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
 
         query.select(selectRoot);
         queryWhereBuilder.apply(cb, query, selectRoot);
-        query.orderBy(getOrderBy(cb, selectRoot, pageable.getSort()));
-
+        query.orderBy(getOrderBy(query, cb, selectRoot, pageable.getSort()));
         final TypedQuery<JsonSchemaDocument> typedQuery = entityManager.createQuery(query);
 
         if (pageable.isPaged()) {
@@ -179,25 +205,15 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
         return new PageImpl<>(documents, pageable, count(queryWhereBuilder));
     }
 
-    private Long count(
-        QueryWhereBuilder queryWhereBuilder
-    ) {
+    private Long count(QueryWhereBuilder queryWhereBuilder) {
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<JsonSchemaDocument> countRoot = countQuery.from(JsonSchemaDocument.class);
-        countQuery.select(cb.count(countRoot));
+        countQuery.select(cb.countDistinct(countRoot));
         queryWhereBuilder.apply(cb, countQuery, countRoot);
 
         // TODO: Should be turned into a subquery, and then do a count over the results from the subquery.
-        List<Long> countResultList = entityManager.createQuery(countQuery).getResultList();
-
-        Long count = 0L;
-
-        if (!countResultList.isEmpty()) {
-            count = (long) countResultList.size();
-        }
-
-        return count;
+        return entityManager.createQuery(countQuery).getSingleResult();
     }
 
     private void buildQueryWhere(SearchRequest searchRequest, CriteriaBuilder cb, CriteriaQuery<?> query, Root<JsonSchemaDocument> documentRoot) {
@@ -216,7 +232,7 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
                     null
                 ).toPredicate(documentRoot, query, cb));
 
-        query.where(predicates.toArray(new Predicate[0]));
+        query.where(predicates.toArray(Predicate[]::new));
     }
 
     private void buildQueryWhere(
@@ -249,7 +265,11 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
         if (searchRequest.getOtherFilters() != null && !searchRequest.getOtherFilters().isEmpty()) {
             predicates.add(getOtherFilersPredicate(cb, documentRoot, searchRequest));
         }
-        query.where(predicates.toArray(new Predicate[0]));
+
+        if (searchRequest.getStatusFilter() != null && !searchRequest.getStatusFilter().isEmpty()) {
+            predicates.add(getStatusFilterPredicate(cb, documentRoot, searchRequest.getStatusFilter()));
+        }
+        query.where(predicates.toArray(Predicate[]::new));
     }
 
     private void addNonJsonFieldPredicates(
@@ -320,7 +340,7 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
 
     private Predicate getAssigneeFilterPredicate(CriteriaBuilder cb, Root<JsonSchemaDocument> documentRoot, AssigneeFilter assigneeFilter) {
         var caseAssigneeIdColumn = documentRoot.get(ASSIGNEE_ID);
-        var userId = userManagementService.getCurrentUser().getId();
+        var userId = userManagementService.getCurrentUser().getUserIdentifier();
 
         return switch (assigneeFilter) {
             case MINE -> cb.equal(caseAssigneeIdColumn, userId);
@@ -344,6 +364,20 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
         } else {
             return cb.or(jsonPredicates);
         }
+    }
+
+    private Predicate getStatusFilterPredicate(CriteriaBuilder cb, Root<JsonSchemaDocument> documentRoot, Set<String> statusFilter) {
+        Path<String> statusField = stringToPath(documentRoot, INTERNAL_STATUS_KEY);
+        Predicate[] predicates = statusFilter.stream().map(status -> {
+                if (status == null || status.isEmpty()) {
+                    return cb.isNull(statusField);
+                } else {
+                    return cb.equal(statusField, status);
+                }
+            }
+        ).toArray(Predicate[]::new);
+
+        return cb.or(predicates);
     }
 
     private Predicate findJsonPathValue(CriteriaBuilder cb, Root<JsonSchemaDocument> root, String path, String value) {
@@ -491,32 +525,62 @@ public class JsonSchemaDocumentSearchService implements DocumentSearchService {
     }
 
     private List<Order> getOrderBy(
+        CriteriaQuery<JsonSchemaDocument> query,
         CriteriaBuilder cb,
         Root<JsonSchemaDocument> root,
         Sort sort
     ) {
         return sort.stream()
             .map(order -> {
-                Expression<String> expression;
-                if (order.getProperty().startsWith(DOC_PREFIX)) {
-                    var jsonPath = "$." + order.getProperty().substring(DOC_PREFIX.length());
+                Expression<?> expression;
+                String property = order.getProperty();
+                if (property.startsWith(DOC_PREFIX)) {
+                    var jsonPath = "$." + property.substring(DOC_PREFIX.length());
                     expression = queryDialectHelper.getJsonValueExpression(cb, root.get(CONTENT).get(CONTENT), jsonPath, String.class);
-                } else if (order.getProperty().startsWith(CASE_PREFIX)) {
-                    expression = root.get(order.getProperty().substring(CASE_PREFIX.length()));
-                } else if (order.getProperty().startsWith("$.")) {
+                } else if (property.startsWith("$.")) {
                     expression = cb.lower(queryDialectHelper.getJsonValueExpression(
                         cb,
                         root.get(CONTENT).get(CONTENT),
-                        order.getProperty(),
+                        property,
                         String.class
                     ));
                 } else {
-                    expression = root.get(order.getProperty());
+                    var docProperty = property.startsWith(CASE_PREFIX) ? property.substring(CASE_PREFIX.length()) : property;
+                    if (DOCUMENT_FIELD_MAP.containsKey(docProperty)) {
+                        docProperty = DOCUMENT_FIELD_MAP.get(docProperty);
+                    }
+
+                    Path<?> parent;
+                    if( docProperty.equals(INTERNAL_STATUS_ORDER)) {
+                        parent = root.join(INTERNAL_STATUS, JoinType.LEFT);
+                        docProperty = docProperty.substring(INTERNAL_STATUS.length() + 1);
+                    } else {
+                        parent = root;
+                    }
+
+                    var path = stringToPath(parent, docProperty);
+                    // This groupBy workaround is needed because PBAC adds a groupBy on 'id' by default.
+                    // Since sorting columns should be added to the groupBy, we do that here
+                    if (!query.getGroupList().isEmpty() && !query.getGroupList().contains(path)) {
+                        ArrayList<Expression<?>> grouping = new ArrayList<>(query.getGroupList());
+                        grouping.add(path);
+                        query.groupBy(grouping);
+                    }
+                    expression = path;
                 }
 
                 return order.getDirection().isAscending() ? cb.asc(expression) : cb.desc(expression);
             })
             .collect(Collectors.toList());
+    }
+
+    private <T> Path<T> stringToPath(Path<?> parent, String path) {
+        String[] split = path.split("\\.");
+        Path<?> result = parent;
+        for (String s : split) {
+            result = result.get(s);
+        }
+        return (Path<T>) result;
     }
 
     @FunctionalInterface

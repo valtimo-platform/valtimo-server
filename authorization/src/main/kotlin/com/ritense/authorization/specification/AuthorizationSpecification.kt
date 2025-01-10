@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,21 +17,21 @@
 package com.ritense.authorization.specification
 
 import com.ritense.authorization.Action
-import com.ritense.authorization.request.AuthorizationRequest
 import com.ritense.authorization.AuthorizationServiceHolder
+import com.ritense.authorization.permission.ConditionContainer
+import com.ritense.authorization.permission.Permission
+import com.ritense.authorization.permission.condition.ContainerPermissionCondition
+import com.ritense.authorization.permission.condition.PermissionCondition
+import com.ritense.authorization.request.AuthorizationRequest
 import com.ritense.authorization.request.EntityAuthorizationRequest
 import com.ritense.authorization.request.RelatedEntityAuthorizationRequest
 import com.ritense.authorization.role.Role
-import com.ritense.authorization.permission.ConditionContainer
-import com.ritense.authorization.permission.condition.ContainerPermissionCondition
-import com.ritense.authorization.permission.Permission
-import com.ritense.authorization.permission.condition.PermissionCondition
-import org.springframework.data.jpa.domain.Specification
 import jakarta.persistence.criteria.AbstractQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import org.springframework.data.jpa.domain.Specification
 
 abstract class AuthorizationSpecification<T : Any>(
     protected val authRequest: AuthorizationRequest<T>,
@@ -53,7 +53,15 @@ abstract class AuthorizationSpecification<T : Any>(
             entityAuthorizationRequest.resourceType == permission.resourceType && entityAuthorizationRequest.action == permission.action
         }
         return entityAuthorizationRequest.entities.all { entity ->
-            permissions.any { permission -> permission.appliesTo(entityAuthorizationRequest.resourceType, entity) }
+            permissions.any { permission ->
+                permission
+                    .appliesTo(
+                        entityAuthorizationRequest.resourceType,
+                        entity,
+                        entityAuthorizationRequest.context?.resourceType,
+                        entityAuthorizationRequest.context?.entity
+                    )
+            }
         }
     }
 
@@ -68,7 +76,9 @@ abstract class AuthorizationSpecification<T : Any>(
                     relatedEntityAuthorizationRequest.resourceType,
                     relatedEntityAuthorizationRequest.action,
                     identifierToEntity(relatedEntityAuthorizationRequest.relatedResourceId)
-                )
+                ).apply {
+                    relatedEntityAuthorizationRequest.context?.let { context -> this.withContext(context) }
+                }
             )
         }
 
@@ -78,12 +88,15 @@ abstract class AuthorizationSpecification<T : Any>(
                     && relatedEntityAuthorizationRequest.action == permission.action
             }
             .firstOrNull { permission ->
-                permission.conditionContainer.conditions.all { permissionCondition ->
-                    isAuthorizedForRelatedEntityRecursive(
-                        relatedEntityAuthorizationRequest,
-                        permissionCondition
-                    )
-                }
+                permission.appliesInContext(
+                    relatedEntityAuthorizationRequest.context?.resourceType,
+                    relatedEntityAuthorizationRequest.context?.entity
+                ) && permission.conditionContainer.conditions.all { permissionCondition ->
+                        isAuthorizedForRelatedEntityRecursive(
+                            relatedEntityAuthorizationRequest,
+                            permissionCondition
+                        )
+                    }
             } != null
     }
 
@@ -147,7 +160,9 @@ abstract class AuthorizationSpecification<T : Any>(
         root: Root<T>,
         query: CriteriaQuery<*>,
         criteriaBuilder: CriteriaBuilder
-    ): Predicate { return toPredicate(root, query as AbstractQuery<*>, criteriaBuilder) }
+    ): Predicate {
+        return toPredicate(root, query as AbstractQuery<*>, criteriaBuilder)
+    }
 
     /**
      * Creates a WHERE clause for a query of the referenced entity in form of a Predicate for the given Root and

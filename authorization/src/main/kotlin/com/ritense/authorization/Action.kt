@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ data class Action<T>(
         const val COMPLETE = "complete"
         const val ASSIGN = "assign"
         const val CLAIM = "claim"
-        const val ASSIGNABLE = "assignable" //TODO: re-evaluate if this is the way to go
+        const val ASSIGNABLE = "assignable"
         const val IGNORE = "ignore"
         const val DENY = "deny"
     }

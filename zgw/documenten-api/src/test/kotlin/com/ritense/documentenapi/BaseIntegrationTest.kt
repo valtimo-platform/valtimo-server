@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.ritense.documentenapi
 
-import com.ritense.authorization.AuthorizationService
+import com.ritense.documentenapi.deployment.ZgwDocumentListColumnDeploymentService
 import com.ritense.documentenapi.event.DocumentCreated
 import com.ritense.plugin.repository.PluginConfigurationRepository
 import com.ritense.plugin.service.PluginService
@@ -50,6 +50,9 @@ class BaseIntegrationTest {
 
     @MockBean
     lateinit var userManagementService: UserManagementService
+
+    @SpyBean
+    lateinit var zgwDocumentListColumnDeploymentService: ZgwDocumentListColumnDeploymentService
 
     @TestComponent
     class Consumer {
