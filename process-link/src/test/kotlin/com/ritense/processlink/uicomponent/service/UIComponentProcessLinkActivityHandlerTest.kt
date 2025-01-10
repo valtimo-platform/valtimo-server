@@ -54,7 +54,7 @@ class UIComponentProcessLinkActivityHandlerTest {
         id = UUID.randomUUID(),
         processDefinitionId = "processDefinitionId",
         activityId = "activityId",
-        activityType = ActivityTypeWithEventName.USER_TASK_START,
+        activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
         componentKey = "componentKey",
     )
 
@@ -62,7 +62,7 @@ class UIComponentProcessLinkActivityHandlerTest {
         id = UUID.randomUUID(),
         processDefinitionId = "processDefinitionId",
         activityId = "activityId",
-        activityType = ActivityTypeWithEventName.USER_TASK_START,
+        activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
         someValue = "someValue",
     )
 }

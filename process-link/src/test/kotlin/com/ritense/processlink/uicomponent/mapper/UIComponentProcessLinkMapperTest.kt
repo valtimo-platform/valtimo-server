@@ -77,7 +77,7 @@ class UIComponentProcessLinkMapperTest {
     private fun createCreateDto() = UIComponentProcessLinkCreateRequestDto(
         processDefinitionId = "processDefinitionId",
         activityId = "activityId",
-        activityType = ActivityTypeWithEventName.USER_TASK_START,
+        activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
         componentKey = "componentKey",
     )
 
@@ -114,7 +114,7 @@ class UIComponentProcessLinkMapperTest {
     private fun createDeployDto() = UIComponentProcessLinkDeployDto(
         processDefinitionId = "processDefinitionId",
         activityId = "activityId",
-        activityType = ActivityTypeWithEventName.USER_TASK_START,
+        activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
         componentKey = "componentKey",
     )
 
@@ -122,7 +122,7 @@ class UIComponentProcessLinkMapperTest {
         id = UUID.randomUUID(),
         processDefinitionId = "processDefinitionId",
         activityId = "activityId",
-        activityType = ActivityTypeWithEventName.USER_TASK_START,
+        activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
         componentKey = "componentKey",
     )
 }

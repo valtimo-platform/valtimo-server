@@ -30,7 +30,7 @@ class UIComponentProcessLinkModuleTest {
             UIComponentProcessLinkCreateRequestDto(
                 processDefinitionId = "processDefinitionId",
                 activityId = "activityId",
-                activityType = ActivityTypeWithEventName.USER_TASK_START,
+                activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
                 componentKey = "activityType",
             )
         )
@@ -49,7 +49,7 @@ class UIComponentProcessLinkModuleTest {
                 id = UUID.randomUUID(),
                 processDefinitionId = "processDefinitionId",
                 activityId = "activityId",
-                activityType = ActivityTypeWithEventName.USER_TASK_START,
+                activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
                 componentKey = "componentKey",
             )
         )
@@ -65,7 +65,7 @@ class UIComponentProcessLinkModuleTest {
             UIComponentProcessLinkDeployDto(
                 processDefinitionId = "processDefinitionId",
                 activityId = "activityId",
-                activityType = ActivityTypeWithEventName.USER_TASK_START,
+                activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
                 componentKey = "componentKey",
             )
         )
@@ -82,7 +82,7 @@ class UIComponentProcessLinkModuleTest {
         val json = objectMapper.writeValueAsString(
             UIComponentProcessLinkExportResponseDto(
                 activityId = "activityId",
-                activityType = ActivityTypeWithEventName.USER_TASK_START,
+                activityType = ActivityTypeWithEventName.USER_TASK_CREATE,
                 componentKey = "componentKey",
             )
         )
