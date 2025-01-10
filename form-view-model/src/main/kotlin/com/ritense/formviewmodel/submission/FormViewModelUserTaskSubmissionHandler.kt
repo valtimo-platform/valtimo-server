@@ -40,7 +40,7 @@ interface FormViewModelUserTaskSubmissionHandler<T : Submission> {
      * @param formName the name of the form to check
      * @return `true` if the form name is supported, `false` otherwise
      */
-    fun supports(formName: String): Boolean
+    fun supports(formName: String): Boolean = false
 
     /**
      * Handles the form submission process for a User task.

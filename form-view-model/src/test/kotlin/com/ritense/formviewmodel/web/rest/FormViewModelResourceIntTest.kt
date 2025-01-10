@@ -3,8 +3,8 @@ package com.ritense.formviewmodel.web.rest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.formviewmodel.BaseIntegrationTest
-import com.ritense.formviewmodel.submission.TestStartFormSubmissionHandler
 import com.ritense.formviewmodel.submission.TestUserTaskSubmissionHandler
+import com.ritense.formviewmodel.submission.TestUserTaskUIComponentSubmissionHandler
 import com.ritense.formviewmodel.viewmodel.TestViewModel
 import com.ritense.formviewmodel.web.rest.FormViewModelResourceTest.Companion.BASE_URL
 import com.ritense.formviewmodel.web.rest.FormViewModelResourceTest.Companion.USER_TASK
@@ -36,7 +36,7 @@ class FormViewModelResourceIntTest @Autowired constructor(
     private val processService: CamundaProcessService,
     private val taskService: TaskService,
     private val testUserTaskSubmissionHandler: TestUserTaskSubmissionHandler,
-    private val testStartFormSubmissionHandler: TestStartFormSubmissionHandler,
+    private val testUserTaskUIComponentSubmissionHandler: TestUserTaskUIComponentSubmissionHandler
 ) : BaseIntegrationTest() {
 
     lateinit var mockMvc: MockMvc
@@ -50,7 +50,7 @@ class FormViewModelResourceIntTest @Autowired constructor(
 
 
     @Test
-    fun `should get user task view model`() {
+    fun `should get user task view model for form`() {
         val processInstance = startNewProcess()
         val taskInstanceId = getActiveTaskInstanceId(processInstance)
         runWithoutAuthorization {
@@ -64,7 +64,7 @@ class FormViewModelResourceIntTest @Autowired constructor(
     }
 
     @Test
-    fun `should update user task view model`() {
+    fun `should update user task view model for form`() {
         val processInstance = startNewProcess()
         val taskInstanceId = getActiveTaskInstanceId(processInstance)
 
@@ -81,7 +81,7 @@ class FormViewModelResourceIntTest @Autowired constructor(
     }
 
     @Test
-    fun `should submit user task view model`() {
+    fun `should submit user task view model for form`() {
         val processInstance = startNewProcess()
         val taskInstanceId = getActiveTaskInstanceId(processInstance)
         runWithoutAuthorization {
@@ -103,9 +103,64 @@ class FormViewModelResourceIntTest @Autowired constructor(
         verify(testUserTaskSubmissionHandler, times(1)).handle(any<TestViewModel>(), any(), eq(processInstance.processInstanceDto.businessKey))
     }
 
-    private fun startNewProcess(): ProcessInstanceWithDefinition = runWithoutAuthorization {
+
+    @Test
+    fun `should get user task view model for ui-component`() {
+        val processInstance = startNewProcess("fvm-uicomponent-task-process")
+        val taskInstanceId = getActiveTaskInstanceId(processInstance)
+        runWithoutAuthorization {
+            mockMvc.perform(
+                get("$BASE_URL/$USER_TASK")
+                    .queryParam("taskInstanceId", taskInstanceId)
+                    .accept(APPLICATION_JSON_UTF8_VALUE)
+                    .contentType(APPLICATION_JSON_UTF8_VALUE)
+            ).andExpect(status().isOk)
+        }
+    }
+
+    @Test
+    fun `should update user task view model for ui-component`() {
+        val processInstance = startNewProcess("fvm-uicomponent-task-process")
+        val taskInstanceId = getActiveTaskInstanceId(processInstance)
+
+        runWithoutAuthorization {
+            mockMvc.perform(
+                post("$BASE_URL/$USER_TASK")
+                    .queryParam("taskInstanceId", taskInstanceId)
+                    .accept(APPLICATION_JSON_UTF8_VALUE)
+                    .content(objectMapper.writeValueAsString(TestViewModel(reversedString = "abc")))
+                    .contentType(APPLICATION_JSON_UTF8_VALUE)
+            ).andExpect(status().isOk)
+                .andExpect(jsonPath("$.reversedString").value("cba"))
+        }
+    }
+
+    @Test
+    fun `should submit user task view model for ui-component`() {
+        val processInstance = startNewProcess("fvm-uicomponent-task-process")
+        val taskInstanceId = getActiveTaskInstanceId(processInstance)
+        runWithoutAuthorization {
+            mockMvc.perform(
+                post("$BASE_URL/submit/$USER_TASK")
+                    .queryParam("taskInstanceId", taskInstanceId)
+                    .accept(APPLICATION_JSON_UTF8_VALUE)
+                    .contentType(APPLICATION_JSON_UTF8_VALUE)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            TestViewModel(
+                                age = 22
+                            )
+                        )
+                    )
+            ).andExpect(status().isNoContent)
+        }
+
+        verify(testUserTaskUIComponentSubmissionHandler, times(1)).handle(any<TestViewModel>(), any(), eq(processInstance.processInstanceDto.businessKey))
+    }
+
+    private fun startNewProcess(processDefinitionKey: String = "fvm-form-task-process"): ProcessInstanceWithDefinition = runWithoutAuthorization {
         processService.startProcess(
-            "fvm-task-process",
+            processDefinitionKey,
             UUID.randomUUID().toString(),
             mapOf()
         )

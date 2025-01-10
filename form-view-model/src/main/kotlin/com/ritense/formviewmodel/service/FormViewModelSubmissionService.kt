@@ -95,9 +95,9 @@ class FormViewModelSubmissionService(
             EntityAuthorizationRequest(CamundaTask::class.java, COMPLETE, task)
         )
 
-        val processLink = getUserTaskProcessLink(task) ?: throw RuntimeException("No process link found for taskDefinitionKey=${task.taskDefinitionKey} and taskInstanceId=$taskInstanceId")
+        val processLink = getUserTaskProcessLink(task) ?: throw RuntimeException("No process link found for task ${task.processDefinition?.key}:${task.taskDefinitionKey}:${task.id}")
         val userTaskSubmissionHandler = formViewModelUserTaskSubmissionHandlerFactory.getHandler(processLink
-        ) ?: throw RuntimeException("No UserTaskSubmissionHandler found for taskDefinitionKey=${task.taskDefinitionKey} and processLink=${processLink.id}")
+        ) ?: throw RuntimeException("No UserTaskSubmissionHandler found for task=${task.processDefinition?.key}:${task.taskDefinitionKey}:${task.id} and processLink=${processLink.id}")
         val submissionType = userTaskSubmissionHandler.getSubmissionType()
         val submissionConverted = parseSubmission(submission, submissionType)
         runWithoutAuthorization {

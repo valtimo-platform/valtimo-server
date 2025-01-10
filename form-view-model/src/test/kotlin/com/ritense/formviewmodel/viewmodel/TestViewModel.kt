@@ -13,8 +13,8 @@ data class TestViewModel(
         return this.copy(reversedString = reversedString?.reversed())
     }
 
+    data class TestData(
+        val nestedData: String? = null,
+    )
 }
 
-data class TestData(
-    val nestedData: String? = null,
-)
