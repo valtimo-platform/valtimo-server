@@ -1,1 +1,1 @@
-com.ritense.outbox.config.InboxAutoConfiguration
+com.ritense.inbox.config.InboxAutoConfiguration

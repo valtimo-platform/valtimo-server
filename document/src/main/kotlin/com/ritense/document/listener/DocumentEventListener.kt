@@ -26,7 +26,6 @@ import com.ritense.valtimo.web.sse.service.SseSubscriptionService
 import org.springframework.context.event.EventListener
 import org.springframework.transaction.event.TransactionalEventListener
 
-//TODO: remove this class
 class DocumentEventListener(
     private val subscriptionService: SseSubscriptionService
 ) {

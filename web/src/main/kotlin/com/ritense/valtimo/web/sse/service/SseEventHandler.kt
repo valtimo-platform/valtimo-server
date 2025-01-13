@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2023 Ritense BV, the Netherlands.
+ * Copyright 2015-2024 Ritense BV, the Netherlands.
  *
  * Licensed under EUPL, Version 1.2 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,11 @@ import com.ritense.valtimo.web.sse.domain.SseEventMapper
 class SseEventHandler(
     private val sseEventMappers: List<SseEventMapper>,
     private val subscriptionService: SseSubscriptionService
-): ValtimoEventHandler {
+) : ValtimoEventHandler {
 
     override fun handle(event: ValtimoEvent) {
-        sseEventMappers.map {
-            it.map(event)
-        }.filterNotNull().forEach {
-            subscriptionService.notifySubscribers(it)
-        }
+        sseEventMappers
+            .mapNotNull { it.map(event) }
+            .forEach { subscriptionService.notifySubscribers(it) }
     }
 }

@@ -110,8 +110,16 @@ spring:
         stream:
             bindings:
                 kotlinInboxCloudEventConsumer-in-0:
-                    destination: valtimo-inbox
+                    destination: valtimo-events
+                    group: valtimo-inbox
                     binder: rabbit
+            rabbit:
+                bindings:
+                    kotlinInboxCloudEventConsumer-in-0:
+                        consumer:
+                            bindQueue: false
+                            declareExchange: false
+                            queueNameGroupOnly: true
             binders:
                 rabbit:
                     type: rabbit
@@ -231,9 +239,9 @@ valtimo:
         publisher:
             cloudevent-source: "com.ritense.gzac"
             rabbitmq:
-                routing-key: valtimo-events
+                exchange: valtimo-events
                 delivery-timeout: "PT0.5S"
-            polling.rate: "PT1M"
+            polling.rate: "PT1S"
 
     authorization:
         dashboard:

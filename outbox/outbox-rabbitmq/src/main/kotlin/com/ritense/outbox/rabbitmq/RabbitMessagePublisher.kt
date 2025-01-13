@@ -55,12 +55,10 @@ class RabbitMessagePublisher(
         val correlationData = CorrelationData(UUID.randomUUID().toString())
         logger.trace { "Sending message to RabbitMQ: routingKey=${routingKey}, msgId=${message.id}, correlationId= ${correlationData.id}" }
 
-        //TODO: In favor of the inbox, changed the message to be created by a converter instead sending a bytearray directly.
-//        val msg = MessageBuilder.withBody(message.message.toByteArray()).build()
-        rabbitTemplate.convertAndSend(exchange, routingKey, null, message.message, correlationData)
+        rabbitTemplate.convertAndSend(exchange, routingKey, message.message, correlationData)
 
         try {
-            val result = correlationData.future.get(deliveryTimeout.toMillis(), TimeUnit.MILLISECONDS)
+            val result = correlationData.future[deliveryTimeout.toMillis(), TimeUnit.MILLISECONDS]
             if (!result!!.isAck) {
                 throw MessagePublishingFailed("Outbox message was not acknowledged: reason=${result.reason}, routingKey=${routingKey}, msgId=${message.id}, correlationId= ${correlationData.id}\"")
             } else if (correlationData.returned != null) {
