@@ -17,11 +17,16 @@
 package com.ritense.processdocument.domain.impl.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.document.domain.impl.request.NewDocumentRequest;
 import com.ritense.processdocument.domain.request.Request;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 public class NewDocumentForRunningProcessRequest implements Request {
 
@@ -33,6 +38,9 @@ public class NewDocumentForRunningProcessRequest implements Request {
 
     @JsonProperty("request")
     private final NewDocumentRequest newDocumentRequest;
+
+    @JsonIgnore
+    private Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> additionalModifications;
 
     @JsonCreator
     public NewDocumentForRunningProcessRequest(
@@ -55,6 +63,18 @@ public class NewDocumentForRunningProcessRequest implements Request {
 
     public NewDocumentRequest newDocumentRequest() {
         return newDocumentRequest;
+    }
+
+    @Override
+    public Request withAdditionalModifications(Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> function) {
+        this.additionalModifications = function;
+        return this;
+    }
+
+    public void doAdditionalModifications(JsonSchemaDocument document) {
+        if (this.additionalModifications != null) {
+            this.additionalModifications.invoke(document);
+        }
     }
 
 }

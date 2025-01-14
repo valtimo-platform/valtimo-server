@@ -16,8 +16,13 @@
 
 package com.ritense.processdocument.domain.impl.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ritense.document.domain.Document;
+import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.processdocument.domain.request.Request;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,6 +30,9 @@ public class StartProcessForDocumentRequest implements Request {
     private final Document.Id documentId;
     private final String processDefinitionKey;
     private final Map<String, Object> processVars;
+
+    @JsonIgnore
+    private Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> additionalModifications;
 
     public StartProcessForDocumentRequest(Document.Id documentId, String processDefinitionKey, Map<String, Object> processVars) {
         this.documentId = documentId;
@@ -42,6 +50,18 @@ public class StartProcessForDocumentRequest implements Request {
 
     public Map<String, Object> getProcessVars() {
         return this.processVars;
+    }
+
+    @Override
+    public Request withAdditionalModifications(Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> function) {
+        this.additionalModifications = function;
+        return this;
+    }
+
+    public void doAdditionalModifications(JsonSchemaDocument document) {
+        if (this.additionalModifications != null) {
+            this.additionalModifications.invoke(document);
+        }
     }
 
     @Override
