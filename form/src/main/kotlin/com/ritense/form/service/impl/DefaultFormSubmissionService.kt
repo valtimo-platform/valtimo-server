@@ -119,7 +119,7 @@ class DefaultFormSubmissionService(
             val processVariables = getProcessVariables(taskInstanceId)
             val formDefinition = formDefinitionService.getFormDefinitionById(processLink.formDefinitionId).orElseThrow()
 
-            val categorizedKeyValues = getCategorizedSubmitValues(formDefinition, formData, document, processLink)
+            val categorizedKeyValues = getCategorizedSubmitValues(formDefinition, formData, document)
             val formFields = getFormFields(formDefinition, formData)
             // Merge the document results from 'legacy' mapping and value-resolvers.
             val submittedDocumentContent = JsonMerger.merge(
@@ -200,8 +200,7 @@ class DefaultFormSubmissionService(
     private fun getCategorizedSubmitValues(
         formDefinition: FormIoFormDefinition,
         formData: JsonNode,
-        document: Document?,
-        processLink: ProcessLink
+        document: Document?
     ): CategorizedSubmitValues {
         val categorizedMap = formDefinition.inputFields
             .mapNotNull { field ->
@@ -209,7 +208,7 @@ class DefaultFormSubmissionService(
             }.groupBy { (key, _) ->
                 val prefix = key.substringBefore(ValueResolverServiceImpl.DELIMITER, missingDelimiterValue = "")
                 when (prefix) {
-                    DOC_PREFIX -> if (document == null || processLink.activityType != START_EVENT_START) DOC_PREFIX else OTHER
+                    DOC_PREFIX -> if (document == null) DOC_PREFIX else OTHER
                     PV_PREFIX -> PV_PREFIX
                     else -> OTHER
                 }
