@@ -17,13 +17,11 @@
 package com.ritense.processdocument.domain.request;
 
 import com.ritense.document.domain.impl.JsonSchemaDocument;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
+import java.util.function.Consumer;
 
 public interface Request {
     default Request withAdditionalModifications(
-        Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> function
+        Consumer<? super JsonSchemaDocument> function
     ) {
         return null;
     }

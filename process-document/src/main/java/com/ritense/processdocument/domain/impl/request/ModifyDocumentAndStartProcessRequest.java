@@ -24,10 +24,8 @@ import com.ritense.document.domain.impl.request.ModifyDocumentRequest;
 import com.ritense.processdocument.domain.request.Request;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ModifyDocumentAndStartProcessRequest implements Request {
 
@@ -44,7 +42,7 @@ public class ModifyDocumentAndStartProcessRequest implements Request {
     private Map<String, Object> processVars;
 
     @JsonIgnore
-    private Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> additionalModifications;
+    private Consumer<? super JsonSchemaDocument> additionalModifications;
 
     @JsonCreator
     public ModifyDocumentAndStartProcessRequest(
@@ -81,14 +79,14 @@ public class ModifyDocumentAndStartProcessRequest implements Request {
     }
 
     @Override
-    public Request withAdditionalModifications(Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> function) {
+    public Request withAdditionalModifications(Consumer<? super JsonSchemaDocument> function) {
         this.additionalModifications = function;
         return this;
     }
 
     public void doAdditionalModifications(JsonSchemaDocument document) {
         if (this.additionalModifications != null) {
-            this.additionalModifications.invoke(document);
+            this.additionalModifications.accept(document);
         }
     }
 }

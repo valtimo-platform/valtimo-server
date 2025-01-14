@@ -447,12 +447,10 @@ class DefaultFormSubmissionService(
         return try {
             val result = processDocumentService.dispatch(
                 request.withAdditionalModifications { document: JsonSchemaDocument ->
-                    {
-                        withLoggingContext(JsonSchemaDocument::class, document.id()) {
-                            formFields.forEach { it.postProcess(document) }
-                            publishExternalDataSubmittedEvent(externalFormData, documentDefinitionName, document)
-                            valueResolverService.handleValues(document.id.id, remainingValueResolverValues)
-                        }
+                    withLoggingContext(JsonSchemaDocument::class, document.id()) {
+                        formFields.forEach { it.postProcess(document) }
+                        publishExternalDataSubmittedEvent(externalFormData, documentDefinitionName, document)
+                        valueResolverService.handleValues(document.id.id, remainingValueResolverValues)
                     }
                 }
             )

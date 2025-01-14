@@ -22,10 +22,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.processdocument.domain.request.Request;
 import jakarta.validation.constraints.NotNull;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class ProcessDocumentDefinitionRequest implements Request {
 
@@ -45,7 +43,7 @@ public class ProcessDocumentDefinitionRequest implements Request {
     private boolean startableByUser;
 
     @JsonIgnore
-    private Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> additionalModifications;
+    private Consumer<? super JsonSchemaDocument> additionalModifications;
 
     public ProcessDocumentDefinitionRequest(
         @JsonProperty(value = "processDefinitionKey", required = true) @NotNull String processDefinitionKey,
@@ -116,14 +114,14 @@ public class ProcessDocumentDefinitionRequest implements Request {
     }
 
     @Override
-    public Request withAdditionalModifications(Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> function) {
+    public Request withAdditionalModifications(Consumer<? super JsonSchemaDocument> function) {
         this.additionalModifications = function;
         return this;
     }
 
     public void doAdditionalModifications(JsonSchemaDocument document) {
         if (this.additionalModifications != null) {
-            this.additionalModifications.invoke(document);
+            this.additionalModifications.accept(document);
         }
     }
 }

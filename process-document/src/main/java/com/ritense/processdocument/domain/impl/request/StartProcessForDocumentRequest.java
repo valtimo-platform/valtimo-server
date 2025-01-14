@@ -20,11 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ritense.document.domain.Document;
 import com.ritense.document.domain.impl.JsonSchemaDocument;
 import com.ritense.processdocument.domain.request.Request;
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
-import kotlin.jvm.functions.Function1;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class StartProcessForDocumentRequest implements Request {
     private final Document.Id documentId;
@@ -32,9 +30,13 @@ public class StartProcessForDocumentRequest implements Request {
     private final Map<String, Object> processVars;
 
     @JsonIgnore
-    private Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> additionalModifications;
+    private Consumer<? super JsonSchemaDocument> additionalModifications;
 
-    public StartProcessForDocumentRequest(Document.Id documentId, String processDefinitionKey, Map<String, Object> processVars) {
+    public StartProcessForDocumentRequest(
+        Document.Id documentId,
+        String processDefinitionKey,
+        Map<String, Object> processVars
+    ) {
         this.documentId = documentId;
         this.processDefinitionKey = processDefinitionKey;
         this.processVars = processVars;
@@ -53,14 +55,14 @@ public class StartProcessForDocumentRequest implements Request {
     }
 
     @Override
-    public Request withAdditionalModifications(Function1<? super JsonSchemaDocument, ? extends Function0<Unit>> function) {
+    public Request withAdditionalModifications(Consumer<? super JsonSchemaDocument> function) {
         this.additionalModifications = function;
         return this;
     }
 
     public void doAdditionalModifications(JsonSchemaDocument document) {
         if (this.additionalModifications != null) {
-            this.additionalModifications.invoke(document);
+            this.additionalModifications.accept(document);
         }
     }
 
