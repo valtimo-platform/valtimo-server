@@ -24,7 +24,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.runApplication
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import reactor.core.publisher.Flux
 import java.util.function.Supplier
 
 @SpringBootApplication
@@ -38,13 +37,15 @@ class TestApplication {
     class TestConfig {
 
         @Bean
-        fun inboxSink() = InboxSink()
+        fun messageSupplier(testEventHandler: TestEventHandler): Supplier<String> {
+            return Supplier {
+                testEventHandler.sendEvent
+            }
+        }
 
         @Bean
-        fun messageSupplier(sink: InboxSink): Supplier<Flux<String>> {
-            return Supplier {
-                sink.asFlux()
-            }
+        fun testEventHandler(): TestEventHandler {
+            return TestEventHandler()
         }
 
         @Bean
