@@ -67,6 +67,7 @@ class ProcessLinkActivityService(
                     .and(byActive())
             )
         } catch (exception: Exception) {
+            logger.warn("For task with id '$taskId'.", exception)
             throw ProcessLinkNotFoundException("For task with id '$taskId'.")
         }
 
