@@ -16,7 +16,6 @@
 
 package com.ritense.valtimo.web.sse.autoconfiguration
 
-import com.ritense.inbox.InboxHandlingService
 import com.ritense.valtimo.web.sse.domain.SseEventMapper
 import com.ritense.valtimo.web.sse.security.config.SseHttpSecurityConfigurer
 import com.ritense.valtimo.web.sse.service.SseEventHandler
