@@ -22,7 +22,7 @@ import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
 import org.operaton.bpm.engine.spring.SpringExpressionManager
 import org.springframework.context.ApplicationContext
 
-class CamundaWhitelistedBeansPlugin(
+class OperatonWhitelistedBeansPlugin(
     private val processBeans: Map<String, Any>,
     private val applicationContext: ApplicationContext
 ) : AbstractProcessEnginePlugin() {

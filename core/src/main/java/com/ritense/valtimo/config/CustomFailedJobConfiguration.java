@@ -18,11 +18,11 @@ package com.ritense.valtimo.config;
 
 import java.util.ArrayList;
 import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.operaton.bpm.spring.boot.starter.configuration.CamundaFailedJobConfiguration;
+import org.operaton.bpm.spring.boot.starter.configuration.OperatonFailedJobConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 
 @AutoConfiguration
-public class CustomFailedJobConfiguration implements CamundaFailedJobConfiguration {
+public class CustomFailedJobConfiguration implements OperatonFailedJobConfiguration {
 
     @Override
     public void preInit(ProcessEngineConfigurationImpl configuration) {

@@ -64,7 +64,7 @@ public class JwtFilter extends GenericFilterBean {
                     authenticatedUserId = authentication.getName();
                 }
             }
-            // user id should always be set or reset to null because the camunda implementation will remember the user id from a previous request.
+            // user id should always be set or reset to null because the operaton implementation will remember the user id from a previous request.
             identityService.setAuthenticatedUserId(authenticatedUserId);
             filterChain.doFilter(servletRequest, servletResponse);
             identityService.clearAuthentication();

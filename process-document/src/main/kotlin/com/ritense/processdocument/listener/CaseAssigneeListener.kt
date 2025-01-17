@@ -22,16 +22,16 @@ import com.ritense.document.domain.Document
 import com.ritense.document.event.DocumentAssigneeChangedEvent
 import com.ritense.document.event.DocumentUnassignedEvent
 import com.ritense.document.service.DocumentService
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byAssigned
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byCandidateGroups
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byProcessInstanceBusinessKey
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byAssigned
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byCandidateGroups
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byProcessInstanceBusinessKey
 import com.ritense.valtimo.contract.authentication.UserManagementService
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import mu.KotlinLogging
 import org.springframework.context.event.EventListener
 
 class CaseAssigneeListener(
-    private val camundaTaskService: CamundaTaskService,
+    private val operatonTaskService: OperatonTaskService,
     private val documentService: DocumentService,
     private val caseDefinitionService: CaseDefinitionService,
     private val userManagementService: UserManagementService
@@ -49,7 +49,7 @@ class CaseAssigneeListener(
         if (caseSettings.canHaveAssignee && caseSettings.autoAssignTasks) {
             val assignee = userManagementService.findByUserIdentifier(document.assigneeId())
             val tasks = runWithoutAuthorization {
-                camundaTaskService.findTasks(
+                operatonTaskService.findTasks(
                     byProcessInstanceBusinessKey(document.id().toString())
                         .and(byCandidateGroups(assignee.roles))
 
@@ -60,7 +60,7 @@ class CaseAssigneeListener(
 
 
             tasks.forEach { task ->
-                camundaTaskService.assign(
+                operatonTaskService.assign(
                     task.id,
                     assignee.id
                 )
@@ -80,7 +80,7 @@ class CaseAssigneeListener(
 
         if (caseSettings.canHaveAssignee && caseSettings.autoAssignTasks) {
             val tasks = runWithoutAuthorization {
-                camundaTaskService.findTasks(
+                operatonTaskService.findTasks(
                     byProcessInstanceBusinessKey(document.id().toString())
                         .and(byAssigned())
                 )
@@ -89,7 +89,7 @@ class CaseAssigneeListener(
             }
 
             tasks.forEach { task ->
-                camundaTaskService.unassign(task.id)
+                operatonTaskService.unassign(task.id)
             }
         }
     }

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.processaudit;
+package com.ritense.valtimo.operaton.processaudit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ritense.valtimo.operaton.processaudit.ProcessInstanceEvent;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;

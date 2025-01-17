@@ -34,7 +34,7 @@ import com.ritense.valueresolver.ValueResolverService
 import com.ritense.zakenapi.provider.BsnProvider
 import com.ritense.zakenapi.provider.KvkProvider
 import org.operaton.bpm.engine.delegate.DelegateTask
-import org.operaton.bpm.model.bpmn.instance.camunda.CamundaProperties
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperties
 import java.net.URI
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -143,22 +143,22 @@ class TaakObjectConnector(
 
     private fun getTaskProperties(task: DelegateTask): Map<String, Any> {
         val taakProperties = task.bpmnModelElementInstance.extensionElements.elements
-            .filterIsInstance<CamundaProperties>()
+            .filterIsInstance<OperatonProperties>()
             .single()
-            .camundaProperties
-            .filter { it.camundaName != null && it.camundaValue != null }
-            .filter { it.camundaName.startsWith(prefix = "taak:", ignoreCase = true) }
+            .operatonProperties
+            .filter { it.operatonName != null && it.operatonValue != null }
+            .filter { it.operatonName.startsWith(prefix = "taak:", ignoreCase = true) }
 
         val resolvedValues = valueResolverService.resolveValues(
             processInstanceId = task.processInstanceId,
             variableScope = task,
-            taakProperties.map { it.camundaValue }
+            taakProperties.map { it.operatonValue }
         )
 
         // This is a workaround for Kotlin not having an associateNotNull method
         return taakProperties.mapNotNull { property ->
-            resolvedValues[property.camundaValue]?.let { value ->
-                property.camundaName.substringAfter(delimiter = ":") to value
+            resolvedValues[property.operatonValue]?.let { value ->
+                property.operatonName.substringAfter(delimiter = ":") to value
             }
         }.toMap()
     }

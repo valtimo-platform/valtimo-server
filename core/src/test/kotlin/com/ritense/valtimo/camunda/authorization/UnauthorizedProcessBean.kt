@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.authorization
+package com.ritense.valtimo.operaton.authorization
 
 import com.ritense.authorization.Action.Companion.deny
 import com.ritense.authorization.AuthorizationService

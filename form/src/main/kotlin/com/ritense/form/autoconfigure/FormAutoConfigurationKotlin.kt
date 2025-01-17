@@ -40,9 +40,9 @@ import com.ritense.form.web.rest.IntermediateSubmissionResource
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.contract.authentication.UserManagementService
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import com.ritense.valueresolver.ValueResolverService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationEventPublisher
@@ -92,8 +92,8 @@ class FormAutoConfigurationKotlin {
         documentService: JsonSchemaDocumentService,
         processDocumentAssociationService: ProcessDocumentAssociationService,
         processDocumentService: ProcessDocumentService,
-        camundaTaskService: CamundaTaskService,
-        repositoryService: CamundaRepositoryService,
+        operatonTaskService: OperatonTaskService,
+        repositoryService: OperatonRepositoryService,
         applicationEventPublisher: ApplicationEventPublisher,
         prefillFormService: PrefillFormService,
         authorizationService: AuthorizationService,
@@ -105,7 +105,7 @@ class FormAutoConfigurationKotlin {
         documentService,
         processDocumentAssociationService,
         processDocumentService,
-        camundaTaskService,
+        operatonTaskService,
         repositoryService,
         applicationEventPublisher,
         prefillFormService,
@@ -145,12 +145,12 @@ class FormAutoConfigurationKotlin {
         intermediateSubmissionRepository: IntermediateSubmissionRepository,
         userManagementService: UserManagementService,
         authorizationService: AuthorizationService,
-        camundaTaskService: CamundaTaskService
+        operatonTaskService: OperatonTaskService
     ) = IntermediateSubmissionService(
         intermediateSubmissionRepository = intermediateSubmissionRepository,
         userManagementService = userManagementService,
         authorizationService = authorizationService,
-        camundaTaskService = camundaTaskService
+        operatonTaskService = operatonTaskService
     )
 
     @Bean

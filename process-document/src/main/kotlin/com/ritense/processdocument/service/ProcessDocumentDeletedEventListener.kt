@@ -21,8 +21,8 @@ import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.logging.withLoggingContext
 import com.ritense.processdocument.domain.ProcessDocumentInstance
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentInstanceId
 import com.ritense.valtimo.contract.event.DocumentDeletedEvent
 import mu.KLogger
 import mu.KotlinLogging
@@ -45,7 +45,7 @@ class ProcessDocumentDeletedEventListener(
                     .forEach {
                         runtimeService.deleteProcessInstance(it.processInstanceId, "Document deleted", false, true)
                         processDocumentAssociationService.getProcessDocumentInstanceResult(
-                            CamundaProcessJsonSchemaDocumentInstanceId.existingId(CamundaProcessInstanceId(it.processInstanceId), JsonSchemaDocumentId.existingId(event.documentId))
+                            OperatonProcessJsonSchemaDocumentInstanceId.existingId(OperatonProcessInstanceId(it.processInstanceId), JsonSchemaDocumentId.existingId(event.documentId))
                         )?.let { processDocumentInstance ->
                             if (processDocumentInstance.isError) {
                                 logger.debug { "Document ${event.documentId} is not related to process ${it.processInstanceId}. No ProcessDocumentInstance to delete." }

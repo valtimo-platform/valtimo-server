@@ -30,9 +30,9 @@ import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.service.ProcessLinkService
 import com.ritense.processlink.url.domain.URLProcessLink
 import com.ritense.processlink.url.domain.URLVariables
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks
@@ -60,7 +60,7 @@ class URLProcessLinkServiceTest {
     lateinit var processDocumentService: ProcessDocumentService
 
     @Mock
-    lateinit var repositoryService: CamundaRepositoryService
+    lateinit var repositoryService: OperatonRepositoryService
 
     @Mock
     lateinit var objectMapper: ObjectMapper
@@ -69,7 +69,7 @@ class URLProcessLinkServiceTest {
     lateinit var urlVariables: URLVariables
 
     @Mock
-    lateinit var camundaTaskService: CamundaTaskService
+    lateinit var operatonTaskService: OperatonTaskService
 
     @Mock
     lateinit var authorizationService: ValtimoAuthorizationService
@@ -99,9 +99,9 @@ class URLProcessLinkServiceTest {
         whenever(document.id()).thenReturn(JsonSchemaDocumentId.existingId(UUID.fromString(documentId)))
         whenever(documentService.get(documentId)).thenReturn(document)
 
-        val camundaProcessDefinition = mock<CamundaProcessDefinition>()
+        val operatonProcessDefinition = mock<OperatonProcessDefinition>()
         whenever(repositoryService.findProcessDefinitionById(processLinkDefinitionId))
-            .thenReturn(camundaProcessDefinition)
+            .thenReturn(operatonProcessDefinition)
 
         val resultSucceeded = mock<DocumentFunctionResult<JsonSchemaDocument>>()
         whenever(resultSucceeded.errors()).thenReturn(emptyList())

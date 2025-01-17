@@ -51,7 +51,7 @@ class ProcessShortTimerServiceTest {
     void processModelChangeTimersToOneMinuteTestWithCorrectId() throws ProcessNotFoundException, DocumentParserException {
 
         //Given
-        FileInputStream fileInputStream = getFileInputStream("camundaProcessModelTest.xml");
+        FileInputStream fileInputStream = getFileInputStream("operatonProcessModelTest.xml");
 
         String processDefinitionId = "notUsedSinceMocked";
 

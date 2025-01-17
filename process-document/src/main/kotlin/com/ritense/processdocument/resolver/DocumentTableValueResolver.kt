@@ -19,7 +19,7 @@ package com.ritense.processdocument.resolver
 import com.ritense.authorization.AuthorizationContext
 import com.ritense.document.domain.Document
 import com.ritense.document.service.DocumentService
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valueresolver.ValueResolverFactory
 import com.ritense.valueresolver.ValueResolverOption
@@ -45,7 +45,7 @@ class DocumentTableValueResolver(
         processInstanceId: String,
         variableScope: VariableScope
     ): Function<String, Any?> {
-        val document = processDocumentService.getDocument(CamundaProcessInstanceId(processInstanceId), variableScope)
+        val document = processDocumentService.getDocument(OperatonProcessInstanceId(processInstanceId), variableScope)
         return createResolver(document)
     }
 

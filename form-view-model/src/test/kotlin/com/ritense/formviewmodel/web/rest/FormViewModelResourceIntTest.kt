@@ -6,8 +6,8 @@ import com.ritense.formviewmodel.BaseIntegrationTest
 import com.ritense.formviewmodel.viewmodel.TestViewModel
 import com.ritense.formviewmodel.web.rest.FormViewModelResourceTest.Companion.BASE_URL
 import com.ritense.formviewmodel.web.rest.FormViewModelResourceTest.Companion.USER_TASK
-import com.ritense.valtimo.camunda.domain.CamundaExecution
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonExecution
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE
 import com.ritense.valtimo.contract.json.MapperSingleton
 import org.junit.jupiter.api.BeforeEach
@@ -40,12 +40,12 @@ class FormViewModelResourceIntTest : BaseIntegrationTest() {
             .setCustomArgumentResolvers(PageableHandlerMethodArgumentResolver())
             .build()
 
-        val task: CamundaTask = mock()
-        val execution: CamundaExecution = mock()
+        val task: OperatonTask = mock()
+        val execution: OperatonExecution = mock()
         whenever(task.processInstance).thenReturn(execution)
         whenever(execution.businessKey).thenReturn("a business Key")
         whenever(task.id).thenReturn("taskInstanceId")
-        whenever(camundaTaskService.findTaskById(any())).thenReturn(task)
+        whenever(operatonTaskService.findTaskById(any())).thenReturn(task)
     }
 
     @Test

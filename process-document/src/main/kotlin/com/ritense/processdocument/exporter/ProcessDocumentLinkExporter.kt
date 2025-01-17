@@ -25,11 +25,11 @@ import com.ritense.exporter.request.DocumentDefinitionExportRequest
 import com.ritense.exporter.request.ProcessDefinitionExportRequest
 import com.ritense.processdocument.domain.config.ProcessDocumentLinkConfigItem
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 
 class ProcessDocumentLinkExporter(
     private val objectMapper: ObjectMapper,
-    private val camundaRepositoryService: CamundaRepositoryService,
+    private val operatonRepositoryService: OperatonRepositoryService,
     private val processDocumentAssociationService: ProcessDocumentAssociationService
 ) : Exporter<DocumentDefinitionExportRequest> {
 
@@ -53,7 +53,7 @@ class ProcessDocumentLinkExporter(
 
         val relatedRequests = exportItems.asSequence().map { it.processDefinitionKey }
             .distinct()
-            .map { key -> requireNotNull(camundaRepositoryService.findLatestProcessDefinition(key)) }
+            .map { key -> requireNotNull(operatonRepositoryService.findLatestProcessDefinition(key)) }
             .map { processDefinition ->
                 ProcessDefinitionExportRequest(processDefinition.id)
             }.toSet()

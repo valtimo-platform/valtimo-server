@@ -27,10 +27,10 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId;
 import com.ritense.document.domain.impl.JsonSchemaDocumentId;
 import com.ritense.document.service.DocumentSequenceGeneratorService;
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey;
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinitionId;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey;
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinitionId;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentInstanceId;
 import java.io.IOException;
 import java.net.URI;
 import java.util.UUID;
@@ -53,28 +53,28 @@ public abstract class BaseTest {
         return new String(getClass().getResource(fileName).openStream().readAllBytes());
     }
 
-    protected CamundaProcessInstanceId processInstanceId() {
-        return new CamundaProcessInstanceId(PROCESS_INSTANCE_ID);
+    protected OperatonProcessInstanceId processInstanceId() {
+        return new OperatonProcessInstanceId(PROCESS_INSTANCE_ID);
     }
 
     protected JsonSchemaDocumentDefinitionId definitionId() {
         return JsonSchemaDocumentDefinitionId.newId(DOCUMENT_DEFINITION_NAME);
     }
 
-    protected CamundaProcessDefinitionKey processDefinitionKey() {
-        return new CamundaProcessDefinitionKey(PROCESS_DEFINITION_KEY);
+    protected OperatonProcessDefinitionKey processDefinitionKey() {
+        return new OperatonProcessDefinitionKey(PROCESS_DEFINITION_KEY);
     }
 
-    protected CamundaProcessJsonSchemaDocumentDefinitionId processDocumentDefinitionId() {
-        return CamundaProcessJsonSchemaDocumentDefinitionId.newId(processDefinitionKey(), definitionId());
+    protected OperatonProcessJsonSchemaDocumentDefinitionId processDocumentDefinitionId() {
+        return OperatonProcessJsonSchemaDocumentDefinitionId.newId(processDefinitionKey(), definitionId());
     }
 
     protected JsonSchemaDocumentId documentId() {
         return JsonSchemaDocumentId.newId(UUID.randomUUID());
     }
 
-    protected CamundaProcessJsonSchemaDocumentInstanceId processDocumentInstanceId() {
-        return CamundaProcessJsonSchemaDocumentInstanceId.newId(processInstanceId(), documentId());
+    protected OperatonProcessJsonSchemaDocumentInstanceId processDocumentInstanceId() {
+        return OperatonProcessJsonSchemaDocumentInstanceId.newId(processInstanceId(), documentId());
     }
 
     protected JsonSchemaDocumentDefinition definition() {

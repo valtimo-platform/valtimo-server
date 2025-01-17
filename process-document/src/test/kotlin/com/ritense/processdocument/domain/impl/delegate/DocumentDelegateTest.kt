@@ -18,7 +18,7 @@ package com.ritense.processdocument.domain.impl.delegate
 
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.service.DocumentService
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valtimo.contract.OauthConfigHolder
 import com.ritense.valtimo.contract.authentication.UserManagementService
@@ -64,7 +64,7 @@ internal class DocumentDelegateTest {
         whenever(delegateExecution.processBusinessKey).thenReturn(documentId)
 
         whenever(
-            processDocumentService.getDocumentId(CamundaProcessInstanceId(processInstanceId), delegateExecution)
+            processDocumentService.getDocumentId(OperatonProcessInstanceId(processInstanceId), delegateExecution)
         ).thenReturn(JsonSchemaDocumentId.existingId(UUID.fromString(documentId)))
         whenever(userManagementService.findByEmail("john@example.com"))
             .thenReturn(Optional.of(ValtimoUserBuilder().id("anId").build()))
@@ -85,7 +85,7 @@ internal class DocumentDelegateTest {
         whenever(delegateExecution.processBusinessKey).thenReturn(documentId)
 
         whenever(
-            processDocumentService.getDocumentId(CamundaProcessInstanceId(processInstanceId), delegateExecution)
+            processDocumentService.getDocumentId(OperatonProcessInstanceId(processInstanceId), delegateExecution)
         ).thenReturn(JsonSchemaDocumentId.existingId(UUID.fromString(documentId)))
 
         documentDelegate.unassign(delegateExecution)

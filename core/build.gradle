@@ -75,7 +75,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
 
-    // Camunda
+    // Operaton
     api ("org.operaton.bpm.springboot:operaton-bpm-spring-boot-starter-rest:${operatonVersion}") {
         exclude group: "com.sun.xml.bind"
     }
@@ -84,10 +84,9 @@ dependencies {
         exclude group: "com.sun.xml.bind"
     }
 
-    // Camunda plugins
+    // Operaton plugins
     implementation "org.operaton.bpm:operaton-engine-plugin-spin:${operatonVersion}"
     implementation "org.operaton.bpm:operaton-engine-plugin-connect:${operatonVersion}"
-    api "org.camunda.bpm.extension.reactor:camunda-bpm-reactor-spring-starter:${camundaReactorSpringVersion}"
 
     // spring boot admin client
     implementation "de.codecentric:spring-boot-admin-starter-client:${springBootAdminStarterClientVersion}"
@@ -108,7 +107,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-blackbird"
     implementation "com.fasterxml.jackson.module:jackson-module-parameter-names"
 
-    // MyBatis (for camunda and our custom queries)
+    // MyBatis (for operaton and our custom queries)
     implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisSpringBootStarterVersion}"
 
     implementation "org.apache.commons:commons-lang3:${commonsLangVersion}"
@@ -134,7 +133,7 @@ dependencies {
     implementation "io.jsonwebtoken:jjwt-impl:${jjwtVersion}"
     implementation "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
-    // Camunda test
+    // Operaton test
     testImplementation project(":test-utils-common")
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.junit.jupiter:junit-jupiter-engine"

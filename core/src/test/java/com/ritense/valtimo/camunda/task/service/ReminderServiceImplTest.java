@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.task.service;
+package com.ritense.valtimo.operaton.task.service;
 
-import static com.ritense.valtimo.camunda.task.service.NotificationTestHelper.user;
+import static com.ritense.valtimo.operaton.task.service.NotificationTestHelper.user;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -24,15 +24,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ritense.valtimo.camunda.domain.CamundaTask;
-import com.ritense.valtimo.camunda.task.service.impl.ReminderServiceImpl;
+import com.ritense.valtimo.operaton.domain.OperatonTask;
+import com.ritense.valtimo.operaton.task.service.ReminderService;
+import com.ritense.valtimo.operaton.task.service.impl.ReminderServiceImpl;
 import com.ritense.valtimo.contract.OauthConfigHolder;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.config.ValtimoProperties;
 import com.ritense.valtimo.contract.mail.MailSender;
 import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage;
 import com.ritense.valtimo.emailnotificationsettings.service.EmailNotificationSettingsService;
-import com.ritense.valtimo.service.CamundaTaskService;
+import com.ritense.valtimo.service.OperatonTaskService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,14 +45,14 @@ import org.springframework.test.util.ReflectionTestUtils;
 class ReminderServiceImplTest {
 
     private ReminderService reminderService;
-    private CamundaTaskService taskService;
+    private OperatonTaskService taskService;
     private EmailNotificationSettingsService emailNotificationService;
     private MailSender mailSender;
     private UserManagementService userManagementService;
 
     @BeforeEach
     void setUp() {
-        taskService = mock(CamundaTaskService.class);
+        taskService = mock(OperatonTaskService.class);
         emailNotificationService = mock(EmailNotificationSettingsService.class);
         mailSender = mock(MailSender.class);
         userManagementService = mock(UserManagementService.class);
@@ -139,21 +140,21 @@ class ReminderServiceImplTest {
         return List.of("test1@test.com", "test2@test.com", "test3@test.com");
     }
 
-    private List<CamundaTask> roleBasedTasks() {
-        CamundaTask taskId0 = roleBasedTaskEntity("id01", "taskDev1");
-        CamundaTask taskId1 = roleBasedTaskEntity("id2", "task2");
-        CamundaTask taskId2 = roleBasedTaskEntity("id3", "task3");
+    private List<OperatonTask> roleBasedTasks() {
+        OperatonTask taskId0 = roleBasedTaskEntity("id01", "taskDev1");
+        OperatonTask taskId1 = roleBasedTaskEntity("id2", "task2");
+        OperatonTask taskId2 = roleBasedTaskEntity("id3", "task3");
         return List.of(taskId0, taskId1, taskId2);
     }
 
-    private List<CamundaTask> assignedTasks() {
-        CamundaTask taskId0 = assignedTaskEntity("id1", "AAAA-1111", "task1");
-        CamundaTask taskId2 = assignedTaskEntity("id3", "BBBB-2222", "task3");
+    private List<OperatonTask> assignedTasks() {
+        OperatonTask taskId0 = assignedTaskEntity("id1", "AAAA-1111", "task1");
+        OperatonTask taskId2 = assignedTaskEntity("id3", "BBBB-2222", "task3");
         return List.of(taskId0, taskId2);
     }
 
-    private CamundaTask assignedTaskEntity(String id, String assignee, String taskName) {
-        return new CamundaTask(
+    private OperatonTask assignedTaskEntity(String id, String assignee, String taskName) {
+        return new OperatonTask(
             id,
             0,
             null, null, null,
@@ -169,8 +170,8 @@ class ReminderServiceImplTest {
         );
     }
 
-    private CamundaTask roleBasedTaskEntity(String id, String taskName) {
-        return new CamundaTask(
+    private OperatonTask roleBasedTaskEntity(String id, String taskName) {
+        return new OperatonTask(
             id,
             0,
             null, null, null,

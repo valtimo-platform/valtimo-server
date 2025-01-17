@@ -20,7 +20,7 @@ package com.ritense.valtimo.processlink.service
 import com.ritense.logging.LoggableResource
 import com.ritense.plugin.domain.PluginProcessLink
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.processlink.mapper.PluginProcessLinkMapper
 import org.springframework.stereotype.Service
@@ -33,7 +33,7 @@ class PluginProcessLinkServiceImpl(
 ) : PluginProcessLinkService {
 
     override fun getProcessLinks(
-        @LoggableResource(resourceType = CamundaProcessDefinition::class) processDefinitionId: String
+        @LoggableResource(resourceType = OperatonProcessDefinition::class) processDefinitionId: String
     ): List<PluginProcessLink> {
         return processLinkService.getProcessLinks(processDefinitionId)
             .filter { pluginProcessLinkMapper.supportsProcessLinkType(it.processLinkType) }

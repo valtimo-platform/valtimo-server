@@ -18,7 +18,7 @@ package com.ritense.zakenapi.provider
 
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.plugin.service.PluginService
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.zakenapi.ZakenApiPlugin
 import com.ritense.zakenapi.domain.ZaakInstanceLink
@@ -100,7 +100,7 @@ class ZaakBsnProviderTest {
 
     private fun prepareMocks(task: DelegateTask, zaakUrl: URI) {
         val documentId = UUID.randomUUID()
-        whenever(processDocumentService.getDocumentId(eq(CamundaProcessInstanceId(task.processInstanceId)), eq(task))).thenReturn(JsonSchemaDocumentId.existingId(documentId))
+        whenever(processDocumentService.getDocumentId(eq(OperatonProcessInstanceId(task.processInstanceId)), eq(task))).thenReturn(JsonSchemaDocumentId.existingId(documentId))
         val zaakInstanceLink = mock<ZaakInstanceLink>()
         whenever(zaakInstanceLink.zaakInstanceUrl).thenReturn(zaakUrl)
         whenever(zaakInstanceLinkService.getByDocumentId(documentId)).thenReturn(zaakInstanceLink)

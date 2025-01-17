@@ -30,9 +30,9 @@ import com.ritense.processlink.url.service.URLProcessLinkActivityHandler
 import com.ritense.processlink.url.service.URLProcessLinkService
 import com.ritense.processlink.url.service.URLSupportedProcessLinksHandler
 import com.ritense.processlink.url.web.rest.URLProcessLinkResource
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.contract.config.LiquibaseMasterChangeLogLocation
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.context.ApplicationEventPublisher
@@ -82,11 +82,11 @@ class ProcessLinkUrlAutoConfiguration {
         documentService: JsonSchemaDocumentService,
         processDocumentAssociationService: ProcessDocumentAssociationService,
         processDocumentService: ProcessDocumentService,
-        repositoryService: CamundaRepositoryService,
+        repositoryService: OperatonRepositoryService,
         applicationEventPublisher: ApplicationEventPublisher,
         objectMapper: ObjectMapper,
         URLVariables: URLVariables,
-        camundaTaskService: CamundaTaskService,
+        operatonTaskService: OperatonTaskService,
         authorizationService: ValtimoAuthorizationService
     ) = URLProcessLinkService(
         processLinkService,
@@ -96,7 +96,7 @@ class ProcessLinkUrlAutoConfiguration {
         repositoryService,
         objectMapper,
         URLVariables,
-        camundaTaskService,
+        operatonTaskService,
         authorizationService
     )
 

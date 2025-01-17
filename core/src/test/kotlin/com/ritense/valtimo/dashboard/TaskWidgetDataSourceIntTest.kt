@@ -187,11 +187,11 @@ class TaskWidgetDataSourceIntTest @Autowired constructor(
         name: String? = "Test",
         assignee: String = defaultAssignee,
     ) {
-        val task: Task = camundaTaskService.newTask()
+        val task: Task = operatonTaskService.newTask()
         task.setName(name)
         task.setAssignee(assignee)
 
-        camundaTaskService.saveTask(task)
+        operatonTaskService.saveTask(task)
     }
 
     companion object {

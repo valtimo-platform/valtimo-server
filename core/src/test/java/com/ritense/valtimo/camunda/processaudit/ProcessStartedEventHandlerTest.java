@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.processaudit;
+package com.ritense.valtimo.operaton.processaudit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +24,8 @@ import static org.mockito.Mockito.verify;
 
 import com.ritense.valtimo.contract.audit.utils.AuditHelper;
 import com.ritense.valtimo.contract.utils.RequestHelper;
+import com.ritense.valtimo.operaton.processaudit.ProcessStartedEvent;
+import com.ritense.valtimo.operaton.processaudit.ProcessStartedEventHandler;
 import org.operaton.bpm.engine.impl.history.event.HistoricProcessInstanceEventEntity;
 import org.operaton.bpm.engine.impl.history.event.HistoricTaskInstanceEventEntity;
 import org.operaton.bpm.engine.impl.history.event.HistoryEvent;

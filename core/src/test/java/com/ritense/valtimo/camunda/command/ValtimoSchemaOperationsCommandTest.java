@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.command;
+package com.ritense.valtimo.operaton.command;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ritense.valtimo.contract.config.LiquibaseRunner;
+import com.ritense.valtimo.operaton.command.ValtimoSchemaOperationsCommand;
 import java.sql.SQLException;
 import liquibase.exception.DatabaseException;
 import org.operaton.bpm.engine.impl.db.PersistenceSession;

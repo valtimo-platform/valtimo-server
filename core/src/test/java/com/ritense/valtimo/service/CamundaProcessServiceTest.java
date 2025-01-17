@@ -30,11 +30,11 @@ import static org.mockito.Mockito.when;
 
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.authorization.AuthorizationService;
-import com.ritense.valtimo.camunda.domain.CamundaHistoricProcessInstance;
-import com.ritense.valtimo.camunda.repository.CamundaExecutionRepository;
-import com.ritense.valtimo.camunda.service.CamundaHistoryService;
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService;
-import com.ritense.valtimo.camunda.service.CamundaRuntimeService;
+import com.ritense.valtimo.operaton.domain.OperatonHistoricProcessInstance;
+import com.ritense.valtimo.operaton.repository.OperatonExecutionRepository;
+import com.ritense.valtimo.operaton.service.OperatonHistoryService;
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService;
+import com.ritense.valtimo.operaton.service.OperatonRuntimeService;
 import com.ritense.valtimo.contract.config.ValtimoProperties;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,12 +53,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class CamundaProcessServiceTest {
+class OperatonProcessServiceTest {
 
     private static final String userMock = "user";
-    private CamundaHistoricProcessInstance latestProcessInstance;
-    private CamundaHistoricProcessInstance middleProcessInstance;
-    private CamundaHistoricProcessInstance oldestProcessInstance;
+    private OperatonHistoricProcessInstance latestProcessInstance;
+    private OperatonHistoricProcessInstance middleProcessInstance;
+    private OperatonHistoricProcessInstance oldestProcessInstance;
 
     private static final LocalDateTime FIRST_OF_JANUARY_2018 = getDate(2018,1, 1);
     private static final LocalDateTime FIRST_OF_JANUARY_2017 = getDate(2017,1, 1);
@@ -68,19 +68,19 @@ class CamundaProcessServiceTest {
     private static final String BUSINESSKEY2 = "businessKey2";
     private static final String BUSINESSKEY3 = "businessKey3";
 
-    private CamundaProcessService camundaProcessService;
+    private OperatonProcessService operatonProcessService;
 
     @Mock
     private RuntimeService runtimeService = mock(RuntimeService.class, RETURNS_DEEP_STUBS);
 
     @Mock
-    private CamundaRuntimeService camundaRuntimeService;
+    private OperatonRuntimeService operatonRuntimeService;
 
     @Mock
     private RepositoryService repositoryService;
 
     @Mock
-    private CamundaRepositoryService camundaRepositoryService;
+    private OperatonRepositoryService operatonRepositoryService;
 
     @Mock
     private ProcessPropertyService processPropertyService;
@@ -95,9 +95,9 @@ class CamundaProcessServiceTest {
     private AuthorizationService authorizationService;
 
     @Mock
-    private CamundaExecutionRepository camundaExecutionRepository;
+    private OperatonExecutionRepository operatonExecutionRepository;
 
-    private CamundaHistoryService historyService = mock(CamundaHistoryService.class, RETURNS_DEEP_STUBS);
+    private OperatonHistoryService historyService = mock(OperatonHistoryService.class, RETURNS_DEEP_STUBS);
 
     @BeforeEach
     public void beforeEach() {
@@ -106,8 +106,8 @@ class CamundaProcessServiceTest {
 
     @Test
     void getAllActiveContextProcessesStartedByCurrentUserTestExpectAll() {
-        camundaProcessService = new CamundaProcessService(runtimeService, camundaRuntimeService, repositoryService, camundaRepositoryService, formService, historyService, processPropertyService, valtimoProperties, authorizationService,
-                camundaExecutionRepository
+        operatonProcessService = new OperatonProcessService(runtimeService, operatonRuntimeService, repositoryService, operatonRepositoryService, formService, historyService, processPropertyService, valtimoProperties, authorizationService,
+                operatonExecutionRepository
         );
 
         //when
@@ -117,7 +117,7 @@ class CamundaProcessServiceTest {
         //method call
         var allActiveContextProcessesStartedByCurrentUser =
             AuthorizationContext.runWithoutAuthorization(
-                () -> camundaProcessService
+                () -> operatonProcessService
                     .getAllActiveContextProcessesStartedByCurrentUser(contextProcessesTest1(), userMock)
             );
         //assert
@@ -140,8 +140,8 @@ class CamundaProcessServiceTest {
 
     @Test
     void getAllActiveContextProcessesStartedByCurrentUserTestExpectTwo() {
-        camundaProcessService = new CamundaProcessService(runtimeService, camundaRuntimeService, repositoryService, camundaRepositoryService, formService, historyService, processPropertyService, valtimoProperties, authorizationService,
-                camundaExecutionRepository
+        operatonProcessService = new OperatonProcessService(runtimeService, operatonRuntimeService, repositoryService, operatonRepositoryService, formService, historyService, processPropertyService, valtimoProperties, authorizationService,
+                operatonExecutionRepository
         );
 
         //when
@@ -150,7 +150,7 @@ class CamundaProcessServiceTest {
 
         //method call
         var allActiveContextProcessesStartedByCurrentUser = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessService.getAllActiveContextProcessesStartedByCurrentUser(contextProcessesTest2(), userMock));
+            operatonProcessService.getAllActiveContextProcessesStartedByCurrentUser(contextProcessesTest2(), userMock));
         //assert
         assertThat(allActiveContextProcessesStartedByCurrentUser, hasSize(2));
         assertThat(allActiveContextProcessesStartedByCurrentUser, contains(latestProcessInstance, middleProcessInstance));
@@ -165,8 +165,8 @@ class CamundaProcessServiceTest {
 
     }
 
-    private List<CamundaHistoricProcessInstance> getHistoricProcessInstances() {
-        latestProcessInstance = new CamundaHistoricProcessInstance(
+    private List<OperatonHistoricProcessInstance> getHistoricProcessInstances() {
+        latestProcessInstance = new OperatonHistoricProcessInstance(
             UUID.randomUUID().toString(),
             null,
             BUSINESSKEY1,
@@ -176,7 +176,7 @@ class CamundaProcessServiceTest {
             null,null,null,null,null,null,null,null,null,null,null,null,null
         );
 
-        middleProcessInstance = new CamundaHistoricProcessInstance(
+        middleProcessInstance = new OperatonHistoricProcessInstance(
             UUID.randomUUID().toString(),
             null,
             BUSINESSKEY2,
@@ -186,7 +186,7 @@ class CamundaProcessServiceTest {
             null,null,null,null,null,null,null,null,null,null,null,null,null
         );
 
-        oldestProcessInstance = new CamundaHistoricProcessInstance(
+        oldestProcessInstance = new OperatonHistoricProcessInstance(
             UUID.randomUUID().toString(),
             null,
             BUSINESSKEY3,
@@ -196,7 +196,7 @@ class CamundaProcessServiceTest {
             null,null,null,null,null,null,null,null,null,null,null,null,null
         );
 
-        List<CamundaHistoricProcessInstance> historicProcessInstances = new ArrayList<>();
+        List<OperatonHistoricProcessInstance> historicProcessInstances = new ArrayList<>();
 
         historicProcessInstances.add(latestProcessInstance);
         historicProcessInstances.add(middleProcessInstance);

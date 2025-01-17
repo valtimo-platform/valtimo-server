@@ -43,7 +43,7 @@ interface ValueResolverFactory {
      * The requestedValue argument of the returned resolver is already stripped of the prefix:
      * 'someProperty' will be passed as an argument when the original requestedValue was 'pv:someProperty'
      *
-     * @param processInstanceId The Camunda processInstanceId these values belong to
+     * @param processInstanceId The Operaton processInstanceId these values belong to
      * @param variableScope An implementation of VariableScope. For instance: a TaskDelegate or DelegateExecution
      *
      * @return a resolver that handles one requestedValue at a time within the same context.
@@ -86,7 +86,7 @@ interface ValueResolverFactory {
         : Function<String, Any?>
 
     /**
-     * @param processInstanceId The Camunda processInstanceId these values belong to
+     * @param processInstanceId The Operaton processInstanceId these values belong to
      * @param variableScope An implementation of VariableScope.
      * @param values The values to handle. i.e. mapOf(doc:add:/firstname to John)
      */

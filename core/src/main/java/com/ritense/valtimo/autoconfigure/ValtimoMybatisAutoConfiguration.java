@@ -75,8 +75,8 @@ public class ValtimoMybatisAutoConfiguration {
         sqlSessionFactoryBean.setDataSource(springProcessEngineConfiguration.getDataSource());
         sqlSessionFactoryBean.setMapperLocations(
             new ClassPathResource("common.xml"),
-            new ClassPathResource("camunda-queries.xml"),
-            new ClassPathResource("camunda-process-instance-v2.xml")
+            new ClassPathResource("operaton-queries.xml"),
+            new ClassPathResource("operaton-process-instance-v2.xml")
         );
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
         configuration.setLazyLoadingEnabled(false);

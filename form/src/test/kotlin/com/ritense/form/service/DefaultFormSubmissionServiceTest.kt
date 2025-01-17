@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.AuthorizationSupportedHelper
-import com.ritense.authorization.request.RelatedEntityAuthorizationRequest
 import com.ritense.document.domain.impl.JsonDocumentContent
 import com.ritense.document.domain.impl.JsonSchema
 import com.ritense.document.domain.impl.JsonSchemaDocument
@@ -35,26 +34,25 @@ import com.ritense.form.service.impl.DefaultFormSubmissionService
 import com.ritense.form.service.impl.FormIoFormDefinitionService
 import com.ritense.form.web.rest.dto.FormSubmissionResultFailed
 import com.ritense.form.web.rest.dto.FormSubmissionResultSucceeded
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinition
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinitionId
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinition
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinitionId
 import com.ritense.processdocument.domain.impl.request.ModifyDocumentAndCompleteTaskRequest
 import com.ritense.processdocument.domain.impl.request.ModifyDocumentAndStartProcessRequest
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentAssociationService
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentService
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentAssociationService
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentService
 import com.ritense.processdocument.service.impl.result.ModifyDocumentAndCompleteTaskResultSucceeded
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ActivityTypeWithEventName.START_EVENT_START
 import com.ritense.processlink.domain.ActivityTypeWithEventName.USER_TASK_CREATE
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.domain.CamundaExecution
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.contract.event.ExternalDataSubmittedEvent
 import com.ritense.valtimo.contract.json.MapperSingleton
 import com.ritense.valtimo.contract.json.patch.JsonPatchBuilder
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import com.ritense.valueresolver.ValueResolverService
 import io.mockk.every
 import io.mockk.mockkObject
@@ -80,10 +78,10 @@ class DefaultFormSubmissionServiceTest {
     lateinit var processLinkService: ProcessLinkService
     lateinit var formDefinitionService: FormIoFormDefinitionService
     lateinit var documentService: JsonSchemaDocumentService
-    lateinit var processDocumentAssociationService: CamundaProcessJsonSchemaDocumentAssociationService
-    lateinit var processDocumentService: CamundaProcessJsonSchemaDocumentService
-    lateinit var camundaTaskService: CamundaTaskService
-    lateinit var repositoryService: CamundaRepositoryService
+    lateinit var processDocumentAssociationService: OperatonProcessJsonSchemaDocumentAssociationService
+    lateinit var processDocumentService: OperatonProcessJsonSchemaDocumentService
+    lateinit var operatonTaskService: OperatonTaskService
+    lateinit var repositoryService: OperatonRepositoryService
     lateinit var applicationEventPublisher: ApplicationEventPublisher
     lateinit var prefillFormService: PrefillFormService
     lateinit var documentSequenceGeneratorService: DocumentSequenceGeneratorService
@@ -91,7 +89,7 @@ class DefaultFormSubmissionServiceTest {
     lateinit var valueResolverService: ValueResolverService
 
     lateinit var formProcessLink: FormProcessLink
-    lateinit var processDefinition: CamundaProcessDefinition
+    lateinit var processDefinition: OperatonProcessDefinition
     lateinit var formDefinition: FormIoFormDefinition
 
     @BeforeEach
@@ -101,7 +99,7 @@ class DefaultFormSubmissionServiceTest {
         documentService = mock()
         processDocumentAssociationService = mock()
         processDocumentService = mock()
-        camundaTaskService = mock()
+        operatonTaskService = mock()
         repositoryService = mock()
         applicationEventPublisher = mock()
         prefillFormService = mock()
@@ -114,7 +112,7 @@ class DefaultFormSubmissionServiceTest {
             documentService,
             processDocumentAssociationService,
             processDocumentService,
-            camundaTaskService,
+            operatonTaskService,
             repositoryService,
             applicationEventPublisher,
             prefillFormService,
@@ -128,7 +126,7 @@ class DefaultFormSubmissionServiceTest {
 
         formProcessLink = formProcessLink()
 
-        processDefinition = mock<CamundaProcessDefinition>()
+        processDefinition = mock<OperatonProcessDefinition>()
         whenever(processDefinition.key).thenReturn("myProcessDefinitionKey")
         whenever(repositoryService.findProcessDefinitionById(formProcessLink.processDefinitionId))
             .thenReturn(processDefinition)
@@ -360,10 +358,10 @@ class DefaultFormSubmissionServiceTest {
             .bufferedReader().use { it.readText() }
     }
 
-    private fun processDocumentDefinition(documentDefinitionName: String, canInitializeDocument: Boolean = false): CamundaProcessJsonSchemaDocumentDefinition {
-        return CamundaProcessJsonSchemaDocumentDefinition(
-            CamundaProcessJsonSchemaDocumentDefinitionId.newId(
-                CamundaProcessDefinitionKey(PROCESS_DEFINITION_KEY),
+    private fun processDocumentDefinition(documentDefinitionName: String, canInitializeDocument: Boolean = false): OperatonProcessJsonSchemaDocumentDefinition {
+        return OperatonProcessJsonSchemaDocumentDefinition(
+            OperatonProcessJsonSchemaDocumentDefinitionId.newId(
+                OperatonProcessDefinitionKey(PROCESS_DEFINITION_KEY),
                 JsonSchemaDocumentDefinitionId.existingId(documentDefinitionName, 1)
             ),
             canInitializeDocument,

@@ -3,10 +3,10 @@ package com.ritense.formviewmodel.service
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.request.EntityAuthorizationRequest
-import com.ritense.valtimo.camunda.authorization.CamundaExecutionActionProvider
-import com.ritense.valtimo.camunda.domain.CamundaExecution
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.authorization.OperatonExecutionActionProvider
+import com.ritense.valtimo.operaton.domain.OperatonExecution
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import org.operaton.bpm.engine.impl.persistence.entity.SuspensionState
 import org.springframework.stereotype.Service
@@ -15,22 +15,22 @@ import java.util.UUID
 @Service
 @SkipComponentScan
 class ProcessAuthorizationService(
-    private val camundaRepositoryService: CamundaRepositoryService,
+    private val operatonRepositoryService: OperatonRepositoryService,
     private val authorizationService: AuthorizationService
 ) {
 
     fun checkAuthorization(processDefinitionKey: String) {
         val processDefinition = runWithoutAuthorization {
-            camundaRepositoryService.findLatestProcessDefinition(
+            operatonRepositoryService.findLatestProcessDefinition(
                 processDefinitionKey
             )
         }
         require(processDefinition != null)
         authorizationService.requirePermission(
             EntityAuthorizationRequest(
-                CamundaExecution::class.java,
-                CamundaExecutionActionProvider.CREATE,
-                createDummyCamundaExecution(
+                OperatonExecution::class.java,
+                OperatonExecutionActionProvider.CREATE,
+                createDummyOperatonExecution(
                     processDefinition,
                     "UNDEFINED_BUSINESS_KEY"
                 )
@@ -38,11 +38,11 @@ class ProcessAuthorizationService(
         )
     }
 
-    private fun createDummyCamundaExecution(
-        processDefinition: CamundaProcessDefinition,
+    private fun createDummyOperatonExecution(
+        processDefinition: OperatonProcessDefinition,
         businessKey: String
-    ): CamundaExecution {
-        val execution = CamundaExecution(
+    ): OperatonExecution {
+        val execution = OperatonExecution(
             id = UUID.randomUUID().toString(),
             revision = 1,
             rootProcessInstance = null,

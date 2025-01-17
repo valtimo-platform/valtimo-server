@@ -36,7 +36,7 @@ valtimo:
     genericTemplateName: "test-template"
 
 
-camunda:
+operaton:
     bpm:
         history-level: audit
         generic-properties:

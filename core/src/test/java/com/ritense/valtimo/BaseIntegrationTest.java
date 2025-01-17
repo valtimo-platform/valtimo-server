@@ -19,7 +19,7 @@ package com.ritense.valtimo;
 import com.ritense.outbox.OutboxService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.mail.MailSender;
-import com.ritense.valtimo.repository.CamundaSearchProcessInstanceRepository;
+import com.ritense.valtimo.repository.OperatonSearchProcessInstanceRepository;
 import jakarta.inject.Inject;
 import org.operaton.bpm.engine.RuntimeService;
 import org.operaton.bpm.engine.TaskService;
@@ -52,10 +52,10 @@ public abstract class BaseIntegrationTest {
     public OutboxService outboxService;
 
     @SpyBean
-    public CamundaSearchProcessInstanceRepository camundaSearchProcessInstanceRepository;
+    public OperatonSearchProcessInstanceRepository operatonSearchProcessInstanceRepository;
 
     @SpyBean
-    public TaskService camundaTaskService;
+    public TaskService operatonTaskService;
 
     @BeforeAll
     static void beforeAll() {

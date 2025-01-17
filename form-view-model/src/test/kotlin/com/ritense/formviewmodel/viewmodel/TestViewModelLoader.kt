@@ -1,9 +1,9 @@
 package com.ritense.formviewmodel.viewmodel
 
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonTask
 
 class TestViewModelLoader : ViewModelLoader<TestViewModel> {
-    override fun load(task: CamundaTask?): TestViewModel {
+    override fun load(task: OperatonTask?): TestViewModel {
         return TestViewModel()
     }
 

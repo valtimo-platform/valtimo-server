@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.document.service.DocumentDefinitionService;
 import com.ritense.processdocument.BaseIntegrationTest;
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey;
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey;
 import com.ritense.processdocument.domain.impl.request.ProcessDocumentDefinitionRequest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Tag("integration")
 @Transactional
-class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseIntegrationTest {
+class OperatonProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseIntegrationTest {
 
     private static final String DOCUMENT_DEFINITION_NAME = "house";
     private static final String PROCESS_DEFINITION_KEY = "loan-process-demo";
@@ -41,7 +41,7 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
     @Test
     void shouldDeployProcessDocumentLinkFromResourceFolder() {
         final var processDocumentDefinitions = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
                 DOCUMENT_DEFINITION_NAME
             )
         );
@@ -57,7 +57,7 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
     public void findProcessDocumentDefinitionWithStartableByUserTrue() {
         Boolean startableByUser = true;
         final var processDocumentDefinitions = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
                 DOCUMENT_DEFINITION_NAME, startableByUser
             )
         );
@@ -72,7 +72,7 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
     public void findProcessDocumentDefinitionWithStartableByUserFalse() {
         Boolean startableByUser = false;
         final var processDocumentDefinitions = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
                 DOCUMENT_DEFINITION_NAME, startableByUser
             )
         );
@@ -84,7 +84,7 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
     public void findProcessDocumentDefinitionWithCanInitializeDocumentTrue() {
         Boolean canInitializeDocument = true;
         final var processDocumentDefinitions = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
                 DOCUMENT_DEFINITION_NAME, null, canInitializeDocument
             )
         );
@@ -99,7 +99,7 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
     public void findProcessDocumentDefinitionWithCanInitializeDocumentFalse() {
         Boolean canInitializeDocument = false;
         final var processDocumentDefinitions = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitions(
                 DOCUMENT_DEFINITION_NAME, null, canInitializeDocument
             )
         );
@@ -126,7 +126,7 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
                 "}"
             );
 
-            camundaProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(new ProcessDocumentDefinitionRequest(
+            operatonProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(new ProcessDocumentDefinitionRequest(
                 "deadlock-process",
                 "test",
                 true
@@ -150,8 +150,8 @@ class CamundaProcessJsonSchemaDocumentDeploymentServiceJavaIntTest extends BaseI
         });
 
         var association = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinition(
-                new CamundaProcessDefinitionKey("deadlock-process")
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinition(
+                new OperatonProcessDefinitionKey("deadlock-process")
             ).orElseThrow()
         );
 

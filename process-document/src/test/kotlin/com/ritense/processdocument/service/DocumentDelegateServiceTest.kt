@@ -23,7 +23,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.service.DocumentService
 import com.ritense.document.service.impl.JsonSchemaDocumentService
 import com.ritense.processdocument.BaseTest
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.valtimo.contract.OauthConfigHolder
 import com.ritense.valtimo.contract.authentication.UserManagementService
 import com.ritense.valtimo.contract.authentication.model.ValtimoUserBuilder
@@ -208,7 +208,7 @@ internal class DocumentDelegateServiceTest : BaseTest() {
                                 jsonSchemaDocumentService: JsonSchemaDocumentService) {
         whenever(
             processDocumentService.getDocumentId(
-                CamundaProcessInstanceId(processInstanceId),
+                OperatonProcessInstanceId(processInstanceId),
                 delegateExecutionFake
             )
         )
@@ -221,7 +221,7 @@ internal class DocumentDelegateServiceTest : BaseTest() {
     private fun verifyTest(processDocumentService: ProcessDocumentService,
                            delegateExecutionFake: DelegateExecution,
                            jsonSchemaDocumentService: JsonSchemaDocumentService) {
-        verify(processDocumentService).getDocumentId(CamundaProcessInstanceId(processInstanceId), delegateExecutionFake)
+        verify(processDocumentService).getDocumentId(OperatonProcessInstanceId(processInstanceId), delegateExecutionFake)
         verify(jsonSchemaDocumentService).getDocumentBy(jsonSchemaDocumentId)
     }
 
@@ -270,7 +270,7 @@ internal class DocumentDelegateServiceTest : BaseTest() {
         whenever(delegateExecution.processInstanceId).thenReturn(processInstanceId)
         whenever(delegateExecution.processBusinessKey).thenReturn(documentId)
         whenever(
-            processDocumentService.getDocumentId(CamundaProcessInstanceId(processInstanceId), delegateExecution)
+            processDocumentService.getDocumentId(OperatonProcessInstanceId(processInstanceId), delegateExecution)
         ).thenReturn(JsonSchemaDocumentId.existingId(UUID.fromString(documentId)))
         whenever(userManagementService.findByEmail("john@example.com"))
             .thenReturn(Optional.of(ValtimoUserBuilder().id("anId").build()))
@@ -289,7 +289,7 @@ internal class DocumentDelegateServiceTest : BaseTest() {
         whenever(delegateExecution.processInstanceId).thenReturn(processInstanceId)
         whenever(delegateExecution.processBusinessKey).thenReturn(documentId.toString())
         whenever(
-            processDocumentService.getDocumentId(CamundaProcessInstanceId(processInstanceId), delegateExecution)
+            processDocumentService.getDocumentId(OperatonProcessInstanceId(processInstanceId), delegateExecution)
         ).thenReturn(documentId)
 
         val newStatus = "test"
@@ -307,7 +307,7 @@ internal class DocumentDelegateServiceTest : BaseTest() {
         whenever(delegateExecution.processInstanceId).thenReturn(processInstanceId)
         whenever(delegateExecution.processBusinessKey).thenReturn(documentId)
         whenever(
-            processDocumentService.getDocumentId(CamundaProcessInstanceId(processInstanceId), delegateExecution)
+            processDocumentService.getDocumentId(OperatonProcessInstanceId(processInstanceId), delegateExecution)
         ).thenReturn(JsonSchemaDocumentId.existingId(UUID.fromString(documentId)))
 
         documentDelegateService.unassign(delegateExecution)

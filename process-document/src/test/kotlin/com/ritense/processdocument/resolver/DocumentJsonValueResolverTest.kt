@@ -28,7 +28,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId
 import com.ritense.document.service.DocumentService
 import com.ritense.document.service.impl.JsonSchemaDocumentDefinitionService
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valtimo.contract.json.MapperSingleton
 import com.ritense.valueresolver.ValueResolverOptionType
@@ -78,7 +78,7 @@ internal class DocumentJsonValueResolverTest {
         variableScope = mock<DelegateTask>()
         documentInstanceId = UUID.randomUUID().toString()
         document = mock()
-        whenever(processDocumentService.getDocument(CamundaProcessInstanceId(processInstanceId), variableScope)).thenReturn(document)
+        whenever(processDocumentService.getDocument(OperatonProcessInstanceId(processInstanceId), variableScope)).thenReturn(document)
         whenever(documentService.get(documentInstanceId)).thenReturn(document)
     }
 

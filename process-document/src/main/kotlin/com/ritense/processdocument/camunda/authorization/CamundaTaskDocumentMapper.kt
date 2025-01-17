@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.processdocument.camunda.authorization
+package com.ritense.processdocument.operaton.authorization
 
 import com.ritense.authorization.AuthorizationEntityMapper
 import com.ritense.authorization.AuthorizationEntityMapperResult
@@ -22,39 +22,38 @@ import com.ritense.authorization.utils.QueryUtils
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.repository.impl.JsonSchemaDocumentRepository
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.repository.ProcessDocumentInstanceRepository
-import com.ritense.valtimo.camunda.domain.CamundaExecution
-import com.ritense.valtimo.camunda.domain.CamundaTask
-import com.ritense.valtimo.camunda.repository.CamundaHistoricProcessInstanceSpecificationHelper.Companion.BUSINESS_KEY
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.ID
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.PROCESS_INSTANCE
+import com.ritense.valtimo.operaton.domain.OperatonExecution
+import com.ritense.valtimo.operaton.domain.OperatonTask
+import com.ritense.valtimo.operaton.repository.OperatonHistoricProcessInstanceSpecificationHelper.Companion.BUSINESS_KEY
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.ID
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.PROCESS_INSTANCE
 import com.ritense.valtimo.contract.database.QueryDialectHelper
 import jakarta.persistence.criteria.AbstractQuery
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.Root
-import org.hibernate.query.sqm.function.SelfRenderingSqmAggregateFunction
 
-class CamundaTaskDocumentMapper(
+class OperatonTaskDocumentMapper(
     private val processDocumentInstanceRepository: ProcessDocumentInstanceRepository,
     private val documentRepository: JsonSchemaDocumentRepository,
     private val queryDialectHelper: QueryDialectHelper
-) : AuthorizationEntityMapper<CamundaTask, JsonSchemaDocument> {
+) : AuthorizationEntityMapper<OperatonTask, JsonSchemaDocument> {
 
-    override fun mapRelated(entity: CamundaTask): List<JsonSchemaDocument> {
-        val processInstanceId = CamundaProcessInstanceId(entity.getProcessInstanceId())
+    override fun mapRelated(entity: OperatonTask): List<JsonSchemaDocument> {
+        val processInstanceId = OperatonProcessInstanceId(entity.getProcessInstanceId())
         val processDocumentInstance = processDocumentInstanceRepository.findByProcessInstanceId(processInstanceId).get()
         val document = documentRepository.findById(processDocumentInstance.processDocumentInstanceId().documentId()).get()
         return listOf(document)
     }
 
     override fun mapQuery(
-        root: Root<CamundaTask>,
+        root: Root<OperatonTask>,
         query: AbstractQuery<*>,
         criteriaBuilder: CriteriaBuilder
     ): AuthorizationEntityMapperResult<JsonSchemaDocument> {
         val documentRoot = query.from(JsonSchemaDocument::class.java)
-        val processBusinessKey = root.get<CamundaExecution>(PROCESS_INSTANCE).get<String>(BUSINESS_KEY)
+        val processBusinessKey = root.get<OperatonExecution>(PROCESS_INSTANCE).get<String>(BUSINESS_KEY)
         if (!QueryUtils.isCountQuery(query)) {
             query.groupBy(query.groupList + root.get<String>(ID))
         }
@@ -71,6 +70,6 @@ class CamundaTaskDocumentMapper(
     }
 
     override fun supports(fromClass: Class<*>, toClass: Class<*>): Boolean {
-        return fromClass == CamundaTask::class.java && toClass == JsonSchemaDocument::class.java
+        return fromClass == OperatonTask::class.java && toClass == JsonSchemaDocument::class.java
     }
 }

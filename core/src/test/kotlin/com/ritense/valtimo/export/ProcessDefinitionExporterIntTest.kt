@@ -20,9 +20,9 @@ import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthor
 import com.ritense.exporter.request.DecisionDefinitionExportRequest
 import com.ritense.exporter.request.ProcessDefinitionExportRequest
 import com.ritense.valtimo.BaseIntegrationTest
-import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byKey
-import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byLatestVersion
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionSpecificationHelper.Companion.byKey
+import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionSpecificationHelper.Companion.byLatestVersion
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import org.assertj.core.api.Assertions.assertThat
 import org.operaton.bpm.engine.RepositoryService
 import org.operaton.bpm.model.bpmn.Bpmn
@@ -35,7 +35,7 @@ import java.io.ByteArrayInputStream
 @Transactional(readOnly = true)
 class ProcessDefinitionExporterIntTest @Autowired constructor(
     private val repositoryService: RepositoryService,
-    private val camundaRepositoryService:CamundaRepositoryService,
+    private val operatonRepositoryService:OperatonRepositoryService,
     private val processDefinitionExporter: ProcessDefinitionExporter
 ) : BaseIntegrationTest() {
 
@@ -100,7 +100,7 @@ class ProcessDefinitionExporterIntTest @Autowired constructor(
 
     fun getProcessDefinitionId(processDefinitionKey: String): String {
         return requireNotNull(
-            camundaRepositoryService.findProcessDefinition(
+            operatonRepositoryService.findProcessDefinition(
                 byKey(processDefinitionKey)
                     .and(byLatestVersion()))
         ).id

@@ -22,10 +22,10 @@ import com.ritense.outbox.OutboxService
 import com.ritense.plugin.repository.PluginConfigurationRepository
 import com.ritense.plugin.service.PluginService
 import com.ritense.resource.service.ResourceService
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.contract.authentication.UserManagementService
 import com.ritense.valtimo.contract.mail.MailSender
-import com.ritense.valtimo.service.CamundaProcessService
+import com.ritense.valtimo.service.OperatonProcessService
 import com.ritense.valueresolver.ValueResolverService
 import com.ritense.zakenapi.ResourceProvider
 import com.ritense.zakenapi.ZaakUrlProvider
@@ -53,7 +53,7 @@ abstract class BaseIntegrationTest {
     lateinit var valueResolverService: ValueResolverService
 
     @SpyBean
-    lateinit var camundaProcessService: CamundaProcessService
+    lateinit var operatonProcessService: OperatonProcessService
 
     @SpyBean
     lateinit var zaakInstanceLinkService: ZaakInstanceLinkService
@@ -80,5 +80,5 @@ abstract class BaseIntegrationTest {
     lateinit var zaaktypeUrlProvider: ZaaktypeUrlProvider
 
     @Autowired
-    lateinit var noopAuthorizationSpecificationFactory: NoopAuthorizationSpecificationFactory<CamundaTask>
+    lateinit var noopAuthorizationSpecificationFactory: NoopAuthorizationSpecificationFactory<OperatonTask>
 }

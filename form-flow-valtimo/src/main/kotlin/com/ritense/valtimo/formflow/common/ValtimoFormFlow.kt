@@ -31,7 +31,7 @@ import com.ritense.formflow.service.FormFlowService
 import com.ritense.processdocument.domain.impl.request.StartProcessForDocumentRequest
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valtimo.contract.json.MapperSingleton
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import com.ritense.valueresolver.ValueResolverService
 import java.util.Objects
 import java.util.UUID
@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @FormFlowBean
 open class ValtimoFormFlow(
-    private val taskService: CamundaTaskService,
+    private val taskService: OperatonTaskService,
     private val objectMapper: ObjectMapper,
     private val valueResolverService: ValueResolverService,
     private val formFlowService: FormFlowService,
@@ -48,7 +48,7 @@ open class ValtimoFormFlow(
 ) {
 
     /**
-     * Completes a Camunda user task
+     * Completes a Operaton user task
      *
      * @param additionalProperties provided by Form Flow
      */
@@ -58,7 +58,7 @@ open class ValtimoFormFlow(
     }
 
     /**
-     * Completes a Camunda user task and save the submission in the document
+     * Completes a Operaton user task and save the submission in the document
      *
      * @param additionalProperties provided by Form Flow
      * @param submissionData the data that was submitted at the end of a Form Flow step
@@ -69,7 +69,7 @@ open class ValtimoFormFlow(
     }
 
     /**
-     * Completes a Camunda user task and save the submission in a place defined in submissionSavePath
+     * Completes a Operaton user task and save the submission in a place defined in submissionSavePath
      *
      * @param additionalProperties provided by Form Flow
      * @param submissionData the data that was submitted at the end of a Form Flow step

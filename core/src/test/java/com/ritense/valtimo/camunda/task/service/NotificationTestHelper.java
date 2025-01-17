@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.task.service;
+package com.ritense.valtimo.operaton.task.service;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

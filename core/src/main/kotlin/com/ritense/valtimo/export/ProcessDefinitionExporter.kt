@@ -21,7 +21,7 @@ import com.ritense.exporter.ExportResult
 import com.ritense.exporter.Exporter
 import com.ritense.exporter.request.DecisionDefinitionExportRequest
 import com.ritense.exporter.request.ProcessDefinitionExportRequest
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import org.operaton.bpm.engine.RepositoryService
 import org.operaton.bpm.model.bpmn.Bpmn
 import org.operaton.bpm.model.bpmn.BpmnModelInstance
@@ -30,14 +30,14 @@ import org.operaton.bpm.model.bpmn.instance.CallActivity
 import java.io.ByteArrayOutputStream
 
 class ProcessDefinitionExporter(
-    private val camundaRepositoryService: CamundaRepositoryService,
+    private val operatonRepositoryService: OperatonRepositoryService,
     private val repositoryService: RepositoryService,
 ) : Exporter<ProcessDefinitionExportRequest> {
     override fun supports(): Class<ProcessDefinitionExportRequest> = ProcessDefinitionExportRequest::class.java
 
     override fun export(request: ProcessDefinitionExportRequest): ExportResult {
         val processDefinition = requireNotNull(
-            camundaRepositoryService.findProcessDefinitionById(request.processDefinitionId)
+            operatonRepositoryService.findProcessDefinitionById(request.processDefinitionId)
         )
 
         val bpmnModelInstance = repositoryService.getProcessModel(processDefinition.id).use { inputStream ->
@@ -65,7 +65,7 @@ class ProcessDefinitionExporter(
             .mapNotNull { it.calledElement }
             .distinct()
             .map { key ->
-                val processDefinitionId = checkNotNull(camundaRepositoryService.findLatestProcessDefinition(key)) {
+                val processDefinitionId = checkNotNull(operatonRepositoryService.findLatestProcessDefinition(key)) {
                     "Process definition with key '$key' could not be found!"
                 }.id
                 ProcessDefinitionExportRequest(processDefinitionId)
@@ -74,7 +74,7 @@ class ProcessDefinitionExporter(
 
     private fun getDecisionExportRequests(bpmnModelInstance: BpmnModelInstance): Set<DecisionDefinitionExportRequest> {
         return bpmnModelInstance.getModelElementsByType(BusinessRuleTask::class.java)
-            .mapNotNull { it.camundaDecisionRef }
+            .mapNotNull { it.operatonDecisionRef }
             .distinct()
             .map { ref ->
                 val decisionDefinition = checkNotNull(repositoryService.createDecisionDefinitionQuery()

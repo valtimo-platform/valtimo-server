@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.task.service.impl;
+package com.ritense.valtimo.operaton.task.service.impl;
 
-import static com.ritense.valtimo.camunda.task.service.NotificationTestHelper.mockTask;
-import static com.ritense.valtimo.camunda.task.service.NotificationTestHelper.user;
+import static com.ritense.valtimo.operaton.task.service.NotificationTestHelper.mockTask;
+import static com.ritense.valtimo.operaton.task.service.NotificationTestHelper.user;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ritense.valtimo.camunda.task.service.NotificationService;
+import com.ritense.valtimo.operaton.task.service.NotificationService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.config.ValtimoProperties;
 import com.ritense.valtimo.contract.mail.MailSender;
 import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage;
 import com.ritense.valtimo.emailnotificationsettings.service.EmailNotificationSettingsService;
 import com.ritense.valtimo.helper.DelegateTaskHelper;
+import com.ritense.valtimo.operaton.task.service.impl.NotificationServiceImpl;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

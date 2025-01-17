@@ -18,7 +18,7 @@ package com.ritense.processdocument.service.impl
 
 import com.ritense.authorization.AuthorizationContext
 import com.ritense.processdocument.BaseIntegrationTest
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.processdocument.service.ProcessDocumentDeploymentService
 import org.junit.jupiter.api.Test
@@ -28,7 +28,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @Transactional
-internal class CamundaProcessJsonSchemaDocumentDeploymentServiceIntTest : BaseIntegrationTest() {
+internal class OperatonProcessJsonSchemaDocumentDeploymentServiceIntTest : BaseIntegrationTest() {
 
     @Autowired
     private lateinit var processDocumentDeploymentService: ProcessDocumentDeploymentService
@@ -42,7 +42,7 @@ internal class CamundaProcessJsonSchemaDocumentDeploymentServiceIntTest : BaseIn
         val link = AuthorizationContext.runWithoutAuthorization {
             processDocumentDeploymentService.deploy("house", linkJson)
             processDocumentAssociationService.findProcessDocumentDefinition(
-                CamundaProcessDefinitionKey("loan-process-demo")
+                OperatonProcessDefinitionKey("loan-process-demo")
             ).get()
         }
         assertEquals("house", link.processDocumentDefinitionId().documentDefinitionId().name())

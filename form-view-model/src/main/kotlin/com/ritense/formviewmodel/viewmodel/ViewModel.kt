@@ -16,15 +16,15 @@
 
 package com.ritense.formviewmodel.viewmodel
 
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonTask
 
 interface ViewModel {
 
-    fun update(task: CamundaTask? = null): ViewModel {
+    fun update(task: OperatonTask? = null): ViewModel {
         return this
     }
 
-    fun update(task: CamundaTask? = null, page: Int?): ViewModel {
+    fun update(task: OperatonTask? = null, page: Int?): ViewModel {
         return this
     }
 

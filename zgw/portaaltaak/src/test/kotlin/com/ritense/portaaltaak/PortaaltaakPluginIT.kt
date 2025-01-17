@@ -41,11 +41,11 @@ import com.ritense.portaaltaak.exception.CompleteTaakProcessVariableNotFoundExce
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.processlink.domain.ActivityTypeWithEventName
-import com.ritense.valtimo.camunda.domain.CamundaTask
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byActive
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byId
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byProcessInstanceId
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.operaton.domain.OperatonTask
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byActive
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byId
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byProcessInstanceId
+import com.ritense.valtimo.service.OperatonTaskService
 import com.ritense.zakenapi.domain.ZaakInstanceLink
 import com.ritense.zakenapi.domain.ZaakInstanceLinkId
 import okhttp3.mockwebserver.Dispatcher
@@ -107,7 +107,7 @@ class PortaaltaakPluginIT : BaseIntegrationTest() {
     lateinit var procesDocumentService: ProcessDocumentService
 
     @Autowired
-    lateinit var taskService: CamundaTaskService
+    lateinit var taskService: OperatonTaskService
 
     @Autowired
     lateinit var objectMapper: ObjectMapper
@@ -312,7 +312,7 @@ class PortaaltaakPluginIT : BaseIntegrationTest() {
     }
 
     @Test
-    fun `should complete Camunda Task`() {
+    fun `should complete Operaton Task`() {
         val task = startPortaalTaakProcess(
             """
             {
@@ -442,7 +442,7 @@ class PortaaltaakPluginIT : BaseIntegrationTest() {
     private fun startPortaalTaakProcess(
         content: String,
         processDefinitionKey: String = PROCESS_DEFINITION_KEY
-    ): CamundaTask {
+    ): OperatonTask {
         return runWithoutAuthorization {
             val newDocumentRequest =
                 NewDocumentRequest(DOCUMENT_DEFINITION_KEY, objectMapper.readTree(content))

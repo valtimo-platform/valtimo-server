@@ -43,7 +43,7 @@ public abstract class BaseDateValidator {
         try {
             configValue = dateFormat.parse(validatorContext.getConfiguration());
         } catch (ParseException e) {
-            logger.error("Invalid date set in Camunda Modeler. Please make sure the format is {}", DATE_FORMAT);
+            logger.error("Invalid date set in Operaton Modeler. Please make sure the format is {}", DATE_FORMAT);
         }
 
         if (configValue != null && submittedValueDate != null) {

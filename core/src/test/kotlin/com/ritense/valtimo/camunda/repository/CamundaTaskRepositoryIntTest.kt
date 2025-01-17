@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.repository
+package com.ritense.valtimo.operaton.repository
 
 import com.ritense.valtimo.BaseIntegrationTest
 import org.assertj.core.api.Assertions
@@ -24,21 +24,21 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-class CamundaTaskRepositoryIntTest @Autowired constructor(
+class OperatonTaskRepositoryIntTest @Autowired constructor(
     private val taskService: TaskService,
-    private val camundaTaskRepository: CamundaTaskRepository,
+    private val operatonTaskRepository: OperatonTaskRepository,
 ): BaseIntegrationTest() {
 
     @Test
     @Transactional
-    fun `should find camunda task instance`() {
+    fun `should find operaton task instance`() {
         val instance = runtimeService.startProcessInstanceByKey(
             "one-task-process",
             UUID.randomUUID().toString()
         )
 
         //get the task
-        val result = camundaTaskRepository.findOne { root, _, criteriaBuilder ->
+        val result = operatonTaskRepository.findOne { root, _, criteriaBuilder ->
             criteriaBuilder.equal(
                 root.get<String>("processInstance").get<Any>("id"),
                 instance.id
@@ -53,7 +53,7 @@ class CamundaTaskRepositoryIntTest @Autowired constructor(
 
     @Test
     @Transactional
-    fun `should find camunda task variables`() {
+    fun `should find operaton task variables`() {
         val processInstanceVariableMap = mapOf(
             "myBoolean" to true,
             "myNumber" to 1337,
@@ -79,7 +79,7 @@ class CamundaTaskRepositoryIntTest @Autowired constructor(
         taskService.setVariablesLocal(nativeTask.id, localVarMap)
 
         //get the task
-        val result = camundaTaskRepository.findOne { root, _, criteriaBuilder ->
+        val result = operatonTaskRepository.findOne { root, _, criteriaBuilder ->
             criteriaBuilder.equal(
                 root.get<String>("processInstance").get<Any>("id"),
                 instance.id

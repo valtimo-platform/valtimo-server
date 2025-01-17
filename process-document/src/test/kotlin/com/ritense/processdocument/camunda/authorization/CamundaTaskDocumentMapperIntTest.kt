@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.processdocument.camunda.authorization
+package com.ritense.processdocument.operaton.authorization
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
@@ -22,7 +22,7 @@ import com.ritense.document.domain.impl.request.NewDocumentRequest
 import com.ritense.processdocument.BaseIntegrationTest
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest
 import com.ritense.processdocument.service.ProcessDocumentService
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,7 +30,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-internal class CamundaTaskDocumentMapperIntTest : BaseIntegrationTest() {
+internal class OperatonTaskDocumentMapperIntTest : BaseIntegrationTest() {
 
     @Autowired
     private lateinit var processDocumentService: ProcessDocumentService
@@ -40,7 +40,7 @@ internal class CamundaTaskDocumentMapperIntTest : BaseIntegrationTest() {
 
     @Test
     @WithMockUser(username = "user@ritense.com", authorities = [AuthoritiesConstants.USER])
-    fun `should map CamundaTask to Document`() {
+    fun `should map OperatonTask to Document`() {
         val result = runWithoutAuthorization {
             processDocumentService.newDocumentAndStartProcess(
                 NewDocumentAndStartProcessRequest(
@@ -53,8 +53,8 @@ internal class CamundaTaskDocumentMapperIntTest : BaseIntegrationTest() {
             )
         }
 
-        val task = camundaTaskService.findTask(
-            CamundaTaskSpecificationHelper.byProcessInstanceId(
+        val task = operatonTaskService.findTask(
+            OperatonTaskSpecificationHelper.byProcessInstanceId(
                 result.resultingProcessInstanceId().get().toString()
             )
         )
@@ -64,7 +64,7 @@ internal class CamundaTaskDocumentMapperIntTest : BaseIntegrationTest() {
 
     @Test
     @WithMockUser(username = "user@ritense.com", authorities = [AuthoritiesConstants.USER])
-    fun `should NOT map CamundaTask to Document with unmapped city`() {
+    fun `should NOT map OperatonTask to Document with unmapped city`() {
         val result = runWithoutAuthorization {
             processDocumentService.newDocumentAndStartProcess(
                 NewDocumentAndStartProcessRequest(
@@ -77,8 +77,8 @@ internal class CamundaTaskDocumentMapperIntTest : BaseIntegrationTest() {
             )
         }
 
-        val task = camundaTaskService.findTask(
-            CamundaTaskSpecificationHelper.byProcessInstanceId(
+        val task = operatonTaskService.findTask(
+            OperatonTaskSpecificationHelper.byProcessInstanceId(
                 result.resultingProcessInstanceId().get().toString()
             )
         )

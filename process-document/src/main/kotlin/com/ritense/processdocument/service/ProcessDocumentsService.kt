@@ -22,7 +22,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.exception.DocumentNotFoundException
 import com.ritense.document.service.DocumentService
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import com.ritense.valtimo.service.CamundaProcessService
+import com.ritense.valtimo.service.OperatonProcessService
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -30,7 +30,7 @@ import java.util.UUID
 @SkipComponentScan
 class ProcessDocumentsService(
     private val documentService: DocumentService,
-    private val camundaProcessService: CamundaProcessService,
+    private val operatonProcessService: OperatonProcessService,
     private val associationService: ProcessDocumentAssociationService
 ) {
     //TODO: Determine what to with this
@@ -45,7 +45,7 @@ class ProcessDocumentsService(
         variables: Map<String, Any>?
     ) {
         val processInstance = runWithoutAuthorization {
-            camundaProcessService.startProcess(processDefinitionKey, businessKey, variables)
+            operatonProcessService.startProcess(processDefinitionKey, businessKey, variables)
         }
         require(processInstance.processDefinition.name != null) {
             "Process definition with id '${processInstance.processDefinition.id}' doesn't have a name"

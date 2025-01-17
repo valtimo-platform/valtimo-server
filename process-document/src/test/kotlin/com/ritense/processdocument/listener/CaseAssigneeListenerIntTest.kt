@@ -25,11 +25,11 @@ import com.ritense.document.domain.impl.request.NewDocumentRequest
 import com.ritense.document.service.DocumentService
 import com.ritense.processdocument.BaseIntegrationTest
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byName
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byName
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.ADMIN
 import com.ritense.valtimo.contract.authentication.ManageableUser
 import com.ritense.valtimo.contract.authentication.model.ValtimoUserBuilder
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.operaton.bpm.engine.RuntimeService
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
@@ -57,7 +57,7 @@ class CaseAssigneeListenerIntTest : BaseIntegrationTest() {
     lateinit var runtimeService: RuntimeService
 
     @Autowired
-    lateinit var taskService: CamundaTaskService
+    lateinit var taskService: OperatonTaskService
 
     @Autowired
     lateinit var objectMapper: ObjectMapper

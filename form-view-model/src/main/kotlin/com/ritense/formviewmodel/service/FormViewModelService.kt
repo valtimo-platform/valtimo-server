@@ -22,10 +22,10 @@ import com.ritense.authorization.AuthorizationService
 import com.ritense.authorization.request.EntityAuthorizationRequest
 import com.ritense.formviewmodel.viewmodel.ViewModel
 import com.ritense.formviewmodel.viewmodel.ViewModelLoaderFactory
-import com.ritense.valtimo.camunda.authorization.CamundaTaskActionProvider.Companion.VIEW
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.authorization.OperatonTaskActionProvider.Companion.VIEW
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.springframework.stereotype.Service
 import kotlin.reflect.KClass
 
@@ -34,7 +34,7 @@ import kotlin.reflect.KClass
 class FormViewModelService(
     private val objectMapper: ObjectMapper,
     private val viewModelLoaderFactory: ViewModelLoaderFactory,
-    private val camundaTaskService: CamundaTaskService,
+    private val operatonTaskService: OperatonTaskService,
     private val authorizationService: AuthorizationService,
     private val processAuthorizationService: ProcessAuthorizationService
 ) {
@@ -51,9 +51,9 @@ class FormViewModelService(
         formName: String,
         taskInstanceId: String
     ): ViewModel? {
-        val task = camundaTaskService.findTaskById(taskInstanceId)
+        val task = operatonTaskService.findTaskById(taskInstanceId)
         authorizationService.requirePermission(
-            EntityAuthorizationRequest(CamundaTask::class.java, VIEW, task)
+            EntityAuthorizationRequest(OperatonTask::class.java, VIEW, task)
         )
         return viewModelLoaderFactory.getViewModelLoader(formName)?.load(task)
     }
@@ -92,9 +92,9 @@ class FormViewModelService(
         taskInstanceId: String,
         submission: ObjectNode
     ): ViewModel? {
-        val task = camundaTaskService.findTaskById(taskInstanceId)
+        val task = operatonTaskService.findTaskById(taskInstanceId)
         authorizationService.requirePermission(
-            EntityAuthorizationRequest(CamundaTask::class.java, VIEW, task)
+            EntityAuthorizationRequest(OperatonTask::class.java, VIEW, task)
         )
         val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
         val viewModelType = viewModelLoader.getViewModelType()
@@ -108,9 +108,9 @@ class FormViewModelService(
         page: Int?,
         isWizard: Boolean?
     ): ViewModel? {
-        val task = camundaTaskService.findTaskById(taskInstanceId)
+        val task = operatonTaskService.findTaskById(taskInstanceId)
         authorizationService.requirePermission(
-            EntityAuthorizationRequest(CamundaTask::class.java, VIEW, task)
+            EntityAuthorizationRequest(OperatonTask::class.java, VIEW, task)
         )
         val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(formName) ?: return null
         val viewModelType = viewModelLoader.getViewModelType()

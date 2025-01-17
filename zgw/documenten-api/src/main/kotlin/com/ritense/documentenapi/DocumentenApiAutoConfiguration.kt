@@ -43,7 +43,7 @@ import com.ritense.outbox.OutboxService
 import com.ritense.plugin.service.PluginService
 import com.ritense.processdocument.service.DocumentDefinitionProcessLinkService
 import com.ritense.resource.service.TemporaryResourceStorageService
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.changelog.service.ChangelogDeployer
 import com.ritense.valtimo.changelog.service.ChangelogService
 import com.ritense.valtimo.contract.config.LiquibaseMasterChangeLogLocation
@@ -141,7 +141,7 @@ class DocumentenApiAutoConfiguration {
         documentDefinitionService: DocumentDefinitionService,
         documentDefinitionProcessLinkService: DocumentDefinitionProcessLinkService,
         pluginProcessLinkService: PluginProcessLinkService,
-        camundaRepositoryService: CamundaRepositoryService,
+        operatonRepositoryService: OperatonRepositoryService,
     ): DocumentenApiVersionService {
         return DocumentenApiVersionService(
             resourceLoader,
@@ -153,7 +153,7 @@ class DocumentenApiAutoConfiguration {
             documentDefinitionService,
             documentDefinitionProcessLinkService,
             pluginProcessLinkService,
-            camundaRepositoryService,
+            operatonRepositoryService,
         )
     }
 

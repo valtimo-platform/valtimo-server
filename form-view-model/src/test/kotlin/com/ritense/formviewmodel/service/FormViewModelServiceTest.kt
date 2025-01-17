@@ -8,9 +8,9 @@ import com.ritense.formviewmodel.viewmodel.TestViewModel
 import com.ritense.formviewmodel.viewmodel.TestViewModelLoader
 import com.ritense.formviewmodel.viewmodel.ViewModel
 import com.ritense.formviewmodel.viewmodel.ViewModelLoaderFactory
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.contract.json.MapperSingleton
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -23,10 +23,10 @@ class FormViewModelServiceTest : BaseTest() {
 
     private lateinit var objectMapper: ObjectMapper
     private lateinit var viewModelLoaderFactory: ViewModelLoaderFactory
-    private lateinit var camundaTaskService: CamundaTaskService
+    private lateinit var operatonTaskService: OperatonTaskService
     private lateinit var authorizationService: AuthorizationService
     private lateinit var formViewModelSubmissionService: FormViewModelSubmissionService
-    private lateinit var camundaTask: CamundaTask
+    private lateinit var operatonTask: OperatonTask
     private lateinit var processAuthorizationService: ProcessAuthorizationService
     private lateinit var formViewModelService: FormViewModelService
 
@@ -34,7 +34,7 @@ class FormViewModelServiceTest : BaseTest() {
     fun setUp() {
         objectMapper = MapperSingleton.get()
         viewModelLoaderFactory = mock()
-        camundaTaskService = mock()
+        operatonTaskService = mock()
         authorizationService = mock()
         formViewModelSubmissionService = mock()
         processAuthorizationService = mock()
@@ -42,13 +42,13 @@ class FormViewModelServiceTest : BaseTest() {
         formViewModelService = FormViewModelService(
             objectMapper = objectMapper,
             viewModelLoaderFactory = viewModelLoaderFactory,
-            camundaTaskService = camundaTaskService,
+            operatonTaskService = operatonTaskService,
             authorizationService = authorizationService,
             processAuthorizationService = processAuthorizationService
         )
 
-        camundaTask = mock()
-        whenever(camundaTaskService.findTaskById(any())).thenReturn(camundaTask)
+        operatonTask = mock()
+        whenever(operatonTaskService.findTaskById(any())).thenReturn(operatonTask)
         whenever(authorizationService.hasPermission<Boolean>(any())).thenReturn(true)
     }
 
@@ -119,7 +119,7 @@ class FormViewModelServiceTest : BaseTest() {
     data class RandomViewModel(
         val custom: String
     ) : ViewModel {
-        override fun update(task: CamundaTask?, page: Int?): ViewModel {
+        override fun update(task: OperatonTask?, page: Int?): ViewModel {
             return this
         }
     }

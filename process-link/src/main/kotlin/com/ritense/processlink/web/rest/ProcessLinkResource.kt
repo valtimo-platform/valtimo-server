@@ -27,7 +27,7 @@ import com.ritense.processlink.web.rest.dto.ProcessLinkCreateRequestDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkExportResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkUpdateRequestDto
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE
 import java.util.UUID
@@ -53,7 +53,7 @@ class ProcessLinkResource(
 
     @GetMapping("/v1/process-link")
     fun getProcessLinks(
-        @LoggableResource(resourceType = CamundaProcessDefinition::class) @RequestParam("processDefinitionId") processDefinitionId: String,
+        @LoggableResource(resourceType = OperatonProcessDefinition::class) @RequestParam("processDefinitionId") processDefinitionId: String,
         @RequestParam("activityId") activityId: String
     ): ResponseEntity<List<ProcessLinkResponseDto>> {
         val list = processLinkService.getProcessLinks(processDefinitionId, activityId)
@@ -73,7 +73,7 @@ class ProcessLinkResource(
     fun createProcessLink(
         @RequestBody processLink: ProcessLinkCreateRequestDto
     ): ResponseEntity<Unit> {
-        return withLoggingContext(CamundaProcessDefinition::class.java, processLink.processDefinitionId) {
+        return withLoggingContext(OperatonProcessDefinition::class.java, processLink.processDefinitionId) {
             processLinkService.createProcessLink(processLink)
             ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         }

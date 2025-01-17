@@ -35,10 +35,10 @@ import com.ritense.processdocument.service.ProcessDocumentService;
 import com.ritense.processdocument.service.impl.result.StartProcessForDocumentResultFailed;
 import com.ritense.processdocument.service.impl.result.StartProcessForDocumentResultSucceeded;
 import com.ritense.processdocument.service.result.StartProcessForDocumentResult;
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
-import com.ritense.valtimo.camunda.domain.ProcessInstanceWithDefinition;
-import com.ritense.valtimo.service.CamundaProcessService;
-import com.ritense.valtimo.service.CamundaTaskService;
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition;
+import com.ritense.valtimo.operaton.domain.ProcessInstanceWithDefinition;
+import com.ritense.valtimo.service.OperatonProcessService;
+import com.ritense.valtimo.service.OperatonTaskService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,18 +46,18 @@ import java.util.UUID;
 import org.operaton.bpm.engine.runtime.ProcessInstance;
 import org.junit.jupiter.api.Test;
 
-class CamundaProcessJsonSchemaDocumentServiceTest {
+class OperatonProcessJsonSchemaDocumentServiceTest {
 
     private final JsonSchemaDocumentService documentService = mock(JsonSchemaDocumentService.class);
-    private final CamundaTaskService camundaTaskService = mock(CamundaTaskService.class);
-    private final CamundaProcessService camundaProcessService = mock(CamundaProcessService.class);
+    private final OperatonTaskService operatonTaskService = mock(OperatonTaskService.class);
+    private final OperatonProcessService operatonProcessService = mock(OperatonProcessService.class);
     private final ProcessDocumentAssociationService processDocumentAssociationService = mock(ProcessDocumentAssociationService.class);
     private final AuthorizationService authorizationService = mock(AuthorizationService.class);
 
-    private final ProcessDocumentService processDocumentService = new CamundaProcessJsonSchemaDocumentService(
+    private final ProcessDocumentService processDocumentService = new OperatonProcessJsonSchemaDocumentService(
         documentService,
-        camundaTaskService,
-        camundaProcessService,
+        operatonTaskService,
+        operatonProcessService,
         processDocumentAssociationService,
         authorizationService
     );
@@ -111,7 +111,7 @@ class CamundaProcessJsonSchemaDocumentServiceTest {
         String processInstanceId = UUID.randomUUID().toString();
         when(processInstance.getId()).thenReturn(processInstanceId);
 
-        CamundaProcessDefinition processDefinition = mock(CamundaProcessDefinition.class);
+        OperatonProcessDefinition processDefinition = mock(OperatonProcessDefinition.class);
         when(processDefinition.getName()).thenReturn("test-name");
 
         doReturn(Optional.of(document)).when(documentService).findBy(id);
@@ -121,7 +121,7 @@ class CamundaProcessJsonSchemaDocumentServiceTest {
 
         ProcessInstanceWithDefinition processInstanceWithDefinition = new ProcessInstanceWithDefinition(processInstance,
             processDefinition);
-        when(camundaProcessService.startProcess("test-name", documentUuid.toString(), processVars))
+        when(operatonProcessService.startProcess("test-name", documentUuid.toString(), processVars))
             .thenReturn(processInstanceWithDefinition);
 
         StartProcessForDocumentRequest request = new StartProcessForDocumentRequest(
@@ -134,7 +134,7 @@ class CamundaProcessJsonSchemaDocumentServiceTest {
 
         assertTrue(result instanceof StartProcessForDocumentResultSucceeded);
 
-        verify(camundaProcessService).startProcess(
+        verify(operatonProcessService).startProcess(
             "test-name",
             documentUuid.toString(),
             processVars

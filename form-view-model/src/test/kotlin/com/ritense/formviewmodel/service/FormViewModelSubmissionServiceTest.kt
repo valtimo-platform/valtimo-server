@@ -10,10 +10,10 @@ import com.ritense.formviewmodel.submission.FormViewModelUserTaskSubmissionHandl
 import com.ritense.formviewmodel.submission.TestStartFormSubmissionHandler
 import com.ritense.formviewmodel.submission.TestUserTaskSubmissionHandler
 import com.ritense.formviewmodel.viewmodel.TestViewModel
-import com.ritense.valtimo.camunda.domain.CamundaExecution
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonExecution
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.contract.json.MapperSingleton
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,19 +31,19 @@ class FormViewModelSubmissionServiceTest : BaseTest() {
     private lateinit var formViewModelStartFormSubmissionHandlerFactory: FormViewModelStartFormSubmissionHandlerFactory
     private lateinit var formViewModelUserTaskSubmissionHandlerFactory: FormViewModelUserTaskSubmissionHandlerFactory
     private lateinit var authorizationService: AuthorizationService
-    private lateinit var camundaTaskService: CamundaTaskService
+    private lateinit var operatonTaskService: OperatonTaskService
     private lateinit var testStartFormSubmissionHandler: TestStartFormSubmissionHandler
     private lateinit var testUserTaskSubmissionHandler: TestUserTaskSubmissionHandler
     private lateinit var objectMapper: ObjectMapper
-    private lateinit var camundaTask: CamundaTask
+    private lateinit var operatonTask: OperatonTask
     private lateinit var processAuthorizationService: ProcessAuthorizationService
     private val businessKey = "businessKey"
 
     @BeforeEach
     fun setUp() {
         authorizationService = mock()
-        camundaTask = mock()
-        camundaTaskService = mock()
+        operatonTask = mock()
+        operatonTaskService = mock()
         testUserTaskSubmissionHandler = spy()
         testStartFormSubmissionHandler = spy()
         objectMapper = ObjectMapper()
@@ -58,15 +58,15 @@ class FormViewModelSubmissionServiceTest : BaseTest() {
             formViewModelStartFormSubmissionHandlerFactory = formViewModelStartFormSubmissionHandlerFactory,
             formViewModelUserTaskSubmissionHandlerFactory = formViewModelUserTaskSubmissionHandlerFactory,
             authorizationService = authorizationService,
-            camundaTaskService = camundaTaskService,
+            operatonTaskService = operatonTaskService,
             objectMapper = objectMapper,
             processAuthorizationService = processAuthorizationService
         )
 
-        val processInstance = mock<CamundaExecution>()
-        whenever(camundaTask.processInstance).thenReturn(processInstance)
+        val processInstance = mock<OperatonExecution>()
+        whenever(operatonTask.processInstance).thenReturn(processInstance)
         whenever(processInstance.businessKey).thenReturn(businessKey)
-        whenever(camundaTaskService.findTaskById(any())).thenReturn(camundaTask)
+        whenever(operatonTaskService.findTaskById(any())).thenReturn(operatonTask)
     }
 
     @Test
@@ -78,7 +78,7 @@ class FormViewModelSubmissionServiceTest : BaseTest() {
             taskInstanceId = "taskInstanceId"
         )
         val submissionCaptor = argumentCaptor<TestViewModel>()
-        val taskCaptor = argumentCaptor<CamundaTask>()
+        val taskCaptor = argumentCaptor<OperatonTask>()
         val businessKeyCaptor = argumentCaptor<String>()
         verify(testUserTaskSubmissionHandler).handle(
             submission = submissionCaptor.capture(),
@@ -86,7 +86,7 @@ class FormViewModelSubmissionServiceTest : BaseTest() {
             businessKey = businessKeyCaptor.capture()
         )
         assertThat(submissionCaptor.firstValue).isInstanceOf(TestViewModel::class.java)
-        assertThat(taskCaptor.firstValue).isEqualTo(camundaTask)
+        assertThat(taskCaptor.firstValue).isEqualTo(operatonTask)
         assertThat(businessKeyCaptor.firstValue).isEqualTo(businessKey)
     }
 
