@@ -18,6 +18,7 @@ package com.ritense.formviewmodel.autoconfigure
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.authorization.AuthorizationService
+import com.ritense.form.service.FormDefinitionService
 import com.ritense.form.service.impl.FormIoFormDefinitionService
 import com.ritense.formviewmodel.commandhandling.handler.CompleteTaskCommandHandler
 import com.ritense.formviewmodel.commandhandling.handler.StartProcessCommandHandler
@@ -36,6 +37,7 @@ import com.ritense.formviewmodel.viewmodel.ViewModelLoaderFactory
 import com.ritense.formviewmodel.web.rest.FormViewModelResource
 import com.ritense.formviewmodel.web.rest.error.FormViewModelModuleExceptionTranslator
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
+import com.ritense.processlink.service.ProcessLinkService
 import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.service.OperatonProcessService
 import com.ritense.valtimo.service.OperatonTaskService
@@ -58,27 +60,34 @@ class FormViewModelAutoConfiguration {
         viewModelLoaderFactory: ViewModelLoaderFactory,
         operatonTaskService: OperatonTaskService,
         authorizationService: AuthorizationService,
-        processAuthorizationService: ProcessAuthorizationService
+        processAuthorizationService: ProcessAuthorizationService,
+        processService: OperatonProcessService,
+        processLinkService: ProcessLinkService
     ) = FormViewModelService(
         objectMapper,
         viewModelLoaderFactory,
         operatonTaskService,
         authorizationService,
-        processAuthorizationService
+        processAuthorizationService,
+        processLinkService
     )
 
     @Bean
     fun formViewModelStartFormSubmissionHandlerFactory(
-        formViewModelStartFormSubmissionHandlers: List<FormViewModelStartFormSubmissionHandler<*>>
+        formViewModelStartFormSubmissionHandlers: List<FormViewModelStartFormSubmissionHandler<*>>,
+        formDefinitionService: FormDefinitionService
     ) = FormViewModelStartFormSubmissionHandlerFactory(
-        formViewModelStartFormSubmissionHandlers
+        formViewModelStartFormSubmissionHandlers,
+        formDefinitionService
     )
 
     @Bean
     fun formViewModelUserTaskSubmissionHandlerFactory(
-        formViewModelUserTaskSubmissionHandlers: List<FormViewModelUserTaskSubmissionHandler<*>>
+        formViewModelUserTaskSubmissionHandlers: List<FormViewModelUserTaskSubmissionHandler<*>>,
+        formDefinitionService: FormDefinitionService
     ) = FormViewModelUserTaskSubmissionHandlerFactory(
-        formViewModelUserTaskSubmissionHandlers
+        formViewModelUserTaskSubmissionHandlers,
+        formDefinitionService
     )
 
     @Bean
@@ -88,14 +97,16 @@ class FormViewModelAutoConfiguration {
         authorizationService: AuthorizationService,
         operatonTaskService: OperatonTaskService,
         objectMapper: ObjectMapper,
-        processAuthorizationService: ProcessAuthorizationService
+        processAuthorizationService: ProcessAuthorizationService,
+        processLinkService: ProcessLinkService
     ) = FormViewModelSubmissionService(
         formViewModelStartFormSubmissionHandlerFactory = formViewModelStartFormSubmissionHandlerFactory,
         formViewModelUserTaskSubmissionHandlerFactory = formViewModelUserTaskSubmissionHandlerFactory,
         authorizationService = authorizationService,
         operatonTaskService = operatonTaskService,
         objectMapper = objectMapper,
-        processAuthorizationService = processAuthorizationService
+        processAuthorizationService = processAuthorizationService,
+        processLinkService = processLinkService
     )
 
     @Order(390)
@@ -120,9 +131,11 @@ class FormViewModelAutoConfiguration {
 
     @Bean
     fun viewModelLoaderFactory(
-        loaders: List<ViewModelLoader<*>>
+        loaders: List<ViewModelLoader<*>>,
+        formDefinitionService: FormDefinitionService
     ) = ViewModelLoaderFactory(
-        loaders
+        loaders,
+        formDefinitionService
     )
 
     @Bean

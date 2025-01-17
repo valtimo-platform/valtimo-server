@@ -156,6 +156,8 @@ public class OperatonProcessJsonSchemaDocumentService implements ProcessDocument
                 )
             );
 
+            request.doAdditionalModifications(document);
+
             return new NewDocumentAndStartProcessResultSucceeded(
                 document,
                 operatonProcessInstanceId
@@ -209,6 +211,8 @@ public class OperatonProcessJsonSchemaDocumentService implements ProcessDocument
 
             final var document = modifyDocumentResult.resultingDocument().orElseThrow();
 
+            request.doAdditionalModifications(document);
+
             AuthorizationContext.runWithoutAuthorization(
                 () -> {
                     operatonTaskService.completeTaskWithFormData(request.taskId(), request.getProcessVars());
@@ -255,6 +259,8 @@ public class OperatonProcessJsonSchemaDocumentService implements ProcessDocument
                 processName
             );
 
+            request.doAdditionalModifications(document);
+
             return new NewDocumentForRunningProcessResultSucceeded(
                 document,
                 processInstanceId
@@ -300,6 +306,9 @@ public class OperatonProcessJsonSchemaDocumentService implements ProcessDocument
                 UUID.fromString(document.id().toString()),
                 processInstanceWithDefinition.getProcessDefinition().getName()
             ));
+
+            request.doAdditionalModifications(document);
+
             return new ModifyDocumentAndStartProcessResultSucceeded(document, operatonProcessInstanceId);
         } catch (RuntimeException ex) {
             return new ModifyDocumentAndStartProcessResultFailed(parseAndLogException(ex));
@@ -339,6 +348,9 @@ public class OperatonProcessJsonSchemaDocumentService implements ProcessDocument
                 document.id().getId(),
                 processInstanceWithDefinition.getProcessDefinition().getName()
             ));
+
+            request.doAdditionalModifications(document);
+
             return new StartProcessForDocumentResultSucceeded(document, operatonProcessInstanceId);
         } catch (RuntimeException ex) {
             return new StartProcessForDocumentResultFailed(parseAndLogException(ex));

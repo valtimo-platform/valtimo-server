@@ -19,7 +19,7 @@ package com.ritense.processlink.service
 import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthorization
 import com.ritense.processlink.BaseIntegrationTest
 import com.ritense.processlink.domain.ActivityTypeWithEventName
-import com.ritense.processlink.domain.CustomProcessLinkCreateRequestDto
+import com.ritense.processlink.domain.TestProcessLinkCreateRequestDto
 import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
 import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionSpecificationHelper.Companion.byKey
 import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionSpecificationHelper.Companion.byLatestVersion
@@ -97,7 +97,7 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
 
     private fun createProcessLink(processDefinition: OperatonProcessDefinition) {
         processLinkService.createProcessLink(
-            CustomProcessLinkCreateRequestDto(
+            TestProcessLinkCreateRequestDto(
                 processDefinition.id,
                 SERVICE_TASK_ID,
                 ActivityTypeWithEventName.SERVICE_TASK_START

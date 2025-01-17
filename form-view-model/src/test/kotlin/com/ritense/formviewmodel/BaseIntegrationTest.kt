@@ -34,8 +34,8 @@ class BaseIntegrationTest : BaseTest() {
     @MockBean
     lateinit var validator: OnStartUpViewModelValidator
 
-    @MockBean
-    lateinit var operatonTaskService: OperatonTaskService
+    //@MockBean
+    //lateinit var operatonTaskService: OperatonTaskService
 
     @MockBean
     lateinit var keycloakService: KeycloakService

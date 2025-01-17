@@ -20,8 +20,9 @@ import com.ritense.valtimo.operaton.domain.OperatonTask
 
 interface ViewModel {
 
+    @Deprecated("Deprecated since 12.6.0", replaceWith = ReplaceWith("update(task, page)"))
     fun update(task: OperatonTask? = null): ViewModel {
-        return this
+        return update(task, null)
     }
 
     fun update(task: OperatonTask? = null, page: Int?): ViewModel {
