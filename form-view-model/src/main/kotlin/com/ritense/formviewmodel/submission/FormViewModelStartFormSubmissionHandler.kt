@@ -19,6 +19,7 @@ package com.ritense.formviewmodel.submission
 import com.ritense.formviewmodel.viewmodel.Submission
 import com.ritense.processlink.domain.ProcessLink
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
 
@@ -42,6 +43,13 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
      */
     fun supports(formName: String): Boolean = false
 
+    @Deprecated("since 12.6.0", replaceWith = ReplaceWith("handle(documentDefinitionName, processDefinitionKey, submission)"))
+    fun <T> handle(
+        documentDefinitionName: String,
+        processDefinitionKey: String,
+        submission: T
+    ): Unit = handle(documentDefinitionName, processDefinitionKey, submission, null)
+
      /**
      * Handles the form submission process for starting a process.
      * In order to start a process please dispatch StartProcessCommand.
@@ -60,14 +68,16 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
      * @param documentDefinitionName the name of the document definition
      * @param processDefinitionKey the key of the process definition
      * @param submission the submission to be handled
+     * @param documentId the id of the document, available if started from a supporting process
      * @param <T> the type of the submission
      * @see com.ritense.formviewmodel.commandhandling.StartProcessCommand}`
      */
     fun <T> handle(
-        documentDefinitionName: String,
-        processDefinitionKey: String,
-        submission: T
-    )
+         documentDefinitionName: String,
+         processDefinitionKey: String,
+         submission: T,
+         documentId: UUID? = null,
+    ): Unit = handle(documentDefinitionName, processDefinitionKey, submission)
 
     /**
      * Retrieves the type of the submission.

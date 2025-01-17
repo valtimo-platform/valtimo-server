@@ -17,6 +17,7 @@
 package com.ritense.formviewmodel.viewmodel
 
 import com.ritense.valtimo.camunda.domain.CamundaTask
+import java.util.UUID
 
 interface ViewModel {
 
@@ -25,7 +26,12 @@ interface ViewModel {
         return update(task, null)
     }
 
+    @Deprecated("Deprecated since 12.6.0", replaceWith = ReplaceWith("update(task, page, documentId)"))
     fun update(task: CamundaTask? = null, page: Int?): ViewModel {
+        return update(task, page, null)
+    }
+
+    fun update(task: CamundaTask? = null, page: Int?, documentId: UUID? = null): ViewModel {
         return this
     }
 

@@ -33,6 +33,7 @@ import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.service.CamundaTaskService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 import kotlin.reflect.KClass
 
 @Transactional
@@ -59,7 +60,8 @@ class FormViewModelSubmissionService(
     fun handleStartFormSubmission(
         processDefinitionKey: String,
         documentDefinitionName: String,
-        submission: ObjectNode
+        submission: ObjectNode,
+        documentId: UUID? = null,
     ) {
         processAuthorizationService.checkAuthorization(processDefinitionKey)
 
@@ -76,7 +78,8 @@ class FormViewModelSubmissionService(
             startFormSubmissionHandler.handle(
                 documentDefinitionName = documentDefinitionName,
                 processDefinitionKey = processDefinitionKey,
-                submission = submissionConverted
+                submission = submissionConverted,
+                documentId = documentId,
             )
         }
     }

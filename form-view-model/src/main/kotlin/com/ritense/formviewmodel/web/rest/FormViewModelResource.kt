@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
 @SkipComponentScan
@@ -42,10 +43,12 @@ class FormViewModelResource(
 
     @GetMapping("/start-form")
     fun getStartFormViewModel(
-        @RequestParam processDefinitionKey: String
+        @RequestParam processDefinitionKey: String,
+        @RequestParam(required = false) documentId: UUID?
     ): ResponseEntity<ViewModel?> {
         val viewModel = formViewModelService.getStartFormViewModel(
-            processDefinitionKey = processDefinitionKey
+            processDefinitionKey = processDefinitionKey,
+            documentId = documentId
         )
         return if (viewModel != null) {
             ResponseEntity.ok(viewModel)
@@ -69,12 +72,14 @@ class FormViewModelResource(
     fun updateStartFormViewModel(
         @RequestParam processDefinitionKey: String,
         @RequestParam(required = false) page: Int? = null,
+        @RequestParam(required = false) documentId: UUID? = null,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<ViewModel> {
         return formViewModelService.updateStartFormViewModel(
             processDefinitionKey = processDefinitionKey,
             submission = submission,
             page = page,
+            documentId = documentId,
         )?.let {
             ResponseEntity.ok(it)
         } ?: ResponseEntity.notFound().build()
@@ -111,12 +116,14 @@ class FormViewModelResource(
     fun submitStartForm(
         @RequestParam processDefinitionKey: String,
         @RequestParam documentDefinitionName: String,
+        @RequestParam(required = false) documentId: UUID?,
         @RequestBody submission: ObjectNode
     ): ResponseEntity<Void> {
         formViewModelSubmissionService.handleStartFormSubmission(
             processDefinitionKey = processDefinitionKey,
             documentDefinitionName = documentDefinitionName,
             submission = submission,
+            documentId = documentId,
         )
         return ResponseEntity.noContent().build()
     }

@@ -31,6 +31,7 @@ import com.ritense.valtimo.camunda.domain.CamundaTask
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.service.CamundaTaskService
 import org.springframework.stereotype.Service
+import java.util.UUID
 import kotlin.reflect.KClass
 
 @Service
@@ -51,14 +52,21 @@ class FormViewModelService(
     ) = getStartFormViewModel(processDefinitionKey)
 
     fun getStartFormViewModel(
-        processDefinitionKey: String
+        processDefinitionKey: String,
+    ): ViewModel? {
+        return getStartFormViewModel(processDefinitionKey, null)
+    }
+
+    fun getStartFormViewModel(
+        processDefinitionKey: String,
+        documentId: UUID?,
     ): ViewModel? {
         processAuthorizationService.checkAuthorization(processDefinitionKey)
 
         return runWithoutAuthorization {
             val processLink = getStartEventProcessLink(processDefinitionKey) ?: return@runWithoutAuthorization null
 
-            viewModelLoaderFactory.getViewModelLoader(processLink)?.load()
+            viewModelLoaderFactory.getViewModelLoader(processLink)?.load(null, documentId)
         }
     }
 
@@ -103,6 +111,7 @@ class FormViewModelService(
         processDefinitionKey: String,
         submission: ObjectNode,
         page: Int?,
+        documentId: UUID? = null,
     ): ViewModel? {
         processAuthorizationService.checkAuthorization(processDefinitionKey)
 
@@ -112,11 +121,7 @@ class FormViewModelService(
             val viewModelLoader = viewModelLoaderFactory.getViewModelLoader(processLink) ?: return@runWithoutAuthorization null
             val viewModelType = viewModelLoader.getViewModelType()
 
-            if (page != null) {
-                parseViewModel(submission, viewModelType).update(page = page)
-            } else {
-                parseViewModel(submission, viewModelType).update()
-            }
+            parseViewModel(submission, viewModelType).update(page = page, documentId = documentId)
         }
     }
 
