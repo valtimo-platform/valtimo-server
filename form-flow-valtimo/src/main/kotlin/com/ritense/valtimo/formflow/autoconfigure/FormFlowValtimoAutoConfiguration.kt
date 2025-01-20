@@ -25,7 +25,7 @@ import com.ritense.formflow.service.FormFlowService
 import com.ritense.outbox.OutboxService
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.processlink.service.ProcessLinkActivityHandler
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.formflow.FormFlowProcessLinkActivityHandler
 import com.ritense.valtimo.formflow.FormFlowTaskOpenResultProperties
 import com.ritense.valtimo.formflow.common.ValtimoFormFlow
@@ -42,9 +42,9 @@ import com.ritense.valtimo.formflow.service.FormFlowValtimoService
 import com.ritense.valtimo.formflow.web.rest.FormFlowManagementResource
 import com.ritense.valtimo.formflow.web.rest.FormFlowResource
 import com.ritense.valtimo.formflow.web.rest.ProcessLinkFormFlowDefinitionResource
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import com.ritense.valueresolver.ValueResolverService
-import org.camunda.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.RuntimeService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -63,7 +63,7 @@ class FormFlowValtimoAutoConfiguration {
     @Bean
     fun formFlowProcessLinkTaskProvider(
         formFlowService: FormFlowService,
-        repositoryService: CamundaRepositoryService,
+        repositoryService: OperatonRepositoryService,
         documentService: DocumentService,
         runtimeService: RuntimeService,
     ): ProcessLinkActivityHandler<FormFlowTaskOpenResultProperties> {
@@ -134,7 +134,7 @@ class FormFlowValtimoAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(ValtimoFormFlow::class)
     fun valtimoFormFlow(
-        taskService: CamundaTaskService,
+        taskService: OperatonTaskService,
         objectMapper: ObjectMapper,
         valueResolverService: ValueResolverService,
         formFlowService: FormFlowService,

@@ -47,7 +47,7 @@ import com.ritense.valtimo.contract.validation.Url
 import com.ritense.zgw.domain.Vertrouwelijkheid
 import jakarta.validation.ValidationException
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.hibernate.validator.constraints.Length
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page

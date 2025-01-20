@@ -64,7 +64,7 @@ import com.ritense.zgw.Page
 import com.ritense.zgw.Rsin
 import mu.KLogger
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import java.net.URI

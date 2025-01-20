@@ -28,8 +28,8 @@ import com.ritense.document.domain.impl.request.NewDocumentRequest;
 import com.ritense.document.domain.relation.DocumentRelationType;
 import com.ritense.processdocument.domain.ProcessDefinitionKey;
 import com.ritense.processdocument.domain.ProcessInstanceId;
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey;
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey;
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId;
 import com.ritense.processdocument.domain.impl.event.NextJsonSchemaDocumentRelationAvailableEvent;
 import com.ritense.processdocument.domain.impl.request.NewDocumentForRunningProcessRequest;
 import com.ritense.processdocument.domain.listener.StartEventListener;
@@ -37,18 +37,14 @@ import com.ritense.processdocument.service.ProcessDocumentAssociationService;
 import com.ritense.processdocument.service.ProcessDocumentService;
 import java.io.IOException;
 import java.util.UUID;
-import org.camunda.bpm.engine.ActivityTypes;
-import org.camunda.bpm.engine.delegate.DelegateExecution;
-import org.camunda.bpm.engine.delegate.ExecutionListener;
-import org.camunda.bpm.engine.variable.value.StringValue;
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector;
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.variable.value.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
 
-@CamundaSelector(type = ActivityTypes.START_EVENT, event = ExecutionListener.EVENTNAME_START)
-public class StartEventListenerImpl extends ReactorExecutionListener implements StartEventListener {
+public class StartEventListenerImpl implements StartEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(StartEventListenerImpl.class);
     private final ProcessDocumentService processDocumentService;
@@ -68,14 +64,16 @@ public class StartEventListenerImpl extends ReactorExecutionListener implements 
         this.objectMapper = objectMapper;
     }
 
-    @Override
+    @EventListener(condition = "#execution.bpmnModelElementInstance.elementType.typeName == T(org.operaton.bpm.engine.ActivityTypes).START_EVENT " +
+        "&& #execution.eventName == T(org.operaton.bpm.engine.delegate.ExecutionListener).EVENTNAME_START")
     public void notify(DelegateExecution execution) {
+
         if (execution.hasVariable(SOURCE_PROCESS_INSTANCE_ID)) {
             logger.info("Start event listener with source relation");
-            final var sourceProcessInstanceId = new CamundaProcessInstanceId(getStringValue(execution, SOURCE_PROCESS_INSTANCE_ID));
+            final var sourceProcessInstanceId = new OperatonProcessInstanceId(getStringValue(execution, SOURCE_PROCESS_INSTANCE_ID));
             final var documentRelationType = (DocumentRelationType) execution.getVariable(RELATION_TYPE);
-            final var processDefinitionKey = ProcessDefinitionKey.fromExecution(execution, CamundaProcessDefinitionKey.class);
-            final var processInstanceId = ProcessInstanceId.fromExecution(execution, CamundaProcessInstanceId.class);
+            final var processDefinitionKey = ProcessDefinitionKey.fromExecution(execution, OperatonProcessDefinitionKey.class);
+            final var processInstanceId = ProcessInstanceId.fromExecution(execution, OperatonProcessInstanceId.class);
 
             AuthorizationContext.runWithoutAuthorization(() -> {
                 final var documentDefinitionId = processDocumentAssociationService.findProcessDocumentDefinition(
@@ -95,7 +93,8 @@ public class StartEventListenerImpl extends ReactorExecutionListener implements 
                         var newDocumentRequest = new NewDocumentRequest(
                             documentDefinitionId.name(),
                             jsonData
-                        ).withDocumentRelation(new DocumentRelationRequest(UUID.fromString(sourceDocumentId.toString()),
+                        ).withDocumentRelation(new DocumentRelationRequest(
+                            UUID.fromString(sourceDocumentId.toString()),
                             documentRelationType
                         ));
 

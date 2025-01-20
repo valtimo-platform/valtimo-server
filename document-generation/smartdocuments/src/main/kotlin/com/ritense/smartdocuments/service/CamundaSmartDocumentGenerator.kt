@@ -21,14 +21,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.authorization.AuthorizationContext
 import com.ritense.document.domain.Document
 import com.ritense.document.service.DocumentService
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.smartdocuments.domain.DocumentFormatOption
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperties
 
 @Deprecated("Since 12.0.0")
-class CamundaSmartDocumentGenerator(
+class OperatonSmartDocumentGenerator(
     private val smartDocumentGenerator: SmartDocumentGenerator,
     private val processDocumentAssociationService: ProcessDocumentAssociationService,
     private val documentService: DocumentService,
@@ -43,7 +43,7 @@ class CamundaSmartDocumentGenerator(
     }
 
     private fun getDocument(delegateExecution: DelegateExecution): Document {
-        val processInstanceId = CamundaProcessInstanceId(delegateExecution.processInstanceId)
+        val processInstanceId = OperatonProcessInstanceId(delegateExecution.processInstanceId)
         val processDocumentInstance = processDocumentAssociationService.findProcessDocumentInstance(processInstanceId)
         return if (processDocumentInstance.isPresent) {
             val jsonSchemaDocumentId = processDocumentInstance.get().processDocumentInstanceId().documentId()
@@ -64,11 +64,11 @@ class CamundaSmartDocumentGenerator(
             .bpmnModelElementInstance
             .extensionElements
             .elementsQuery
-            .filterByType(CamundaProperties::class.java)
+            .filterByType(OperatonProperties::class.java)
             .singleResult()
-            .camundaProperties
-            .filter { it.camundaName != null && it.camundaValue != null }
-            .associate { it.camundaName!! to getPlaceholderValue(it.camundaValue, execution, document) }
+            .operatonProperties
+            .filter { it.operatonName != null && it.operatonValue != null }
+            .associate { it.operatonName!! to getPlaceholderValue(it.operatonValue, execution, document) }
     }
 
     private fun getPlaceholderValue(value: String, execution: DelegateExecution, document: Document): Any {

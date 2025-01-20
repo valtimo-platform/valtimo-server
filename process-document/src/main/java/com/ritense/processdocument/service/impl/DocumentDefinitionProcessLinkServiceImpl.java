@@ -24,7 +24,7 @@ import com.ritense.processdocument.domain.impl.request.DocumentDefinitionProcess
 import com.ritense.processdocument.domain.impl.request.DocumentDefinitionProcessRequest;
 import com.ritense.processdocument.repository.DocumentDefinitionProcessLinkRepository;
 import com.ritense.processdocument.service.DocumentDefinitionProcessLinkService;
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService;
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentDefinitionProcessLinkServiceImpl implements DocumentDefinitionProcessLinkService {
 
     private final DocumentDefinitionProcessLinkRepository documentDefinitionProcessLinkRepository;
-    private final CamundaRepositoryService repositoryService;
+    private final OperatonRepositoryService repositoryService;
 
     public DocumentDefinitionProcessLinkServiceImpl(
         DocumentDefinitionProcessLinkRepository repo,
-        CamundaRepositoryService repositoryService
+        OperatonRepositoryService repositoryService
     ) {
         this.documentDefinitionProcessLinkRepository = repo;
         this.repositoryService = repositoryService;

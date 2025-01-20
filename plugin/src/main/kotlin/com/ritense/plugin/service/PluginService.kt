@@ -59,8 +59,8 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.validation.ValidationException
 import jakarta.validation.Validator
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateTask
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.env.Environment
 import org.springframework.data.repository.findByIdOrNull
@@ -315,7 +315,7 @@ class PluginService(
 
     @Deprecated("Marked for removal since 10.6.0", ReplaceWith("processLinkService.getProcessLinks(i,j)"))
     fun getProcessLinks(
-        @LoggableResource("com.ritense.valtimo.camunda.domain.CamundaProcessDefinition") processDefinitionId: String,
+        @LoggableResource("com.ritense.valtimo.operaton.domain.OperatonProcessDefinition") processDefinitionId: String,
         activityId: String
     ): List<PluginProcessLinkResultDto> {
         return pluginProcessLinkRepository.findByProcessDefinitionIdAndActivityId(processDefinitionId, activityId)
@@ -471,7 +471,7 @@ class PluginService(
         task: DelegateTask,
         actionProperties: ObjectNode?
     ): Array<Any?> {
-        return withLoggingContext("com.ritense.valtimo.camunda.domain.CamundaTask", task.id) {
+        return withLoggingContext("com.ritense.valtimo.operaton.domain.OperatonTask", task.id) {
 
             val actionParamValueMap = resolveActionParamValues(task, method, actionProperties)
 
@@ -526,7 +526,7 @@ class PluginService(
         method: Method,
         actionProperties: ObjectNode?
     ): Map<Parameter, Any> {
-        return withLoggingContext("com.ritense.valtimo.camunda.domain.CamundaTask", task.id) {
+        return withLoggingContext("com.ritense.valtimo.operaton.domain.OperatonTask", task.id) {
 
             if (actionProperties == null) {
                 return@withLoggingContext mapOf()

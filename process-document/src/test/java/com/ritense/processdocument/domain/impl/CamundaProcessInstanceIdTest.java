@@ -23,11 +23,11 @@ import static org.mockito.Mockito.when;
 
 import com.ritense.processdocument.domain.ProcessInstanceId;
 import java.util.UUID;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
+import org.operaton.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CamundaProcessInstanceIdTest {
+public class OperatonProcessInstanceIdTest {
 
     private static final String PROCESS_INSTANCE_ID = UUID.randomUUID().toString();
     private ExecutionEntity execution;
@@ -40,9 +40,9 @@ public class CamundaProcessInstanceIdTest {
 
     @Test
     public void shouldConstructFromExecution() {
-        final CamundaProcessInstanceId camundaProcessInstanceId = ProcessInstanceId.fromExecution(execution, CamundaProcessInstanceId.class);
-        assertThat(camundaProcessInstanceId).isNotNull();
-        assertThat(camundaProcessInstanceId.toString()).isEqualTo(PROCESS_INSTANCE_ID);
+        final OperatonProcessInstanceId operatonProcessInstanceId = ProcessInstanceId.fromExecution(execution, OperatonProcessInstanceId.class);
+        assertThat(operatonProcessInstanceId).isNotNull();
+        assertThat(operatonProcessInstanceId.toString()).isEqualTo(PROCESS_INSTANCE_ID);
     }
 
 }

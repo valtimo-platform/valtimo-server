@@ -24,24 +24,24 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.service.DocumentService
 import com.ritense.valtimo.contract.authentication.UserManagementService
 import mu.KotlinLogging
-import org.camunda.bpm.engine.ActivityTypes
-import org.camunda.bpm.engine.TaskService
-import org.camunda.bpm.engine.delegate.DelegateTask
-import org.camunda.bpm.engine.delegate.TaskListener
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener
+import org.operaton.bpm.engine.TaskService
+import org.operaton.bpm.engine.delegate.DelegateTask
+import org.springframework.context.event.EventListener
 import java.util.UUID
 import kotlin.jvm.optionals.getOrNull
 
-@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_CREATE)
 open class CaseAssigneeTaskCreatedListener(
     private val taskService: TaskService,
     private val documentService: DocumentService,
     private val caseDefinitionService: CaseDefinitionService,
     private val userManagementService: UserManagementService
-) : ReactorTaskListener() {
+) {
 
-    override fun notify(delegateTask: DelegateTask) {
+    @EventListener(
+        condition = "#delegateTask.bpmnModelElementInstance.elementType.typeName == T(org.operaton.bpm.engine.ActivityTypes).TASK_USER_TASK " +
+            "&& #delegateTask.eventName == T(org.operaton.bpm.engine.delegate.TaskListener).EVENTNAME_CREATE"
+    )
+    fun notify(delegateTask: DelegateTask) {
         val documentId = JsonSchemaDocumentId.existingId(UUID.fromString(delegateTask.execution.businessKey))
         val document: Document? = runWithoutAuthorization {
             documentService.findBy(documentId).getOrNull()

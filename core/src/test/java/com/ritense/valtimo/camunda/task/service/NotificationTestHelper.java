@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.task.service;
+package com.ritense.valtimo.operaton.task.service;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.ritense.valtimo.contract.authentication.ManageableUser;
 import com.ritense.valtimo.contract.authentication.model.ValtimoUserBuilder;
 import java.util.List;
 import java.util.Map;
-import org.camunda.community.mockito.delegate.DelegateExecutionFake;
-import org.camunda.community.mockito.delegate.DelegateTaskFake;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.delegate.DelegateTask;
 
 public class NotificationTestHelper {
 
@@ -41,16 +44,20 @@ public class NotificationTestHelper {
             .roles(role).build();
     }
 
-    public static DelegateTaskFake mockTask(String id) {
-        DelegateExecutionFake execution = new DelegateExecutionFake(id)
-            .withProcessBusinessKey("businessKey")
-            .withVariables(Map.of("executionVariables", "variables"));
+    public static DelegateTask mockTask(String id) {
+        DelegateExecution delegateExecution = mock(DelegateExecution.class);
+        when(delegateExecution.getId()).thenReturn(id);
+        when(delegateExecution.getProcessBusinessKey()).thenReturn("businessKey");
+        when(delegateExecution.getVariables()).thenReturn(Map.of("executionVariables", "variables"));
 
-        return new DelegateTaskFake(id)
-            .withExecution(execution)
-            .withVariables(Map.of("variables", "variables"))
-            .withName("taskName")
-            .withAssignee("AAAA-1111");
+        DelegateTask delegateTask = mock(DelegateTask.class);
+        when(delegateTask.getId()).thenReturn(id);
+        when(delegateTask.getExecution()).thenReturn(delegateExecution);
+        when(delegateTask.getVariables()).thenReturn(Map.of("variables", "variables"));
+        when(delegateTask.getName()).thenReturn("taskName");
+        when(delegateTask.getAssignee()).thenReturn("AAAA-1111");
+
+        return delegateTask;
     }
 
 }

@@ -26,7 +26,7 @@ import com.ritense.resource.service.TemporaryResourceStorageService
 import com.ritense.smartdocuments.client.SmartDocumentsClient
 import com.ritense.smartdocuments.connector.SmartDocumentsConnector
 import com.ritense.smartdocuments.connector.SmartDocumentsConnectorProperties
-import com.ritense.smartdocuments.service.CamundaSmartDocumentGenerator
+import com.ritense.smartdocuments.service.OperatonSmartDocumentGenerator
 import com.ritense.smartdocuments.service.SmartDocumentGenerator
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.beans.factory.config.BeanDefinition
@@ -43,14 +43,14 @@ class SmartDocumentsAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(SmartDocumentGenerator::class)
-    @ConditionalOnMissingBean(CamundaSmartDocumentGenerator::class)
-    fun camundaSmartDocumentGenerator(
+    @ConditionalOnMissingBean(OperatonSmartDocumentGenerator::class)
+    fun operatonSmartDocumentGenerator(
         smartDocumentGenerator: SmartDocumentGenerator,
         processDocumentAssociationService: ProcessDocumentAssociationService,
         documentService: DocumentService,
         objectMapper: ObjectMapper,
-    ): CamundaSmartDocumentGenerator {
-        return CamundaSmartDocumentGenerator(
+    ): OperatonSmartDocumentGenerator {
+        return OperatonSmartDocumentGenerator(
             smartDocumentGenerator,
             processDocumentAssociationService,
             documentService,

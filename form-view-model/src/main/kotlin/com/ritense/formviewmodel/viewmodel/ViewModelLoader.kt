@@ -17,7 +17,7 @@
 package com.ritense.formviewmodel.viewmodel
 
 import com.ritense.processlink.domain.ProcessLink
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
@@ -25,7 +25,7 @@ import kotlin.reflect.full.allSupertypes
 @Transactional
 interface ViewModelLoader<T : ViewModel> {
 
-    fun load(task: CamundaTask? = null): T
+    fun load(task: OperatonTask? = null): T
 
     fun supports(processLink: ProcessLink): Boolean
 

@@ -39,19 +39,18 @@ import com.ritense.processdocument.service.DocumentDefinitionProcessLinkService;
 import com.ritense.processdocument.service.ProcessDocumentAssociationService;
 import com.ritense.processdocument.service.ProcessDocumentDeploymentService;
 import com.ritense.processdocument.service.ProcessDocumentService;
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentAssociationService;
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentDeploymentService;
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentService;
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentAssociationService;
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentDeploymentService;
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentService;
 import com.ritense.processdocument.service.impl.DocumentDefinitionProcessLinkServiceImpl;
 import com.ritense.processdocument.web.rest.ProcessDocumentResource;
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService;
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
-import com.ritense.valtimo.service.CamundaProcessService;
-import com.ritense.valtimo.service.CamundaTaskService;
+import com.ritense.valtimo.service.OperatonProcessService;
+import com.ritense.valtimo.service.OperatonTaskService;
 import com.ritense.valueresolver.ValueResolverFactory;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.extension.reactor.spring.EnableCamundaEventBus;
+import org.operaton.bpm.engine.HistoryService;
+import org.operaton.bpm.engine.RuntimeService;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -63,22 +62,21 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @AutoConfiguration
 @EnableJpaRepositories(basePackages = "com.ritense.processdocument.repository")
 @EntityScan("com.ritense.processdocument.domain")
-@EnableCamundaEventBus
 public class ProcessDocumentAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ProcessDocumentService.class)
-    public CamundaProcessJsonSchemaDocumentService processDocumentService(
+    public OperatonProcessJsonSchemaDocumentService processDocumentService(
         JsonSchemaDocumentService documentService,
-        CamundaTaskService camundaTaskService,
-        CamundaProcessService camundaProcessService,
+        OperatonTaskService operatonTaskService,
+        OperatonProcessService operatonProcessService,
         ProcessDocumentAssociationService processDocumentAssociationService,
         AuthorizationService authorizationService
     ) {
-        return new CamundaProcessJsonSchemaDocumentService(
+        return new OperatonProcessJsonSchemaDocumentService(
             documentService,
-            camundaTaskService,
-            camundaProcessService,
+            operatonTaskService,
+            operatonProcessService,
             processDocumentAssociationService,
             authorizationService
         );
@@ -86,19 +84,19 @@ public class ProcessDocumentAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(ProcessDocumentAssociationService.class)
-    public CamundaProcessJsonSchemaDocumentAssociationService processDocumentAssociationService(
+    public OperatonProcessJsonSchemaDocumentAssociationService processDocumentAssociationService(
         ProcessDocumentDefinitionRepository processDocumentDefinitionRepository,
         ProcessDocumentInstanceRepository processDocumentInstanceRepository,
         DocumentDefinitionRepository documentDefinitionRepository,
         DocumentDefinitionService documentDefinitionService,
-        CamundaRepositoryService repositoryService,
+        OperatonRepositoryService repositoryService,
         RuntimeService runtimeService,
         HistoryService historyService,
         AuthorizationService authorizationService,
         DocumentService documentService,
         UserManagementService userManagementService
     ) {
-        return new CamundaProcessJsonSchemaDocumentAssociationService(
+        return new OperatonProcessJsonSchemaDocumentAssociationService(
             processDocumentDefinitionRepository,
             processDocumentInstanceRepository,
             documentDefinitionRepository,
@@ -154,11 +152,11 @@ public class ProcessDocumentAutoConfiguration {
     @ConditionalOnMissingBean(UndeployDocumentDefinitionEventListener.class)
     public UndeployDocumentDefinitionEventListener undeployDocumentDefinitionEventListener(
         ProcessDocumentAssociationService processDocumentAssociationService,
-        CamundaProcessService camundaProcessService
+        OperatonProcessService operatonProcessService
     ) {
         return new UndeployDocumentDefinitionEventListener(
             processDocumentAssociationService,
-            camundaProcessService
+            operatonProcessService
         );
     }
 
@@ -180,7 +178,7 @@ public class ProcessDocumentAutoConfiguration {
             DocumentDefinitionService documentDefinitionService,
             ObjectMapper objectMapper
     ) {
-        return new CamundaProcessJsonSchemaDocumentDeploymentService(
+        return new OperatonProcessJsonSchemaDocumentDeploymentService(
             resourceLoader,
             processDocumentAssociationService,
             documentDefinitionService,
@@ -217,7 +215,7 @@ public class ProcessDocumentAutoConfiguration {
     @ConditionalOnMissingBean(DocumentDefinitionProcessLinkService.class)
     public DocumentDefinitionProcessLinkService documentDefinitionProcessLinkService(
         DocumentDefinitionProcessLinkRepository documentDefinitionProcessLinkRepository,
-        CamundaRepositoryService repositoryService
+        OperatonRepositoryService repositoryService
     ) {
         return new DocumentDefinitionProcessLinkServiceImpl(documentDefinitionProcessLinkRepository, repositoryService);
     }

@@ -28,25 +28,25 @@ import com.ritense.objectsapi.opennotificaties.OpenNotificatieService
 import com.ritense.objectsapi.opennotificaties.OpenNotificationEvent
 import com.ritense.openzaak.service.ZaakService
 import com.ritense.processdocument.domain.ProcessInstanceId
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.resource.service.OpenZaakService
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.service.BpmnModelService
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import com.ritense.valueresolver.ValueResolverService
 import jakarta.persistence.EntityNotFoundException
+import mu.KotlinLogging
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperties
+import org.springframework.context.event.EventListener
 import java.net.MalformedURLException
 import java.net.URI
-import mu.KotlinLogging
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.delegate.VariableScope
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
-import org.springframework.context.event.EventListener
 
 class TaakObjectListener(
     private val openNotificatieService: OpenNotificatieService,
-    private val camundaTaskService: CamundaTaskService,
+    private val operatonTaskService: OperatonTaskService,
     private val valueResolverService: ValueResolverService,
     private val bpmnModelService: BpmnModelService,
     private val runtimeService: RuntimeService,
@@ -90,16 +90,16 @@ class TaakObjectListener(
     }
 
     private fun saveDataAndCompleteTask(taakObject: TaakObjectDto) {
-        val task = camundaTaskService.findTaskById(taakObject.verwerkerTaakId.toString())
+        val task = operatonTaskService.findTaskById(taakObject.verwerkerTaakId.toString())
         if (!taakObject.verzondenData.isNullOrEmpty()) {
-            val processInstanceId = CamundaProcessInstanceId(task.getProcessInstanceId())
+            val processInstanceId = OperatonProcessInstanceId(task.getProcessInstanceId())
             val variableScope = getVariableScope(task)
             val taakObjectData = objectMapper.valueToTree<JsonNode>(taakObject.verzondenData)
             val resolvedValues = getResolvedValues(task, taakObjectData)
             loadTaakObjectDocuments(processInstanceId, variableScope, taakObjectData)
             handleTaakObjectData(processInstanceId, variableScope, resolvedValues)
         }
-        camundaTaskService.complete(taakObject.verwerkerTaakId.toString())
+        operatonTaskService.complete(taakObject.verwerkerTaakId.toString())
     }
 
     private fun loadTaakObjectDocuments(
@@ -161,28 +161,28 @@ class TaakObjectListener(
      * @param data {"persoonsData":{"adres":{"straatnaam":"Funenpark"}}}
      * @return mapOf(doc:add:/streetName to "Funenpark")
      */
-    private fun getResolvedValues(task: CamundaTask, data: JsonNode): Map<String, Any> {
+    private fun getResolvedValues(task: OperatonTask, data: JsonNode): Map<String, Any> {
         return bpmnModelService.getTask(task).extensionElements.elements
-            .filterIsInstance<CamundaProperties>()
+            .filterIsInstance<OperatonProperties>()
             .single()
-            .camundaProperties
-            .filter { it.camundaName != null && it.camundaValue != null }
-            .filter { it.camundaName.startsWith(prefix = "taskResult:", ignoreCase = true) }
+            .operatonProperties
+            .filter { it.operatonName != null && it.operatonValue != null }
+            .filter { it.operatonName.startsWith(prefix = "taskResult:", ignoreCase = true) }
             .associateBy(
-                { it.camundaName.substringAfter(delimiter = ":") },
-                { getValue(data, it.camundaValue, it.camundaName, task) }
+                { it.operatonName.substringAfter(delimiter = ":") },
+                { getValue(data, it.operatonValue, it.operatonName, task) }
             )
     }
 
-    private fun getValue(data: JsonNode, path: String, camundaName: String, task: CamundaTask): Any {
+    private fun getValue(data: JsonNode, path: String, operatonName: String, task: OperatonTask): Any {
         val valueNode = data.at(JsonPointer.valueOf(path))
         if (valueNode.isMissingNode) {
-            throw RuntimeException("Failed to do '$camundaName' for task '${task.taskDefinitionKey}'. Missing data on path '$path'")
+            throw RuntimeException("Failed to do '$operatonName' for task '${task.taskDefinitionKey}'. Missing data on path '$path'")
         }
         return objectMapper.treeToValue(valueNode, Object::class.java)
     }
 
-    private fun getVariableScope(task: CamundaTask): VariableScope {
+    private fun getVariableScope(task: OperatonTask): VariableScope {
         return runtimeService.createProcessInstanceQuery()
             .processInstanceId(task.getProcessInstanceId())
             .singleResult() as VariableScope

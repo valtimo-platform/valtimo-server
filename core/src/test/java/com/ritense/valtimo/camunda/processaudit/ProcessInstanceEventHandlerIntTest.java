@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.processaudit;
+package com.ritense.valtimo.operaton.processaudit;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import com.ritense.valtimo.BaseIntegrationTest;
 import com.ritense.valtimo.contract.audit.AuditEvent;
-import org.camunda.bpm.engine.RuntimeService;
+import com.ritense.valtimo.operaton.processaudit.ProcessEndedEvent;
+import com.ritense.valtimo.operaton.processaudit.ProcessStartedEvent;
+import org.operaton.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;

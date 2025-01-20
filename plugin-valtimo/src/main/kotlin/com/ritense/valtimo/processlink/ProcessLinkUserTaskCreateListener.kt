@@ -20,29 +20,31 @@ import com.ritense.logging.withLoggingContext
 import com.ritense.plugin.repository.PluginProcessLinkRepository
 import com.ritense.plugin.service.PluginService
 import com.ritense.processlink.domain.ActivityTypeWithEventName
-import org.camunda.bpm.engine.ActivityTypes
-import org.camunda.bpm.engine.delegate.DelegateTask
-import org.camunda.bpm.engine.delegate.TaskListener
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorTaskListener
+import com.ritense.valtimo.contract.annotation.AllOpen
+import org.operaton.bpm.engine.delegate.DelegateTask
+import org.springframework.context.event.EventListener
 import org.springframework.transaction.annotation.Transactional
 
-@CamundaSelector(type = ActivityTypes.TASK_USER_TASK, event = TaskListener.EVENTNAME_CREATE)
+@AllOpen
 open class ProcessLinkUserTaskCreateListener(
     private val pluginProcessLinkRepository: PluginProcessLinkRepository,
     private val pluginService: PluginService,
-) : ReactorTaskListener() {
+) {
 
     @Transactional
-    override fun notify(task: DelegateTask) {
-        withLoggingContext("com.ritense.document.domain.impl.JsonSchemaDocument", task.execution.processBusinessKey) {
+    @EventListener(condition="#taskDelegate.eventName=='create'")
+    fun notify(taskDelegate: DelegateTask) {
+        if (taskDelegate.bpmnModelElementInstance == null) {
+            return
+        }
+        withLoggingContext("com.ritense.document.domain.impl.JsonSchemaDocument", taskDelegate.execution.processBusinessKey) {
             val pluginProcessLinks = pluginProcessLinkRepository.findByProcessDefinitionIdAndActivityIdAndActivityType(
-                task.processDefinitionId,
-                task.execution.currentActivityId,
+                taskDelegate.processDefinitionId,
+                taskDelegate.execution.currentActivityId,
                 ActivityTypeWithEventName.USER_TASK_CREATE
             )
             pluginProcessLinks.forEach { pluginProcessLink ->
-                pluginService.invoke(task, pluginProcessLink)
+                pluginService.invoke(taskDelegate, pluginProcessLink)
             }
         }
     }

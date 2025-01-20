@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.valtimo.BaseIntegrationTest;
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition;
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition;
 import com.ritense.valtimo.exception.FileExtensionNotSupportedException;
 import com.ritense.valtimo.exception.NoFileExtensionFoundException;
 import com.ritense.valtimo.exception.ProcessNotDeployableException;
@@ -30,11 +30,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.repository.DecisionDefinition;
-import org.camunda.bpm.model.bpmn.Bpmn;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.Process;
+import org.operaton.bpm.engine.RepositoryService;
+import org.operaton.bpm.engine.repository.DecisionDefinition;
+import org.operaton.bpm.model.bpmn.Bpmn;
+import org.operaton.bpm.model.bpmn.BpmnModelInstance;
+import org.operaton.bpm.model.bpmn.instance.Process;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-class CamundaProcessServiceIntTest extends BaseIntegrationTest {
+class OperatonProcessServiceIntTest extends BaseIntegrationTest {
 
     @Value("classpath:examples/bpmn/*.xml")
     Resource[] bpmn;
@@ -58,15 +58,15 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
     private RepositoryService repositoryService;
 
     @Autowired
-    private CamundaProcessService camundaProcessService;
+    private OperatonProcessService operatonProcessService;
 
     @Test
     void shouldDeployNewProcess() throws IOException {
         var latestDeploymentId = findLatestProcessDefinitionDeployedProcess("deployedProcess")
-            .map(CamundaProcessDefinition::getDeploymentId);
+            .map(OperatonProcessDefinition::getDeploymentId);
         List<Resource> processes = List.of(bpmn);
         AuthorizationContext.runWithoutAuthorization(() -> {
-            camundaProcessService.deploy(
+            operatonProcessService.deploy(
                 "aProcessName.bpmn",
                 new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "shouldDeploy.xml"))
                     .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
@@ -90,9 +90,9 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
     }
 
     @NotNull
-    private Optional<CamundaProcessDefinition> findLatestProcessDefinitionDeployedProcess(String processName) {
+    private Optional<OperatonProcessDefinition> findLatestProcessDefinitionDeployedProcess(String processName) {
         return AuthorizationContext
-            .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions())
+            .runWithoutAuthorization(() -> operatonProcessService.getDeployedDefinitions())
             .stream()
             .filter(processDefinition -> processDefinition.getKey().equals(processName))
             .findFirst();
@@ -102,7 +102,7 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
     void shouldDeployNewDmn() {
         List<Resource> tables = List.of(dmn);
         AuthorizationContext.runWithoutAuthorization(() -> {
-            camundaProcessService.deploy(
+            operatonProcessService.deploy(
                 "aDmnName.dmn",
                 new ByteArrayInputStream(tables.stream().filter(table -> Objects.equals(table.getFilename(), "sampleDecisionTable.xml"))
                     .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
@@ -119,7 +119,7 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
         String textFileName = "aTextFile.txt";
         Assertions.assertThrows(FileExtensionNotSupportedException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
+                operatonProcessService.deploy(
                         textFileName,
                         new ByteArrayInputStream(testFiles.stream().filter(testFile -> Objects.equals(testFile.getFilename(), "sampleTextFile.txt"))
                                 .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
@@ -128,8 +128,8 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
             }
         ));
         List<DecisionDefinition> dmnDefinitions = repositoryService.createDecisionDefinitionQuery().list();
-        List<CamundaProcessDefinition> bpmnDefinitions = AuthorizationContext
-                .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
+        List<OperatonProcessDefinition> bpmnDefinitions = AuthorizationContext
+                .runWithoutAuthorization(() -> operatonProcessService.getDeployedDefinitions());
         Assertions.assertFalse(dmnDefinitions.stream().anyMatch(dmnDefinition -> dmnDefinition.getResourceName().equals(textFileName)));
         Assertions.assertFalse(bpmnDefinitions.stream().anyMatch(bpmnDefinition -> bpmnDefinition.getResourceName().equals(textFileName)));
     }
@@ -140,7 +140,7 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
         String sampleFileName = "aFileName";
         Assertions.assertThrows(NoFileExtensionFoundException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
+                operatonProcessService.deploy(
                         sampleFileName,
                         new ByteArrayInputStream(testFiles.stream().filter(testFile -> Objects.equals(testFile.getFilename(), "sampleTestFile"))
                                 .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes())
@@ -149,8 +149,8 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
                 }
             ));
         List<DecisionDefinition> dmnDefinitions = repositoryService.createDecisionDefinitionQuery().list();
-        List<CamundaProcessDefinition> bpmnDefinitions = AuthorizationContext
-                .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
+        List<OperatonProcessDefinition> bpmnDefinitions = AuthorizationContext
+                .runWithoutAuthorization(() -> operatonProcessService.getDeployedDefinitions());
         Assertions.assertFalse(dmnDefinitions.stream().anyMatch(dmnDefinition -> dmnDefinition.getResourceName().equals(sampleFileName)));
         Assertions.assertFalse(bpmnDefinitions.stream().anyMatch(bpmnDefinition -> bpmnDefinition.getResourceName().equals(sampleFileName)));
     }
@@ -160,15 +160,15 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
         List<Resource> processes = List.of(bpmn);
         Assertions.assertThrows(ProcessNotDeployableException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
+                operatonProcessService.deploy(
                     "aProcessName.bpmn",
                     new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "shouldNotDeploy.xml"))
                         .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes()));
                 return null;
             }
         ));
-        List<CamundaProcessDefinition> definitions = AuthorizationContext
-            .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
+        List<OperatonProcessDefinition> definitions = AuthorizationContext
+            .runWithoutAuthorization(() -> operatonProcessService.getDeployedDefinitions());
         Assertions.assertFalse(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("firstProcess")));
         Assertions.assertFalse(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
     }
@@ -179,13 +179,13 @@ class CamundaProcessServiceIntTest extends BaseIntegrationTest {
         var systemProcessModel = Bpmn.readModelFromStream(new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "systemProcess.xml"))
                 .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes()));
         repositoryService.createDeployment().addModelInstance("systemProcess.bpmn", systemProcessModel).deploy();
-        List<CamundaProcessDefinition> definitions = AuthorizationContext
-            .runWithoutAuthorization(() -> camundaProcessService.getDeployedDefinitions());
+        List<OperatonProcessDefinition> definitions = AuthorizationContext
+            .runWithoutAuthorization(() -> operatonProcessService.getDeployedDefinitions());
         Assertions.assertTrue(definitions.stream().anyMatch(processDefinition -> processDefinition.getKey().equals("secondProcess")));
 
         Assertions.assertThrows(ProcessNotDeployableException.class,
             () -> AuthorizationContext.runWithoutAuthorization(() -> {
-                camundaProcessService.deploy(
+                operatonProcessService.deploy(
                     "aProcessName.bpmn",
                     new ByteArrayInputStream(processes.stream().filter(process -> Objects.equals(process.getFilename(), "shouldNotDeploy.xml"))
                         .findFirst().orElseGet(() -> new ByteArrayResource(new byte[]{})).getInputStream().readAllBytes()));

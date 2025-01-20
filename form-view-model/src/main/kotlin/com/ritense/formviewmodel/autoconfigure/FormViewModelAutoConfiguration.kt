@@ -38,9 +38,9 @@ import com.ritense.formviewmodel.web.rest.FormViewModelResource
 import com.ritense.formviewmodel.web.rest.error.FormViewModelModuleExceptionTranslator
 import com.ritense.processdocument.service.ProcessDocumentAssociationService
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
-import com.ritense.valtimo.service.CamundaProcessService
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
+import com.ritense.valtimo.service.OperatonProcessService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
@@ -58,15 +58,15 @@ class FormViewModelAutoConfiguration {
     fun formViewModelService(
         objectMapper: ObjectMapper,
         viewModelLoaderFactory: ViewModelLoaderFactory,
-        camundaTaskService: CamundaTaskService,
+        operatonTaskService: OperatonTaskService,
         authorizationService: AuthorizationService,
         processAuthorizationService: ProcessAuthorizationService,
-        processService: CamundaProcessService,
+        processService: OperatonProcessService,
         processLinkService: ProcessLinkService
     ) = FormViewModelService(
         objectMapper,
         viewModelLoaderFactory,
-        camundaTaskService,
+        operatonTaskService,
         authorizationService,
         processAuthorizationService,
         processLinkService
@@ -95,7 +95,7 @@ class FormViewModelAutoConfiguration {
         formViewModelStartFormSubmissionHandlerFactory: FormViewModelStartFormSubmissionHandlerFactory,
         formViewModelUserTaskSubmissionHandlerFactory: FormViewModelUserTaskSubmissionHandlerFactory,
         authorizationService: AuthorizationService,
-        camundaTaskService: CamundaTaskService,
+        operatonTaskService: OperatonTaskService,
         objectMapper: ObjectMapper,
         processAuthorizationService: ProcessAuthorizationService,
         processLinkService: ProcessLinkService
@@ -103,7 +103,7 @@ class FormViewModelAutoConfiguration {
         formViewModelStartFormSubmissionHandlerFactory = formViewModelStartFormSubmissionHandlerFactory,
         formViewModelUserTaskSubmissionHandlerFactory = formViewModelUserTaskSubmissionHandlerFactory,
         authorizationService = authorizationService,
-        camundaTaskService = camundaTaskService,
+        operatonTaskService = operatonTaskService,
         objectMapper = objectMapper,
         processAuthorizationService = processAuthorizationService,
         processLinkService = processLinkService
@@ -154,28 +154,28 @@ class FormViewModelAutoConfiguration {
 
     @Bean
     fun processAuthorizationService(
-        camundaRepositoryService: CamundaRepositoryService,
+        operatonRepositoryService: OperatonRepositoryService,
         authorizationService: AuthorizationService
     ) = ProcessAuthorizationService(
-        camundaRepositoryService,
+        operatonRepositoryService,
         authorizationService
     )
 
     @Bean
     @ConditionalOnMissingBean(name = ["startProcessCommandHandler"])
     fun startProcessCommandHandler(
-        camundaProcessService: CamundaProcessService,
+        operatonProcessService: OperatonProcessService,
         processDocumentAssociationService: ProcessDocumentAssociationService
     ) = StartProcessCommandHandler(
-        camundaProcessService,
+        operatonProcessService,
         processDocumentAssociationService
     )
 
     @Bean
     @ConditionalOnMissingBean(name = ["completeTaskCommandHandler"])
     fun completeTaskCommandHandler(
-        camundaTaskService: CamundaTaskService
+        operatonTaskService: OperatonTaskService
     ) = CompleteTaskCommandHandler(
-        camundaTaskService
+        operatonTaskService
     )
 }

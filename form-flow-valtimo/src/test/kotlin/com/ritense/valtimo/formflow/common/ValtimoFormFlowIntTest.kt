@@ -34,16 +34,16 @@ import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.service.ProcessLinkActivityHandler
 import com.ritense.processlink.service.ProcessLinkActivityService
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byProcessInstanceId
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byProcessInstanceId
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants
 import com.ritense.valtimo.formflow.BaseIntegrationTest
 import com.ritense.valtimo.formflow.FormFlowTaskOpenResultProperties
 import com.ritense.valtimo.formflow.web.rest.FormFlowResource
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkCreateRequestDto
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import java.util.UUID
-import org.camunda.bpm.engine.HistoryService
-import org.camunda.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.HistoryService
+import org.operaton.bpm.engine.RepositoryService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,7 +67,7 @@ class ValtimoFormFlowIntTest : BaseIntegrationTest() {
     lateinit var processLinkService: ProcessLinkService
 
     @Autowired
-    lateinit var taskService: CamundaTaskService
+    lateinit var taskService: OperatonTaskService
 
     @Autowired
     lateinit var formFlowService: FormFlowService

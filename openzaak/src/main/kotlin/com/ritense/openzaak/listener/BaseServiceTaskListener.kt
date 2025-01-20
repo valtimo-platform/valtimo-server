@@ -22,24 +22,26 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId
 import com.ritense.document.service.DocumentService
 import com.ritense.openzaak.domain.mapping.impl.ZaakTypeLink
 import com.ritense.openzaak.service.ZaakTypeLinkService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.delegate.DelegateExecution
-import org.camunda.bpm.engine.delegate.ExecutionListener
-import org.camunda.bpm.extension.reactor.bus.CamundaSelector
-import org.camunda.bpm.extension.reactor.spring.listener.ReactorExecutionListener
+import com.ritense.valtimo.contract.annotation.AllOpen
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.delegate.DelegateExecution
+import org.springframework.context.event.EventListener
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
-@Deprecated("Since 12.0.0")
-@CamundaSelector(type = "serviceTask", event = ExecutionListener.EVENTNAME_START)
-open class BaseServiceTaskListener(
+@AllOpen
+class BaseServiceTaskListener(
     private val zaakTypeLinkService: ZaakTypeLinkService,
     private val documentService: DocumentService,
     private val repositoryService: RepositoryService
-) : ReactorExecutionListener() {
+) {
 
     @Transactional
-    override fun notify(execution: DelegateExecution) {
+    @EventListener(
+        condition = "#execution.bpmnModelElementInstance.elementType.typeName == T(org.operaton.bpm.engine.ActivityTypes).TASK_SERVICE " +
+            "&& #execution.eventName == T(org.operaton.bpm.engine.delegate.ExecutionListener).EVENTNAME_START"
+    )
+    fun notify(execution: DelegateExecution) {
         val processBusinessKey = execution.processBusinessKey
         val processDefinitionKey = repositoryService.getProcessDefinition(execution.processDefinitionId).key
         val documentId = JsonSchemaDocumentId.existingId(UUID.fromString(processBusinessKey))

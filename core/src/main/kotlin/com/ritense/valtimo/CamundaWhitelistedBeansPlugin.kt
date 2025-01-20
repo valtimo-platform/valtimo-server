@@ -17,12 +17,12 @@
 package com.ritense.valtimo
 
 import mu.KotlinLogging
-import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
-import org.camunda.bpm.engine.spring.SpringExpressionManager
+import org.operaton.bpm.engine.impl.cfg.AbstractProcessEnginePlugin
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
+import org.operaton.bpm.engine.spring.SpringExpressionManager
 import org.springframework.context.ApplicationContext
 
-class CamundaWhitelistedBeansPlugin(
+class OperatonWhitelistedBeansPlugin(
     private val processBeans: Map<String, Any>,
     private val applicationContext: ApplicationContext
 ) : AbstractProcessEnginePlugin() {

@@ -24,7 +24,7 @@ import com.ritense.document.domain.Document;
 import com.ritense.document.domain.impl.JsonSchemaDocumentId;
 import com.ritense.processdocument.domain.ProcessDocumentDefinition;
 import com.ritense.processdocument.domain.ProcessDocumentInstance;
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId;
 import com.ritense.processdocument.domain.impl.DocumentDefinitionProcess;
 import com.ritense.processdocument.domain.impl.request.DocumentDefinitionProcessLinkResponse;
 import com.ritense.processdocument.domain.impl.request.DocumentDefinitionProcessRequest;
@@ -161,7 +161,7 @@ public class ProcessDocumentResource {
     public ResponseEntity<ProcessDocumentDefinition> getProcessDocumentDefinition(
         @PathVariable String processInstanceId
     ) {
-        return AuthorizationContext.runWithoutAuthorization(() -> processDocumentService.findProcessDocumentDefinition(new CamundaProcessInstanceId(
+        return AuthorizationContext.runWithoutAuthorization(() -> processDocumentService.findProcessDocumentDefinition(new OperatonProcessInstanceId(
                 processInstanceId)))
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.badRequest().build());

@@ -23,8 +23,8 @@ import com.ritense.document.domain.Document
 import com.ritense.document.domain.impl.request.NewDocumentRequest
 import com.ritense.document.service.DocumentService
 import com.ritense.form.BaseIntegrationTest
-import com.ritense.valtimo.service.CamundaProcessService
-import org.camunda.bpm.engine.TaskService
+import com.ritense.valtimo.service.OperatonProcessService
+import org.operaton.bpm.engine.TaskService
 import org.hamcrest.CoreMatchers.hasItem
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -35,7 +35,7 @@ import java.time.LocalDate
 class PrefillFormServiceIntTest @Autowired constructor(
     private val prefillFormService: PrefillFormService,
     private val documentService: DocumentService,
-    private val processService: CamundaProcessService,
+    private val processService: OperatonProcessService,
     private val taskService: TaskService,
     private val objectMapper: ObjectMapper,
 ): BaseIntegrationTest() {

@@ -16,7 +16,7 @@
 
 package com.ritense.valueresolver
 
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.UUID
 
 interface ValueResolverService {
@@ -28,7 +28,7 @@ interface ValueResolverService {
      * A requestedValue can only be resolved when a resolver for that prefix is configured.
      * An unresolved requestedValue will not be included in the returned map.
      *
-     * @param processInstanceId The Camunda processInstanceId these values belong to
+     * @param processInstanceId The Operaton processInstanceId these values belong to
      * @param variableScope An implementation of VariableScope. For instance: a TaskDelegate or DelegateExecution
      * @param requestedValues The requestedValues that should be resolved into values.
      * @return A map where the key is the requestedValue, and the value the resolved value.
@@ -74,7 +74,7 @@ interface ValueResolverService {
     /**
      * Handle values. Usually by storing them somewhere.
      *
-     * @param processInstanceId The Camunda processInstanceId these values belong to
+     * @param processInstanceId The Operaton processInstanceId these values belong to
      * @param variableScope An implementation of VariableScope.
      * @param values mapOf(doc:add:/firstname to John)
      */

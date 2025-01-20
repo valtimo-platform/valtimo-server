@@ -34,7 +34,7 @@ valtimo:
         encryption-secret: "abcdefghijklmnop"
     besluitDocumentRequired: false
 
-camunda:
+operaton:
     bpm:
         history-level: audit
         generic-properties:

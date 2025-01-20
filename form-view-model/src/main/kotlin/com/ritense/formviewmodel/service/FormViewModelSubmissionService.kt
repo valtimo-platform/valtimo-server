@@ -27,10 +27,10 @@ import com.ritense.formviewmodel.viewmodel.Submission
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.authorization.CamundaTaskActionProvider.Companion.COMPLETE
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.valtimo.operaton.authorization.OperatonTaskActionProvider.Companion.COMPLETE
+import com.ritense.valtimo.operaton.domain.OperatonTask
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonTaskService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.KClass
@@ -42,7 +42,7 @@ class FormViewModelSubmissionService(
     private val formViewModelStartFormSubmissionHandlerFactory: FormViewModelStartFormSubmissionHandlerFactory,
     private val formViewModelUserTaskSubmissionHandlerFactory: FormViewModelUserTaskSubmissionHandlerFactory,
     private val authorizationService: AuthorizationService,
-    private val camundaTaskService: CamundaTaskService,
+    private val operatonTaskService: OperatonTaskService,
     private val objectMapper: ObjectMapper,
     private val processAuthorizationService: ProcessAuthorizationService,
     private val processLinkService: ProcessLinkService,
@@ -92,9 +92,9 @@ class FormViewModelSubmissionService(
         submission: ObjectNode,
         taskInstanceId: String
     ) {
-        val task = camundaTaskService.findTaskById(taskInstanceId)
+        val task = operatonTaskService.findTaskById(taskInstanceId)
         authorizationService.requirePermission(
-            EntityAuthorizationRequest(CamundaTask::class.java, COMPLETE, task)
+            EntityAuthorizationRequest(OperatonTask::class.java, COMPLETE, task)
         )
 
         runWithoutAuthorization {
@@ -123,7 +123,7 @@ class FormViewModelSubmissionService(
         processDefinitionKey
     ).firstOrNull { it.activityType === ActivityTypeWithEventName.START_EVENT_START }
 
-    private fun getUserTaskProcessLink(task: CamundaTask): ProcessLink? {
+    private fun getUserTaskProcessLink(task: OperatonTask): ProcessLink? {
         return task.processDefinition?.let { processDefinition ->
             processLinkService.getProcessLinksByProcessDefinitionKey(
                 processDefinition.key,

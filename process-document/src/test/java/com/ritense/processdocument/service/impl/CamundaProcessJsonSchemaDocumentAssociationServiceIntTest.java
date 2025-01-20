@@ -33,20 +33,20 @@ import com.ritense.document.domain.impl.request.ModifyDocumentRequest;
 import com.ritense.document.domain.impl.request.NewDocumentRequest;
 import com.ritense.document.service.DocumentDefinitionService;
 import com.ritense.processdocument.BaseIntegrationTest;
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinition;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinitionId;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstance;
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinition;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinitionId;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentInstance;
 import com.ritense.processdocument.domain.impl.request.ModifyDocumentAndCompleteTaskRequest;
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest;
 import com.ritense.processdocument.domain.impl.request.ProcessDocumentDefinitionRequest;
 import com.ritense.processdocument.service.result.ModifyDocumentAndCompleteTaskResult;
 import com.ritense.processdocument.service.result.NewDocumentAndStartProcessResult;
-import com.ritense.valtimo.repository.camunda.dto.TaskInstanceWithIdentityLink;
+import com.ritense.valtimo.repository.operaton.dto.TaskInstanceWithIdentityLink;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
-import org.camunda.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Tag("integration")
 @Transactional
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseIntegrationTest {
+class OperatonProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseIntegrationTest {
 
     private static final String DOCUMENT_DEFINITION_NAME = "house";
     private static final String DOCUMENT_DEFINITION_NAME2 = "notahouse";
@@ -119,7 +119,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
     @Test
     public void findProcessDocumentDefinition() {
         final var processDocumentDefinitions = AuthorizationContext
-            .runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+            .runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .findProcessDocumentDefinitions(DOCUMENT_DEFINITION_NAME));
 
         assertThat(processDocumentDefinitions.size()).isGreaterThanOrEqualTo(1);
@@ -130,7 +130,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
     @Test
     public void findProcessDocumentDefinitionByProcessDefinitionKey() {
         final var processDocumentDefinitions = runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitionsByProcessDefinitionKey(PROCESS_DEFINITION_KEY)
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinitionsByProcessDefinitionKey(PROCESS_DEFINITION_KEY)
         );
 
         assertThat(processDocumentDefinitions.size()).isEqualTo(1);
@@ -147,7 +147,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             true
         );
 
-        final var optionalProcessDocumentDefinition = runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        final var optionalProcessDocumentDefinition = runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request));
 
         assertThat(optionalProcessDocumentDefinition).isPresent();
@@ -163,13 +163,13 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             Optional.of(oldDocumentDefinition.id().version())
         );
 
-        runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request));
 
-        List<CamundaProcessJsonSchemaDocumentDefinition> oldProcessDocumentDefinitions = camundaProcessJsonSchemaDocumentAssociationService
+        List<OperatonProcessJsonSchemaDocumentDefinition> oldProcessDocumentDefinitions = operatonProcessJsonSchemaDocumentAssociationService
             .findProcessDocumentDefinitions(oldDocumentDefinition.id().name(), oldDocumentDefinition.id().version());
 
-        List<CamundaProcessJsonSchemaDocumentDefinition> newProcessDocumentDefinitions = camundaProcessJsonSchemaDocumentAssociationService
+        List<OperatonProcessJsonSchemaDocumentDefinition> newProcessDocumentDefinitions = operatonProcessJsonSchemaDocumentAssociationService
             .findProcessDocumentDefinitions(newDocumentDefinition.id().name(), newDocumentDefinition.id().version());
 
         assertThat(oldProcessDocumentDefinitions.size()).isEqualTo(1);
@@ -187,7 +187,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             Optional.of(oldDocumentDefinition.id().version())
         );
 
-        runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request));
 
         //create association for new version
@@ -199,19 +199,19 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             Optional.of(newDocumentDefinition.id().version())
         );
 
-        runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request2));
 
         //delete association for old version
         runWithoutAuthorization(() -> {
-            camundaProcessJsonSchemaDocumentAssociationService.deleteProcessDocumentDefinition(request);
+            operatonProcessJsonSchemaDocumentAssociationService.deleteProcessDocumentDefinition(request);
             return null;
         });
 
         // can't delete and select in the same transaction with JPA so we check the call instead
         verify(processDocumentDefinitionRepository).deleteById(
-            CamundaProcessJsonSchemaDocumentDefinitionId.existingId(
-                new CamundaProcessDefinitionKey("embedded-subprocess-example"),
+            OperatonProcessJsonSchemaDocumentDefinitionId.existingId(
+                new OperatonProcessDefinitionKey("embedded-subprocess-example"),
                 JsonSchemaDocumentDefinitionId.existingId(
                     "some-test",
                     1
@@ -229,13 +229,13 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             true
         );
 
-        runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request));
 
-        List<CamundaProcessJsonSchemaDocumentDefinition> oldProcessDocumentDefinitions = camundaProcessJsonSchemaDocumentAssociationService
+        List<OperatonProcessJsonSchemaDocumentDefinition> oldProcessDocumentDefinitions = operatonProcessJsonSchemaDocumentAssociationService
             .findProcessDocumentDefinitions(oldDocumentDefinition.id().name(), oldDocumentDefinition.id().version());
 
-        List<CamundaProcessJsonSchemaDocumentDefinition> newProcessDocumentDefinitions = camundaProcessJsonSchemaDocumentAssociationService
+        List<OperatonProcessJsonSchemaDocumentDefinition> newProcessDocumentDefinitions = operatonProcessJsonSchemaDocumentAssociationService
             .findProcessDocumentDefinitions(newDocumentDefinition.id().name(), newDocumentDefinition.id().version());
 
         assertThat(oldProcessDocumentDefinitions.size()).isEqualTo(0);
@@ -253,7 +253,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             Optional.of(oldDocumentDefinition.id().version())
         );
 
-        runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request));
 
         //create association for new version
@@ -265,7 +265,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             Optional.of(newDocumentDefinition.id().version())
         );
 
-        runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+        runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
             .createProcessDocumentDefinition(request2));
 
         //delete association for latest version
@@ -277,14 +277,14 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
         );
 
         runWithoutAuthorization(() -> {
-            camundaProcessJsonSchemaDocumentAssociationService.deleteProcessDocumentDefinition(deleteRequest);
+            operatonProcessJsonSchemaDocumentAssociationService.deleteProcessDocumentDefinition(deleteRequest);
             return null;
         });
 
         // can't delete and select in the same transaction with JPA so we check the call instead
         verify(processDocumentDefinitionRepository).deleteById(
-            CamundaProcessJsonSchemaDocumentDefinitionId.existingId(
-                new CamundaProcessDefinitionKey("embedded-subprocess-example"),
+            OperatonProcessJsonSchemaDocumentDefinitionId.existingId(
+                new OperatonProcessDefinitionKey("embedded-subprocess-example"),
                 JsonSchemaDocumentDefinitionId.existingId(
                     "some-test",
                     2
@@ -302,8 +302,8 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             true
         );
         runWithoutAuthorization(() -> {
-            camundaProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(request);
-            return assertThrows(IllegalStateException.class, () -> camundaProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(request));
+            operatonProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(request);
+            return assertThrows(IllegalStateException.class, () -> operatonProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(request));
         });
     }
 
@@ -319,7 +319,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             true
         );
         runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(processDocumentRequest)
+            operatonProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(processDocumentRequest)
         );
 
         final JsonNode jsonContent = objectMapper.readTree("{\"street\": \"Funenparks\"}");
@@ -335,18 +335,18 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             var request = new NewDocumentAndStartProcessRequest(processDocumentDefinitionKey, newDocumentRequest);
             var request2 = new NewDocumentAndStartProcessRequest(processDocumentDefinitionKey, newDocumentRequest2);
 
-            final NewDocumentAndStartProcessResult newDocumentAndStartProcessResult = camundaProcessJsonSchemaDocumentService
+            final NewDocumentAndStartProcessResult newDocumentAndStartProcessResult = operatonProcessJsonSchemaDocumentService
                 .newDocumentAndStartProcess(request);
 
-            camundaProcessJsonSchemaDocumentService.newDocumentAndStartProcess(request2);
+            operatonProcessJsonSchemaDocumentService.newDocumentAndStartProcess(request2);
 
-            final List<TaskInstanceWithIdentityLink> processInstanceTasks = camundaTaskService.getProcessInstanceTasks(
+            final List<TaskInstanceWithIdentityLink> processInstanceTasks = operatonTaskService.getProcessInstanceTasks(
                 newDocumentAndStartProcessResult.resultingProcessInstanceId().orElseThrow().toString(),
                 newDocumentAndStartProcessResult.resultingDocument().orElseThrow().id().toString()
             );
 
-            final List<CamundaProcessJsonSchemaDocumentInstance> processDocumentInstancesBeforeComplete =
-                runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+            final List<OperatonProcessJsonSchemaDocumentInstance> processDocumentInstancesBeforeComplete =
+                runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
                     .findProcessDocumentInstances(newDocumentAndStartProcessResult.resultingDocument().orElseThrow().id()));
 
             assertThat(processDocumentInstancesBeforeComplete).hasSize(1);
@@ -363,12 +363,12 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
                 processInstanceTasks.iterator().next().getTaskDto().getId()
             );
 
-            final ModifyDocumentAndCompleteTaskResult modifyDocumentAndCompleteTaskResult = camundaProcessJsonSchemaDocumentService
+            final ModifyDocumentAndCompleteTaskResult modifyDocumentAndCompleteTaskResult = operatonProcessJsonSchemaDocumentService
                 .modifyDocumentAndCompleteTask(modifyRequest);
 
             assertThat(modifyDocumentAndCompleteTaskResult.errors()).isEmpty();
-            final List<CamundaProcessJsonSchemaDocumentInstance> processDocumentInstances =
-                runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+            final List<OperatonProcessJsonSchemaDocumentInstance> processDocumentInstances =
+                runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
                     .findProcessDocumentInstances(newDocumentAndStartProcessResult.resultingDocument().orElseThrow().id()));
             assertThat(processDocumentInstances).hasSize(2);
             assertThat(processDocumentInstances.get(0).isActive()).isEqualTo(false);
@@ -390,7 +390,7 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
                 true,
                 true
             );
-            camundaProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(processDocumentRequest);
+            operatonProcessJsonSchemaDocumentAssociationService.createProcessDocumentDefinition(processDocumentRequest);
 
             final JsonNode jsonContent = objectMapper.readTree("{\"street\": \"Funenparks\"}");
             var newDocumentRequest = new NewDocumentRequest(
@@ -399,11 +399,11 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
             );
             var request = new NewDocumentAndStartProcessRequest(processDocumentDefinitionKey, newDocumentRequest);
 
-            final NewDocumentAndStartProcessResult newDocumentAndStartProcessResult = camundaProcessJsonSchemaDocumentService
+            final NewDocumentAndStartProcessResult newDocumentAndStartProcessResult = operatonProcessJsonSchemaDocumentService
                 .newDocumentAndStartProcess(request);
 
 
-            final List<TaskInstanceWithIdentityLink> processInstanceTasks = camundaTaskService.getProcessInstanceTasks(
+            final List<TaskInstanceWithIdentityLink> processInstanceTasks = operatonTaskService.getProcessInstanceTasks(
                 newDocumentAndStartProcessResult.resultingProcessInstanceId().orElseThrow().toString(),
                 newDocumentAndStartProcessResult.resultingDocument().orElseThrow().id().toString()
             );
@@ -419,12 +419,12 @@ class CamundaProcessJsonSchemaDocumentAssociationServiceIntTest extends BaseInte
                 processInstanceTasks.iterator().next().getTaskDto().getId()
             );
 
-            final ModifyDocumentAndCompleteTaskResult modifyDocumentAndCompleteTaskResult = camundaProcessJsonSchemaDocumentService
+            final ModifyDocumentAndCompleteTaskResult modifyDocumentAndCompleteTaskResult = operatonProcessJsonSchemaDocumentService
                 .modifyDocumentAndCompleteTask(modifyRequest);
 
             assertThat(modifyDocumentAndCompleteTaskResult.errors()).isEmpty();
-            final List<CamundaProcessJsonSchemaDocumentInstance> processDocumentInstances =
-                runWithoutAuthorization(() -> camundaProcessJsonSchemaDocumentAssociationService
+            final List<OperatonProcessJsonSchemaDocumentInstance> processDocumentInstances =
+                runWithoutAuthorization(() -> operatonProcessJsonSchemaDocumentAssociationService
                     .findProcessDocumentInstances(newDocumentAndStartProcessResult.resultingDocument().orElseThrow().id()));
             assertThat(processDocumentInstances).hasSize(1);
             return null;

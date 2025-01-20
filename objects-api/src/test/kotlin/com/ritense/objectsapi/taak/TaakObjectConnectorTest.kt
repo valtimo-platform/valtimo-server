@@ -24,9 +24,9 @@ import com.ritense.valueresolver.ValueResolverService
 import com.ritense.zakenapi.provider.BsnProvider
 import com.ritense.zakenapi.provider.KvkProvider
 import org.assertj.core.api.Assertions
-import org.camunda.bpm.engine.delegate.DelegateTask
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties
-import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty
+import org.operaton.bpm.engine.delegate.DelegateTask
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperties
+import org.operaton.bpm.model.bpmn.instance.operaton.OperatonProperty
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -155,17 +155,17 @@ internal class TaakObjectConnectorTest {
     }
 
     private fun mockDelegateTask(taskName: String, propertyName: String, propertyValue: String): DelegateTask {
-        val camundaProperty = mock<CamundaProperty>()
-        whenever(camundaProperty.camundaName).thenReturn(propertyName)
-        whenever(camundaProperty.camundaValue).thenReturn(propertyValue)
+        val operatonProperty = mock<OperatonProperty>()
+        whenever(operatonProperty.operatonName).thenReturn(propertyName)
+        whenever(operatonProperty.operatonValue).thenReturn(propertyValue)
 
-        val camundaProperties = mock<CamundaProperties>()
-        whenever(camundaProperties.camundaProperties).thenReturn(listOf(camundaProperty))
+        val operatonProperties = mock<OperatonProperties>()
+        whenever(operatonProperties.operatonProperties).thenReturn(listOf(operatonProperty))
 
         val delegateTask = Mockito.mock(DelegateTask::class.java, Mockito.RETURNS_DEEP_STUBS)
         whenever(delegateTask.id).thenReturn(UUID.randomUUID().toString())
         whenever(delegateTask.name).thenReturn(taskName)
-        whenever(delegateTask.bpmnModelElementInstance.extensionElements.elements).thenReturn(listOf(camundaProperties))
+        whenever(delegateTask.bpmnModelElementInstance.extensionElements.elements).thenReturn(listOf(operatonProperties))
         whenever(delegateTask.processInstanceId).thenReturn(UUID.randomUUID().toString())
 
         return delegateTask

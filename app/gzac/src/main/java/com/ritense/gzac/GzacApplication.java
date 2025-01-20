@@ -20,7 +20,7 @@ import com.ritense.valtimo.config.DefaultProfileUtil;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
-import org.camunda.bpm.spring.boot.starter.annotation.EnableProcessApplication;
+import org.operaton.bpm.spring.boot.starter.annotation.EnableProcessApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;

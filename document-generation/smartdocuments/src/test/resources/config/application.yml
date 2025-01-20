@@ -37,7 +37,7 @@ valtimo:
             - text/plain
             - application/xml
 
-camunda:
+operaton:
     bpm:
         history-level: audit
         generic-properties:

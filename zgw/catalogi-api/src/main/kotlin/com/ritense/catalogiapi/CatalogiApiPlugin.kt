@@ -48,7 +48,7 @@ import com.ritense.valtimo.contract.validation.Url
 import com.ritense.zgw.LoggingConstants.CATALOGI_API
 import com.ritense.zgw.Page
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import java.net.URI
 import java.time.LocalDate
 

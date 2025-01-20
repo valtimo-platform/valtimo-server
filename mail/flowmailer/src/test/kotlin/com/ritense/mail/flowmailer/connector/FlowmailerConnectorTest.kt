@@ -24,7 +24,7 @@ import com.ritense.resource.service.ResourceService
 import com.ritense.valtimo.contract.json.MapperSingleton
 import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.community.mockito.delegate.DelegateExecutionFake
+import org.operaton.community.mockito.delegate.DelegateExecutionFake
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -32,6 +32,8 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.delegate.DelegateExecution
 
 class FlowmailerConnectorTest : BaseTest() {
     lateinit var flowmailerConnectorProperties: FlowmailerConnectorProperties
@@ -98,11 +100,14 @@ class FlowmailerConnectorTest : BaseTest() {
         val documentOptional = documentOptional(rootNode.toPrettyString())
         `when`(documentService.findBy(any())).thenReturn(documentOptional)
 
+        val delegateExecution = mock<DelegateExecution>()
+        whenever(delegateExecution.businessKey).thenReturn(documentOptional.get().id.id.toString())
+
         flowmailerConnector.sender("a@a.com")
         flowmailerConnector.subject("aSubject")
         flowmailerConnector.templateIdentifier("aIdentifier")
         flowmailerConnector.recipients(
-            DelegateExecutionFake().withBusinessKey(documentOptional.get().id.id.toString()),
+            delegateExecution,
             "/members",
             "email"
         )

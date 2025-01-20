@@ -19,8 +19,8 @@ package com.ritense.valtimo.formflow.autodeployment
 import com.ritense.authorization.AuthorizationContext
 import com.ritense.processlink.autodeployment.ProcessLinkDeploymentApplicationReadyEventListener
 import com.ritense.processlink.repository.ProcessLinkRepository
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
 import com.ritense.valtimo.formflow.BaseIntegrationTest
 import com.ritense.valtimo.formflow.domain.FormFlowProcessLink
 import org.hamcrest.MatcherAssert.assertThat
@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 class ProcessLinkDeploymentApplicationReadyEventListenerIntTest @Autowired constructor(
-    private val repositoryService: CamundaRepositoryService,
+    private val repositoryService: OperatonRepositoryService,
     private val processLinkRepository: ProcessLinkRepository,
     private val listener: ProcessLinkDeploymentApplicationReadyEventListener
 ): BaseIntegrationTest() {
@@ -54,7 +54,7 @@ class ProcessLinkDeploymentApplicationReadyEventListenerIntTest @Autowired const
         assertThat(processLink.formFlowDefinitionId, equalTo("inkomens_loket:latest"))
     }
 
-    private fun getLatestProcessDefinition(): CamundaProcessDefinition {
+    private fun getLatestProcessDefinition(): OperatonProcessDefinition {
         return AuthorizationContext.runWithoutAuthorization {
             repositoryService.findLatestProcessDefinition("processlink-autodeploy")!!
         }

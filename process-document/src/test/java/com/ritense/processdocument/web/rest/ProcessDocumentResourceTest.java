@@ -42,11 +42,11 @@ import com.ritense.document.domain.impl.request.ModifyDocumentRequest;
 import com.ritense.document.domain.impl.request.NewDocumentRequest;
 import com.ritense.document.service.result.CreateDocumentResult;
 import com.ritense.processdocument.BaseTest;
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey;
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinition;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinitionId;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey;
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinition;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinitionId;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentInstanceId;
 import com.ritense.processdocument.domain.impl.DocumentDefinitionProcess;
 import com.ritense.processdocument.domain.impl.ProcessDocumentInstanceDto;
 import com.ritense.processdocument.domain.impl.request.DocumentDefinitionProcessLinkResponse;
@@ -56,8 +56,8 @@ import com.ritense.processdocument.domain.impl.request.ModifyDocumentAndStartPro
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest;
 import com.ritense.processdocument.domain.impl.request.ProcessDocumentDefinitionRequest;
 import com.ritense.processdocument.service.DocumentDefinitionProcessLinkService;
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentAssociationService;
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentService;
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentAssociationService;
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentService;
 import com.ritense.processdocument.service.impl.result.ModifyDocumentAndCompleteTaskResultSucceeded;
 import com.ritense.processdocument.service.impl.result.ModifyDocumentAndStartProcessResultSucceeded;
 import com.ritense.processdocument.service.impl.result.NewDocumentAndStartProcessResultSucceeded;
@@ -90,25 +90,25 @@ class ProcessDocumentResourceTest extends BaseTest {
     private static final String DOCUMENT_DEFINITION_NAME = "house";
 
     @MockBean
-    private CamundaProcessJsonSchemaDocumentService processDocumentService;
+    private OperatonProcessJsonSchemaDocumentService processDocumentService;
 
     @MockBean
-    private CamundaProcessJsonSchemaDocumentAssociationService processDocumentAssociationService;
+    private OperatonProcessJsonSchemaDocumentAssociationService processDocumentAssociationService;
 
     private DocumentDefinitionProcessLinkService documentDefinitionProcessLinkService;
     private MockMvc mockMvc;
-    private CamundaProcessJsonSchemaDocumentDefinition processDocumentDefinition;
+    private OperatonProcessJsonSchemaDocumentDefinition processDocumentDefinition;
     private ProcessDocumentInstanceDto processDocumentInstance;
-    private Page<CamundaProcessJsonSchemaDocumentDefinition> processDocumentInstancesPage;
+    private Page<OperatonProcessJsonSchemaDocumentDefinition> processDocumentInstancesPage;
     private ObjectMapper objectMapper;
     private JsonSchemaDocumentDefinitionId documentDefinitionId;
-    private CamundaProcessDefinitionKey processDefinitionKey;
+    private OperatonProcessDefinitionKey processDefinitionKey;
 
     @BeforeEach
     void setUp() {
         objectMapper = MapperSingleton.INSTANCE.get();
-        processDocumentService = mock(CamundaProcessJsonSchemaDocumentService.class);
-        processDocumentAssociationService = mock(CamundaProcessJsonSchemaDocumentAssociationService.class);
+        processDocumentService = mock(OperatonProcessJsonSchemaDocumentService.class);
+        processDocumentAssociationService = mock(OperatonProcessJsonSchemaDocumentAssociationService.class);
         documentDefinitionProcessLinkService = mock(DocumentDefinitionProcessLinkService.class);
         ProcessDocumentResource processDocumentResource = new ProcessDocumentResource(
             processDocumentService,
@@ -122,10 +122,10 @@ class ProcessDocumentResourceTest extends BaseTest {
             .build();
 
         documentDefinitionId = JsonSchemaDocumentDefinitionId.newId(DOCUMENT_DEFINITION_NAME);
-        processDefinitionKey = new CamundaProcessDefinitionKey(PROCESS_DEFINITION_KEY);
+        processDefinitionKey = new OperatonProcessDefinitionKey(PROCESS_DEFINITION_KEY);
 
-        processDocumentDefinition = new CamundaProcessJsonSchemaDocumentDefinition(
-            CamundaProcessJsonSchemaDocumentDefinitionId.newId(
+        processDocumentDefinition = new OperatonProcessJsonSchemaDocumentDefinition(
+            OperatonProcessJsonSchemaDocumentDefinitionId.newId(
                 processDefinitionKey,
                 documentDefinitionId
             ),
@@ -134,8 +134,8 @@ class ProcessDocumentResourceTest extends BaseTest {
         );
 
         processDocumentInstance = new ProcessDocumentInstanceDto(
-            CamundaProcessJsonSchemaDocumentInstanceId.newId(
-                new CamundaProcessInstanceId(PROCESS_INSTANCE_ID),
+            OperatonProcessJsonSchemaDocumentInstanceId.newId(
+                new OperatonProcessInstanceId(PROCESS_INSTANCE_ID),
                 JsonSchemaDocumentId.existingId(UUID.randomUUID())
             ),
             "aName",
@@ -146,11 +146,11 @@ class ProcessDocumentResourceTest extends BaseTest {
             LocalDateTime.parse("2024-01-01T12:10:00")
         );
 
-        List<CamundaProcessJsonSchemaDocumentDefinition> camundaProcessJsonSchemaDocumentDefinitions = List.of(
+        List<OperatonProcessJsonSchemaDocumentDefinition> operatonProcessJsonSchemaDocumentDefinitions = List.of(
             processDocumentDefinition
         );
         Pageable unpaged = Pageable.unpaged();
-        processDocumentInstancesPage = new PageImpl<>(camundaProcessJsonSchemaDocumentDefinitions, unpaged, 1);
+        processDocumentInstancesPage = new PageImpl<>(operatonProcessJsonSchemaDocumentDefinitions, unpaged, 1);
     }
 
     @Test
@@ -189,7 +189,7 @@ class ProcessDocumentResourceTest extends BaseTest {
 
     @Test
     void shouldReturnOkWhenGettingProcessDocumentDefinitionByProcessInstanceId() throws Exception {
-        when(processDocumentService.findProcessDocumentDefinition(new CamundaProcessInstanceId(PROCESS_INSTANCE_ID)))
+        when(processDocumentService.findProcessDocumentDefinition(new OperatonProcessInstanceId(PROCESS_INSTANCE_ID)))
             .thenReturn(Optional.of(processDocumentDefinition));
 
         mockMvc.perform(
@@ -229,7 +229,7 @@ class ProcessDocumentResourceTest extends BaseTest {
         var content = new JsonDocumentContent("{\"street\": \"Funenparks\"}");
         final CreateDocumentResult result = createDocument(definition(), content);
 
-        final CamundaProcessInstanceId processInstanceId = new CamundaProcessInstanceId(UUID.randomUUID().toString());
+        final OperatonProcessInstanceId processInstanceId = new OperatonProcessInstanceId(UUID.randomUUID().toString());
         var resultSucceeded = new NewDocumentAndStartProcessResultSucceeded(
             result.resultingDocument().orElseThrow(),
             processInstanceId
@@ -288,7 +288,7 @@ class ProcessDocumentResourceTest extends BaseTest {
 
     @Test
     void shouldReturnOkWhenCreatingProcessDocumentDefinition() throws Exception {
-        final var processDefinitionKey = new CamundaProcessDefinitionKey("some-key");
+        final var processDefinitionKey = new OperatonProcessDefinitionKey("some-key");
         final var documentDefinitionId = JsonSchemaDocumentDefinitionId.existingId("house", 1);
         final var request = new ProcessDocumentDefinitionRequest(
             processDefinitionKey.toString(),
@@ -297,13 +297,13 @@ class ProcessDocumentResourceTest extends BaseTest {
             false
         );
 
-        final var camundaProcessJsonSchemaDocumentDefinition = new CamundaProcessJsonSchemaDocumentDefinition(
-            CamundaProcessJsonSchemaDocumentDefinitionId.newId(processDefinitionKey, documentDefinitionId),
+        final var operatonProcessJsonSchemaDocumentDefinition = new OperatonProcessJsonSchemaDocumentDefinition(
+            OperatonProcessJsonSchemaDocumentDefinitionId.newId(processDefinitionKey, documentDefinitionId),
             false,
             false
         );
         when(processDocumentAssociationService.createProcessDocumentDefinition(any()))
-            .thenReturn(Optional.of(camundaProcessJsonSchemaDocumentDefinition));
+            .thenReturn(Optional.of(operatonProcessJsonSchemaDocumentDefinition));
 
         mockMvc.perform(
                 post("/api/v1/process-document/definition")
@@ -336,9 +336,9 @@ class ProcessDocumentResourceTest extends BaseTest {
         var content = new JsonDocumentContent("{\"street\": \"Funenparks\"}");
         final CreateDocumentResult result = createDocument(definition(), content);
 
-        final var camundaProcessInstanceId = new CamundaProcessInstanceId(UUID.randomUUID().toString());
+        final var operatonProcessInstanceId = new OperatonProcessInstanceId(UUID.randomUUID().toString());
         var resultSucceeded = new ModifyDocumentAndStartProcessResultSucceeded(
-            result.resultingDocument().orElseThrow(), camundaProcessInstanceId);
+            result.resultingDocument().orElseThrow(), operatonProcessInstanceId);
         when(processDocumentService.modifyDocumentAndStartProcess(any())).thenReturn(resultSucceeded);
 
         final JsonNode jsonDataUpdate = objectMapper.readTree("{\"street\": \"Funenparks\"}");

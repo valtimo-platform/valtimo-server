@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ritense.authorization.AuthorizationContext;
 import com.ritense.document.domain.impl.request.NewDocumentRequest;
 import com.ritense.processdocument.BaseIntegrationTest;
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey;
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey;
 import com.ritense.processdocument.domain.impl.request.NewDocumentAndStartProcessRequest;
-import com.ritense.valtimo.service.CamundaProcessService;
+import com.ritense.valtimo.service.OperatonProcessService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Tag("integration")
 @Transactional
-class CamundaProcessJsonSchemaDocumentServiceIntTest extends BaseIntegrationTest {
+class OperatonProcessJsonSchemaDocumentServiceIntTest extends BaseIntegrationTest {
 
     @Autowired
-    protected CamundaProcessService camundaProcessService;
+    protected OperatonProcessService operatonProcessService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -52,11 +52,11 @@ class CamundaProcessJsonSchemaDocumentServiceIntTest extends BaseIntegrationTest
             new NewDocumentRequest(DOCUMENT_DEFINITION_NAME, objectMapper.readTree("{}"))
         );
         var result = runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentService.newDocumentAndStartProcess(startRequest)
+            operatonProcessJsonSchemaDocumentService.newDocumentAndStartProcess(startRequest)
         );
 
         var optAssociation = AuthorizationContext.runWithoutAuthorization(() ->
-            camundaProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinition(new CamundaProcessDefinitionKey(PROCESS_DEFINITION_KEY))
+            operatonProcessJsonSchemaDocumentAssociationService.findProcessDocumentDefinition(new OperatonProcessDefinitionKey(PROCESS_DEFINITION_KEY))
         );
         assertThat(optAssociation).isEmpty();
         assertThat(result.errors()).isEmpty();

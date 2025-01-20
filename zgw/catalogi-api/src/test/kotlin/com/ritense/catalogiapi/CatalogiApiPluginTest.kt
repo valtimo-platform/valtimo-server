@@ -32,16 +32,16 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId
 import com.ritense.document.service.DocumentService
 import com.ritense.zgw.Page
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.community.mockito.delegate.DelegateExecutionFake
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import java.net.URI
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 import kotlin.test.assertEquals
 
 internal class CatalogiApiPluginTest : BaseTest() {
@@ -384,7 +384,9 @@ internal class CatalogiApiPluginTest : BaseTest() {
         val statustype = "Registered"
         val statustypeUrl = "https://example.com/statustype/456"
         val zaaktypeUrl = "https://example.com/zaaktype/123"
-        val execution = DelegateExecutionFake().withBusinessKey(documentId)
+        val execution = mock<DelegateExecution> {
+            on { businessKey }.thenReturn(documentId)
+        }
         whenever(document.definitionId()).thenReturn(JsonSchemaDocumentDefinitionId.newId("myDocDef"))
         whenever(documentService.get(documentId)).thenReturn(document)
         whenever(zaaktypeUrlProvider.getZaaktypeUrl("myDocDef")).thenReturn(URI(zaaktypeUrl))
@@ -411,7 +413,9 @@ internal class CatalogiApiPluginTest : BaseTest() {
         val document = mock<Document>()
         val statustype = "Registered"
         val zaaktypeUrl = "https://example.com/zaaktype/123"
-        val execution = DelegateExecutionFake().withBusinessKey(documentId)
+        val execution = mock<DelegateExecution> {
+            on { businessKey }.thenReturn(documentId)
+        }
         whenever(document.definitionId()).thenReturn(JsonSchemaDocumentDefinitionId.newId("myDocDef"))
         whenever(documentService.get(documentId)).thenReturn(document)
         whenever(zaaktypeUrlProvider.getZaaktypeUrl("myDocDef")).thenReturn(URI(zaaktypeUrl))
@@ -436,7 +440,9 @@ internal class CatalogiApiPluginTest : BaseTest() {
         val resultaattype = "Registered"
         val resultaattypeUrl = "https://example.com/resultaattype/456"
         val zaaktypeUrl = "https://example.com/zaaktype/123"
-        val execution = DelegateExecutionFake().withBusinessKey(documentId)
+        val execution = mock<DelegateExecution> {
+            on { businessKey }.thenReturn(documentId)
+        }
         whenever(document.definitionId()).thenReturn(JsonSchemaDocumentDefinitionId.newId("myDocDef"))
         whenever(documentService.get(documentId)).thenReturn(document)
         whenever(zaaktypeUrlProvider.getZaaktypeUrl("myDocDef")).thenReturn(URI(zaaktypeUrl))
@@ -505,7 +511,9 @@ internal class CatalogiApiPluginTest : BaseTest() {
         val besluittype = "Allocated"
         val besluittypeUrl = "https://example.com/besluittype/456"
         val zaaktypeUrl = "https://example.com/zaaktype/123"
-        val execution = DelegateExecutionFake().withBusinessKey(documentId)
+        val execution = mock<DelegateExecution> {
+            on { businessKey }.thenReturn(documentId)
+        }
         whenever(document.definitionId()).thenReturn(JsonSchemaDocumentDefinitionId.newId("myDocDef"))
         whenever(documentService.get(documentId)).thenReturn(document)
         whenever(zaaktypeUrlProvider.getZaaktypeUrl("myDocDef")).thenReturn(URI(zaaktypeUrl))
@@ -578,7 +586,9 @@ internal class CatalogiApiPluginTest : BaseTest() {
     fun `should get besluit type by url`() {
         val documentId = UUID.randomUUID().toString()
         val besluittype = "http://example.com/besluittype/456"
-        val execution = DelegateExecutionFake().withBusinessKey(documentId)
+        val execution = mock<DelegateExecution> {
+            on { businessKey }.thenReturn(documentId)
+        }
 
         plugin.getBesluittype(execution, besluittype, "myProcessVar")
 

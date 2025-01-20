@@ -33,7 +33,7 @@ spring-actuator:
     username: admin
     password: password
 
-camunda:
+operaton:
     bpm:
         history-level: audit
         generic-properties:

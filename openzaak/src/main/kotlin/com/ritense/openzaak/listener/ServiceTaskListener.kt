@@ -23,8 +23,8 @@ import com.ritense.openzaak.domain.mapping.impl.ZaakTypeLink
 import com.ritense.openzaak.service.ZaakTypeLinkService
 import com.ritense.openzaak.service.impl.ZaakService
 import com.ritense.zakenapi.link.ZaakInstanceLinkService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.springframework.transaction.annotation.Transactional
 
 @Deprecated("Since 12.0.0")

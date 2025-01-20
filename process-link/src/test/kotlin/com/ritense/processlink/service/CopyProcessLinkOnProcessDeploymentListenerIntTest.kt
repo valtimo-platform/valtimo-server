@@ -20,11 +20,11 @@ import com.ritense.authorization.AuthorizationContext.Companion.runWithoutAuthor
 import com.ritense.processlink.BaseIntegrationTest
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.TestProcessLinkCreateRequestDto
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
-import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byKey
-import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionSpecificationHelper.Companion.byLatestVersion
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
-import com.ritense.valtimo.service.CamundaProcessService
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
+import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionSpecificationHelper.Companion.byKey
+import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionSpecificationHelper.Companion.byLatestVersion
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
+import com.ritense.valtimo.service.OperatonProcessService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,12 +38,12 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
     lateinit var processLinkService: ProcessLinkService
 
     @Autowired
-    lateinit var repositoryService: CamundaRepositoryService
+    lateinit var repositoryService: OperatonRepositoryService
 
     @Autowired
-    lateinit var camundaProcessService: CamundaProcessService
+    lateinit var operatonProcessService: OperatonProcessService
 
-    private lateinit var processDefinition: CamundaProcessDefinition
+    private lateinit var processDefinition: OperatonProcessDefinition
 
     @BeforeEach
     fun beforeEach() {
@@ -59,7 +59,7 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
 
         // when
         runWithoutAuthorization {
-            camundaProcessService.deploy("service-task-process.bpmn", changedProcessBpmn.byteInputStream())
+            operatonProcessService.deploy("service-task-process.bpmn", changedProcessBpmn.byteInputStream())
         }
 
         // then
@@ -76,7 +76,7 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
         val changedProcessBpmn = readFileAsString("/bpmn/service-task-process.bpmn")
             .replace("My service task", "My service task changed")
         runWithoutAuthorization {
-            camundaProcessService.deploy("service-task-process.bpmn", changedProcessBpmn.byteInputStream())
+            operatonProcessService.deploy("service-task-process.bpmn", changedProcessBpmn.byteInputStream())
         }
         createProcessLink(processDefinition)
         val changedAgainProcessBpmn = readFileAsString("/bpmn/service-task-process.bpmn")
@@ -84,7 +84,7 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
 
         // when
         runWithoutAuthorization {
-            camundaProcessService.deploy("service-task-process.bpmn", changedAgainProcessBpmn.byteInputStream())
+            operatonProcessService.deploy("service-task-process.bpmn", changedAgainProcessBpmn.byteInputStream())
         }
 
         // then
@@ -95,7 +95,7 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
         assertEquals(0, processLinkService.getProcessLinks(latestProcessDefinition.id, SERVICE_TASK_ID).count())
     }
 
-    private fun createProcessLink(processDefinition: CamundaProcessDefinition) {
+    private fun createProcessLink(processDefinition: OperatonProcessDefinition) {
         processLinkService.createProcessLink(
             TestProcessLinkCreateRequestDto(
                 processDefinition.id,
@@ -105,7 +105,7 @@ internal class CopyProcessLinkOnProcessDeploymentListenerIntTest : BaseIntegrati
         )
     }
 
-    private fun getLatestProcessDefinition(): CamundaProcessDefinition {
+    private fun getLatestProcessDefinition(): OperatonProcessDefinition {
         return runWithoutAuthorization {
             repositoryService.findProcessDefinition(byKey(PROCESS_DEFINITION_KEY).and(byLatestVersion()))!!
         }

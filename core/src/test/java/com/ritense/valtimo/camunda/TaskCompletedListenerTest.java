@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda;
+package com.ritense.valtimo.operaton;
 
-import static org.camunda.community.mockito.CamundaMockito.delegateExecutionFake;
-import static org.camunda.community.mockito.CamundaMockito.delegateTaskFake;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.ritense.valtimo.contract.event.TaskCompletedEvent;
+import com.ritense.valtimo.operaton.TaskCompletedListener;
 import java.util.Date;
-import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.variable.VariableMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.operaton.bpm.engine.delegate.DelegateExecution;
+import org.operaton.bpm.engine.delegate.DelegateTask;
+import org.operaton.bpm.engine.variable.VariableMap;
 import org.springframework.context.ApplicationEventPublisher;
 
 class TaskCompletedListenerTest {
@@ -44,14 +45,14 @@ class TaskCompletedListenerTest {
         taskCompletedListener = new TaskCompletedListener(applicationEventPublisher);
         taskCompletedEventCaptor = ArgumentCaptor.forClass(TaskCompletedEvent.class);
 
-        delegateTask = delegateTaskFake()
-            .withId("taskId")
-            .withName("name")
-            .withCreateTime(new Date())
-            .withProcessDefinitionId("processDefinitionId")
-            .withProcessInstanceId("processInstanceId")
-            .withVariables(mock(VariableMap.class))
-            .withExecution(delegateExecutionFake());
+        delegateTask = mock(DelegateTask.class);
+        when(delegateTask.getId()).thenReturn("taskId");
+        when(delegateTask.getName()).thenReturn("name");
+        when(delegateTask.getCreateTime()).thenReturn(new Date());
+        when(delegateTask.getProcessDefinitionId()).thenReturn("processDefinitionId");
+        when(delegateTask.getProcessInstanceId()).thenReturn("processInstanceId");
+        when(delegateTask.getVariables()).thenReturn(mock(VariableMap.class));
+        when(delegateTask.getExecution()).thenReturn(mock(DelegateExecution.class));
     }
 
     @Test

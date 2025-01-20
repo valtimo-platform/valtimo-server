@@ -23,14 +23,14 @@ import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.service.ProcessLinkActivityService
 import com.ritense.processlink.service.ProcessLinkService
-import com.ritense.valtimo.camunda.repository.CamundaTaskSpecificationHelper.Companion.byProcessInstanceId
+import com.ritense.valtimo.operaton.repository.OperatonTaskSpecificationHelper.Companion.byProcessInstanceId
 import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.USER
 import com.ritense.valtimo.formflow.domain.FormFlowProcessLink
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkCreateRequestDto
-import com.ritense.valtimo.service.CamundaProcessService
-import com.ritense.valtimo.service.CamundaTaskService
+import com.ritense.valtimo.service.OperatonProcessService
+import com.ritense.valtimo.service.OperatonTaskService
 import java.util.UUID
-import org.camunda.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RepositoryService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,10 +50,10 @@ internal class FormFlowProcessLinkActivityHandlerIntTest: BaseIntegrationTest() 
     lateinit var processLinkActivityService: ProcessLinkActivityService
 
     @Autowired
-    lateinit var camundaProcessService: CamundaProcessService
+    lateinit var operatonProcessService: OperatonProcessService
 
     @Autowired
-    lateinit var taskService: CamundaTaskService
+    lateinit var taskService: OperatonTaskService
 
     @Autowired
     lateinit var repositoryService: RepositoryService
@@ -65,7 +65,7 @@ internal class FormFlowProcessLinkActivityHandlerIntTest: BaseIntegrationTest() 
     lateinit var formFlowService: FormFlowService
 
     @Test
-    fun `should not create form flow instance when Camunda user task is created`() {
+    fun `should not create form flow instance when Operaton user task is created`() {
 
         val processDefinition = repositoryService.createProcessDefinitionQuery()
             .latestVersion()
@@ -82,7 +82,7 @@ internal class FormFlowProcessLinkActivityHandlerIntTest: BaseIntegrationTest() 
         )
 
         runWithoutAuthorization{
-            camundaProcessService.startProcess(
+            operatonProcessService.startProcess(
                 processDefinition.key,
                 UUID.randomUUID().toString(),
                 mapOf()
@@ -110,7 +110,7 @@ internal class FormFlowProcessLinkActivityHandlerIntTest: BaseIntegrationTest() 
         )
 
         val processInstance = runWithoutAuthorization {
-            camundaProcessService.startProcess(
+            operatonProcessService.startProcess(
                 processDefinition.key,
                 UUID.randomUUID().toString(),
                 mapOf()

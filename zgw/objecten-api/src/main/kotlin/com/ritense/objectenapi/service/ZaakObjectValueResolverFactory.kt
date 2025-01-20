@@ -20,11 +20,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.logging.withLoggingContext
-import com.ritense.processdocument.domain.impl.CamundaProcessInstanceId
+import com.ritense.processdocument.domain.impl.OperatonProcessInstanceId
 import com.ritense.processdocument.service.ProcessDocumentService
 import com.ritense.valueresolver.ValueResolverFactory
 import mu.KotlinLogging
-import org.camunda.bpm.engine.delegate.VariableScope
+import org.operaton.bpm.engine.delegate.VariableScope
 import java.util.UUID
 import java.util.function.Function
 
@@ -44,7 +44,7 @@ class ZaakObjectValueResolverFactory(
     ): Function<String, Any?> {
         return Function { requestedValue ->
             logger.debug { "Requested zaak object value '$requestedValue' for process $processInstanceId" }
-            val documentId = processDocumentService.getDocumentId(CamundaProcessInstanceId(processInstanceId), variableScope).toString()
+            val documentId = processDocumentService.getDocumentId(OperatonProcessInstanceId(processInstanceId), variableScope).toString()
             getZaakData(requestedValue, documentId)
         }
     }

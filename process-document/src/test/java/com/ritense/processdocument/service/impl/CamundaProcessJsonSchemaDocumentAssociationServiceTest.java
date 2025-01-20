@@ -33,31 +33,31 @@ import com.ritense.document.repository.DocumentDefinitionRepository;
 import com.ritense.document.service.DocumentDefinitionService;
 import com.ritense.document.service.DocumentService;
 import com.ritense.processdocument.BaseTest;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinition;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstance;
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentInstanceId;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinition;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentInstance;
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentInstanceId;
 import com.ritense.processdocument.domain.impl.request.ProcessDocumentDefinitionRequest;
 import com.ritense.processdocument.exception.UnknownProcessDefinitionException;
 import com.ritense.processdocument.repository.ProcessDocumentDefinitionRepository;
 import com.ritense.processdocument.repository.ProcessDocumentInstanceRepository;
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService;
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.result.FunctionResult;
 import com.ritense.valtimo.contract.result.OperationError;
 import java.util.Optional;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.HistoryService;
+import org.operaton.bpm.engine.RuntimeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CamundaProcessJsonSchemaDocumentAssociationServiceTest extends BaseTest {
+public class OperatonProcessJsonSchemaDocumentAssociationServiceTest extends BaseTest {
 
-    private CamundaProcessJsonSchemaDocumentAssociationService service;
+    private OperatonProcessJsonSchemaDocumentAssociationService service;
     private ProcessDocumentDefinitionRepository processDocumentDefinitionRepository;
     private ProcessDocumentInstanceRepository processDocumentInstanceRepository;
     private DocumentDefinitionRepository<JsonSchemaDocumentDefinition> documentDefinitionRepository;
     private DocumentDefinitionService documentDefinitionService;
-    private CamundaRepositoryService repositoryService;
+    private OperatonRepositoryService repositoryService;
     private RuntimeService runtimeService;
     private HistoryService historyService;
     private AuthorizationService authorizationService;
@@ -70,14 +70,14 @@ public class CamundaProcessJsonSchemaDocumentAssociationServiceTest extends Base
         processDocumentInstanceRepository = spy(ProcessDocumentInstanceRepository.class);
         documentDefinitionRepository = mock(DocumentDefinitionRepository.class);
         documentDefinitionService = mock(DocumentDefinitionService.class);
-        repositoryService = mock(CamundaRepositoryService.class);
+        repositoryService = mock(OperatonRepositoryService.class);
         runtimeService = mock(RuntimeService.class);
         historyService = mock(HistoryService.class);
         authorizationService = mock(AuthorizationService.class);
         documentService = mock(DocumentService.class);
         userManagementService = mock(UserManagementService.class);
 
-        service = new CamundaProcessJsonSchemaDocumentAssociationService(
+        service = new OperatonProcessJsonSchemaDocumentAssociationService(
             processDocumentDefinitionRepository,
             processDocumentInstanceRepository,
             documentDefinitionRepository,
@@ -112,7 +112,7 @@ public class CamundaProcessJsonSchemaDocumentAssociationServiceTest extends Base
             .thenReturn(true);
 
         when(processDocumentDefinitionRepository.saveAndFlush(any()))
-            .thenReturn(mock(CamundaProcessJsonSchemaDocumentDefinition.class));
+            .thenReturn(mock(OperatonProcessJsonSchemaDocumentDefinition.class));
 
         service.createProcessDocumentDefinition(processDocumentRequest);
 
@@ -173,7 +173,7 @@ public class CamundaProcessJsonSchemaDocumentAssociationServiceTest extends Base
         final var documentId = documentId();
 
         when(processDocumentInstanceRepository.saveAndFlush(any()))
-            .thenReturn(mock(CamundaProcessJsonSchemaDocumentInstance.class));
+            .thenReturn(mock(OperatonProcessJsonSchemaDocumentInstance.class));
 
         service.createProcessDocumentInstance(processInstanceId.toString(), documentId.getId(), "aName");
 
@@ -186,7 +186,7 @@ public class CamundaProcessJsonSchemaDocumentAssociationServiceTest extends Base
 
         when(processDocumentInstanceRepository.findById(any())).thenReturn(Optional.empty());
 
-        final FunctionResult<CamundaProcessJsonSchemaDocumentInstance, OperationError> result = service
+        final FunctionResult<OperatonProcessJsonSchemaDocumentInstance, OperationError> result = service
             .getProcessDocumentInstanceResult(id);
 
         assertThat(result).isInstanceOf(FunctionResult.Erroneous.class);
@@ -200,12 +200,12 @@ public class CamundaProcessJsonSchemaDocumentAssociationServiceTest extends Base
         final var processInstanceId = processInstanceId();
         final var documentId = documentId();
 
-        final var instance = mock(CamundaProcessJsonSchemaDocumentInstance.class);
+        final var instance = mock(OperatonProcessJsonSchemaDocumentInstance.class);
         when(processDocumentInstanceRepository.findById(any())).thenReturn(Optional.of(instance));
 
-        final FunctionResult<CamundaProcessJsonSchemaDocumentInstance, OperationError> result = service
+        final FunctionResult<OperatonProcessJsonSchemaDocumentInstance, OperationError> result = service
             .getProcessDocumentInstanceResult(
-                CamundaProcessJsonSchemaDocumentInstanceId.existingId(processInstanceId, documentId)
+                OperatonProcessJsonSchemaDocumentInstanceId.existingId(processInstanceId, documentId)
             );
 
         assertThat(result).isInstanceOf(FunctionResult.Successful.class);

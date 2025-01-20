@@ -23,10 +23,10 @@ import com.ritense.openzaak.domain.mapping.impl.ZaakTypeLinkId
 import com.ritense.openzaak.domain.request.CreateZaakTypeLinkRequest
 import com.ritense.openzaak.repository.ZaakTypeLinkRepository
 import com.ritense.openzaak.service.impl.ZaakTypeLinkService
-import com.ritense.processdocument.domain.impl.CamundaProcessDefinitionKey
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinition
-import com.ritense.processdocument.domain.impl.CamundaProcessJsonSchemaDocumentDefinitionId
-import com.ritense.processdocument.service.impl.CamundaProcessJsonSchemaDocumentAssociationService
+import com.ritense.processdocument.domain.impl.OperatonProcessDefinitionKey
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinition
+import com.ritense.processdocument.domain.impl.OperatonProcessJsonSchemaDocumentDefinitionId
+import com.ritense.processdocument.service.impl.OperatonProcessJsonSchemaDocumentAssociationService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,7 +51,7 @@ class ZaaktypeLinkServiceTest {
     lateinit var zaakTypeLinkRepository: ZaakTypeLinkRepository
 
     @Mock
-    lateinit var processDocumentAssociationService: CamundaProcessJsonSchemaDocumentAssociationService
+    lateinit var processDocumentAssociationService: OperatonProcessJsonSchemaDocumentAssociationService
 
     val zaakTypeUrl = URI.create("http//example.com")
 
@@ -121,19 +121,19 @@ class ZaaktypeLinkServiceTest {
     @Test
     fun `should get zaakTypeLinks`() {
 
-        whenever(processDocumentAssociationService.findAllProcessDocumentDefinitions(CamundaProcessDefinitionKey("processDefinitionKey")))
+        whenever(processDocumentAssociationService.findAllProcessDocumentDefinitions(OperatonProcessDefinitionKey("processDefinitionKey")))
             .thenReturn(listOf(
-                CamundaProcessJsonSchemaDocumentDefinition(
-                    CamundaProcessJsonSchemaDocumentDefinitionId.newId(
-                        CamundaProcessDefinitionKey("processDefinitionKey"),
+                OperatonProcessJsonSchemaDocumentDefinition(
+                    OperatonProcessJsonSchemaDocumentDefinitionId.newId(
+                        OperatonProcessDefinitionKey("processDefinitionKey"),
                         JsonSchemaDocumentDefinitionId.newId("documentDefinitionId")
                     ),
                     true,
                     false
                 ),
-                CamundaProcessJsonSchemaDocumentDefinition(
-                    CamundaProcessJsonSchemaDocumentDefinitionId.newId(
-                        CamundaProcessDefinitionKey("processDefinitionKey"),
+                OperatonProcessJsonSchemaDocumentDefinition(
+                    OperatonProcessJsonSchemaDocumentDefinitionId.newId(
+                        OperatonProcessDefinitionKey("processDefinitionKey"),
                         JsonSchemaDocumentDefinitionId.newId("documentDefinitionId2")
                     ),
                     true,

@@ -19,10 +19,10 @@ package com.ritense.valtimo;
 import com.ritense.outbox.OutboxService;
 import com.ritense.valtimo.contract.authentication.UserManagementService;
 import com.ritense.valtimo.contract.mail.MailSender;
-import com.ritense.valtimo.repository.CamundaSearchProcessInstanceRepository;
+import com.ritense.valtimo.repository.OperatonSearchProcessInstanceRepository;
 import jakarta.inject.Inject;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.operaton.bpm.engine.RuntimeService;
+import org.operaton.bpm.engine.TaskService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,10 +52,10 @@ public abstract class BaseIntegrationTest {
     public OutboxService outboxService;
 
     @SpyBean
-    public CamundaSearchProcessInstanceRepository camundaSearchProcessInstanceRepository;
+    public OperatonSearchProcessInstanceRepository operatonSearchProcessInstanceRepository;
 
     @SpyBean
-    public TaskService camundaTaskService;
+    public TaskService operatonTaskService;
 
     @BeforeAll
     static void beforeAll() {

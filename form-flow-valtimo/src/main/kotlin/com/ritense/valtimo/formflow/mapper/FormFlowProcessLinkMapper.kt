@@ -30,7 +30,7 @@ import com.ritense.processlink.web.rest.dto.ProcessLinkCreateRequestDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkExportResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkResponseDto
 import com.ritense.processlink.web.rest.dto.ProcessLinkUpdateRequestDto
-import com.ritense.valtimo.camunda.domain.CamundaProcessDefinition
+import com.ritense.valtimo.operaton.domain.OperatonProcessDefinition
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.formflow.domain.FormFlowProcessLink
 import com.ritense.valtimo.formflow.processlink.dto.FormFlowProcessLinkDeployDto
@@ -38,7 +38,7 @@ import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkCreateReques
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkExportResponseDto
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkResponseDto
 import com.ritense.valtimo.formflow.web.rest.dto.FormFlowProcessLinkUpdateRequestDto
-import org.camunda.bpm.engine.repository.ProcessDefinition
+import org.operaton.bpm.engine.repository.ProcessDefinition
 import org.springframework.stereotype.Component
 import java.util.UUID
 
@@ -80,7 +80,7 @@ class FormFlowProcessLinkMapper(
     }
 
     override fun toProcessLinkCreateRequestDto(deployDto: ProcessLinkDeployDto): ProcessLinkCreateRequestDto {
-        return withLoggingContext(CamundaProcessDefinition::class, deployDto.processDefinitionId) {
+        return withLoggingContext(OperatonProcessDefinition::class, deployDto.processDefinitionId) {
             deployDto as FormFlowProcessLinkDeployDto
 
             FormFlowProcessLinkCreateRequestDto(
@@ -99,7 +99,7 @@ class FormFlowProcessLinkMapper(
         deployDto: ProcessLinkDeployDto,
         existingProcessLinkId: UUID
     ): ProcessLinkUpdateRequestDto {
-        return withLoggingContext(CamundaProcessDefinition::class, deployDto.processDefinitionId) {
+        return withLoggingContext(OperatonProcessDefinition::class, deployDto.processDefinitionId) {
             deployDto as FormFlowProcessLinkDeployDto
 
             FormFlowProcessLinkUpdateRequestDto(

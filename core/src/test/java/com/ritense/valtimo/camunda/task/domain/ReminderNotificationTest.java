@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.ritense.valtimo.camunda.task.domain;
+package com.ritense.valtimo.operaton.task.domain;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.ritense.valtimo.camunda.task.domain.reminder.AssignedTask;
-import com.ritense.valtimo.camunda.task.domain.reminder.ReminderNotification;
-import com.ritense.valtimo.camunda.task.domain.reminder.RoleBasedTask;
-import com.ritense.valtimo.camunda.task.domain.reminder.Task;
+import com.ritense.valtimo.operaton.task.domain.reminder.AssignedTask;
+import com.ritense.valtimo.operaton.task.domain.reminder.ReminderNotification;
+import com.ritense.valtimo.operaton.task.domain.reminder.RoleBasedTask;
+import com.ritense.valtimo.operaton.task.domain.reminder.Task;
 import com.ritense.valtimo.contract.mail.model.TemplatedMailMessage;
 import java.time.LocalDate;
 import java.util.List;

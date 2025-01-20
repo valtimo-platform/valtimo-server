@@ -19,33 +19,33 @@ package com.ritense.valtimo.autoconfiguration
 
 import com.ritense.authorization.AuthorizationService
 import com.ritense.valtimo.ValtimoApplicationPropertyService
-import com.ritense.valtimo.camunda.authorization.CamundaExecutionProcessDefinitionMapper
-import com.ritense.valtimo.camunda.authorization.CamundaExecutionSpecificationFactory
-import com.ritense.valtimo.camunda.authorization.CamundaIdentityLinkSpecificationFactory
-import com.ritense.valtimo.camunda.authorization.CamundaProcessDefinitionSpecificationFactory
-import com.ritense.valtimo.camunda.authorization.CamundaTaskSpecificationFactory
-import com.ritense.valtimo.camunda.repository.CamundaBytearrayRepository
-import com.ritense.valtimo.camunda.repository.CamundaExecutionRepository
-import com.ritense.valtimo.camunda.repository.CamundaHistoricProcessInstanceRepository
-import com.ritense.valtimo.camunda.repository.CamundaHistoricTaskInstanceRepository
-import com.ritense.valtimo.camunda.repository.CamundaHistoricVariableInstanceRepository
-import com.ritense.valtimo.camunda.repository.CamundaIdentityLinkRepository
-import com.ritense.valtimo.camunda.repository.CamundaProcessDefinitionRepository
-import com.ritense.valtimo.camunda.repository.CamundaTaskIdentityLinkMapper
-import com.ritense.valtimo.camunda.repository.CamundaTaskRepository
-import com.ritense.valtimo.camunda.repository.CamundaVariableInstanceRepository
-import com.ritense.valtimo.camunda.service.CamundaContextService
-import com.ritense.valtimo.camunda.service.CamundaHistoryService
-import com.ritense.valtimo.camunda.service.CamundaRepositoryService
-import com.ritense.valtimo.camunda.service.CamundaRuntimeService
+import com.ritense.valtimo.operaton.authorization.OperatonExecutionProcessDefinitionMapper
+import com.ritense.valtimo.operaton.authorization.OperatonExecutionSpecificationFactory
+import com.ritense.valtimo.operaton.authorization.OperatonIdentityLinkSpecificationFactory
+import com.ritense.valtimo.operaton.authorization.OperatonProcessDefinitionSpecificationFactory
+import com.ritense.valtimo.operaton.authorization.OperatonTaskSpecificationFactory
+import com.ritense.valtimo.operaton.repository.OperatonBytearrayRepository
+import com.ritense.valtimo.operaton.repository.OperatonExecutionRepository
+import com.ritense.valtimo.operaton.repository.OperatonHistoricProcessInstanceRepository
+import com.ritense.valtimo.operaton.repository.OperatonHistoricTaskInstanceRepository
+import com.ritense.valtimo.operaton.repository.OperatonHistoricVariableInstanceRepository
+import com.ritense.valtimo.operaton.repository.OperatonIdentityLinkRepository
+import com.ritense.valtimo.operaton.repository.OperatonProcessDefinitionRepository
+import com.ritense.valtimo.operaton.repository.OperatonTaskIdentityLinkMapper
+import com.ritense.valtimo.operaton.repository.OperatonTaskRepository
+import com.ritense.valtimo.operaton.repository.OperatonVariableInstanceRepository
+import com.ritense.valtimo.operaton.service.OperatonContextService
+import com.ritense.valtimo.operaton.service.OperatonHistoryService
+import com.ritense.valtimo.operaton.service.OperatonRepositoryService
+import com.ritense.valtimo.operaton.service.OperatonRuntimeService
 import com.ritense.valtimo.contract.config.ValtimoProperties
 import com.ritense.valtimo.contract.database.QueryDialectHelper
 import com.ritense.valtimo.repository.ValtimoApplicationPropertyRepository
-import com.ritense.valtimo.service.CamundaTaskService
-import org.camunda.bpm.engine.HistoryService
-import org.camunda.bpm.engine.RepositoryService
-import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
+import com.ritense.valtimo.service.OperatonTaskService
+import org.operaton.bpm.engine.HistoryService
+import org.operaton.bpm.engine.RepositoryService
+import org.operaton.bpm.engine.RuntimeService
+import org.operaton.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
@@ -57,123 +57,123 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @AutoConfiguration
 @EnableJpaRepositories(
     basePackageClasses = [
-        CamundaBytearrayRepository::class,
-        CamundaExecutionRepository::class,
-        CamundaHistoricProcessInstanceRepository::class,
-        CamundaHistoricTaskInstanceRepository::class,
-        CamundaHistoricVariableInstanceRepository::class,
-        CamundaIdentityLinkRepository::class,
-        CamundaProcessDefinitionRepository::class,
-        CamundaTaskRepository::class,
-        CamundaVariableInstanceRepository::class
+        OperatonBytearrayRepository::class,
+        OperatonExecutionRepository::class,
+        OperatonHistoricProcessInstanceRepository::class,
+        OperatonHistoricTaskInstanceRepository::class,
+        OperatonHistoricVariableInstanceRepository::class,
+        OperatonIdentityLinkRepository::class,
+        OperatonProcessDefinitionRepository::class,
+        OperatonTaskRepository::class,
+        OperatonVariableInstanceRepository::class
     ]
 )
 @EntityScan(
     basePackages = [
-        "com.ritense.valtimo.camunda.domain",
+        "com.ritense.valtimo.operaton.domain",
         "com.ritense.valtimo.domain"
     ]
 )
-class ValtimoCamundaAutoConfiguration {
+class ValtimoOperatonAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(CamundaContextService::class)
-    fun camundaContextService(
+    @ConditionalOnMissingBean(OperatonContextService::class)
+    fun operatonContextService(
         processEngineConfiguration: ProcessEngineConfigurationImpl,
-    ): CamundaContextService {
-        return CamundaContextService(processEngineConfiguration)
+    ): OperatonContextService {
+        return OperatonContextService(processEngineConfiguration)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaHistoryService::class)
-    fun camundaHistoryService(
+    @ConditionalOnMissingBean(OperatonHistoryService::class)
+    fun operatonHistoryService(
         historyService: HistoryService,
-        camundaHistoricProcessInstanceRepository: CamundaHistoricProcessInstanceRepository,
+        operatonHistoricProcessInstanceRepository: OperatonHistoricProcessInstanceRepository,
         authorizationService: AuthorizationService
-    ): CamundaHistoryService {
-        return CamundaHistoryService(historyService, camundaHistoricProcessInstanceRepository, authorizationService)
+    ): OperatonHistoryService {
+        return OperatonHistoryService(historyService, operatonHistoricProcessInstanceRepository, authorizationService)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaRepositoryService::class)
-    fun camundaRepositoryService(
-        camundaProcessDefinitionRepository: CamundaProcessDefinitionRepository,
+    @ConditionalOnMissingBean(OperatonRepositoryService::class)
+    fun operatonRepositoryService(
+        operatonProcessDefinitionRepository: OperatonProcessDefinitionRepository,
         authorizationService: AuthorizationService,
         repositoryService: RepositoryService,
-    ): CamundaRepositoryService {
-        return CamundaRepositoryService(
-            camundaProcessDefinitionRepository,
+    ): OperatonRepositoryService {
+        return OperatonRepositoryService(
+            operatonProcessDefinitionRepository,
             authorizationService,
             repositoryService
         )
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaRuntimeService::class)
-    fun camundaRuntimeService(
+    @ConditionalOnMissingBean(OperatonRuntimeService::class)
+    fun operatonRuntimeService(
         runtimeService: RuntimeService,
-        camundaVariableInstanceRepository: CamundaVariableInstanceRepository,
-        camundaIdentityLinkRepository: CamundaIdentityLinkRepository,
+        operatonVariableInstanceRepository: OperatonVariableInstanceRepository,
+        operatonIdentityLinkRepository: OperatonIdentityLinkRepository,
         authorizationService: AuthorizationService
-    ): CamundaRuntimeService {
-        return CamundaRuntimeService(
+    ): OperatonRuntimeService {
+        return OperatonRuntimeService(
             runtimeService,
-            camundaVariableInstanceRepository,
-            camundaIdentityLinkRepository,
+            operatonVariableInstanceRepository,
+            operatonIdentityLinkRepository,
             authorizationService
         )
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaTaskSpecificationFactory::class)
+    @ConditionalOnMissingBean(OperatonTaskSpecificationFactory::class)
     @ConditionalOnBean(AuthorizationService::class)
-    fun camundaTaskSpecificationFactory(
-        @Lazy camundaTaskService: CamundaTaskService,
+    fun operatonTaskSpecificationFactory(
+        @Lazy operatonTaskService: OperatonTaskService,
         queryDialectHelper: QueryDialectHelper
-    ): CamundaTaskSpecificationFactory {
-        return CamundaTaskSpecificationFactory(camundaTaskService, queryDialectHelper)
+    ): OperatonTaskSpecificationFactory {
+        return OperatonTaskSpecificationFactory(operatonTaskService, queryDialectHelper)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaIdentityLinkSpecificationFactory::class)
+    @ConditionalOnMissingBean(OperatonIdentityLinkSpecificationFactory::class)
     @ConditionalOnBean(AuthorizationService::class)
-    fun camundaIdentityLinkSpecificationFactory(
-        @Lazy camundaRuntimeService: CamundaRuntimeService,
+    fun operatonIdentityLinkSpecificationFactory(
+        @Lazy operatonRuntimeService: OperatonRuntimeService,
         queryDialectHelper: QueryDialectHelper
-    ): CamundaIdentityLinkSpecificationFactory {
-        return CamundaIdentityLinkSpecificationFactory(camundaRuntimeService, queryDialectHelper)
+    ): OperatonIdentityLinkSpecificationFactory {
+        return OperatonIdentityLinkSpecificationFactory(operatonRuntimeService, queryDialectHelper)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaExecutionSpecificationFactory::class)
+    @ConditionalOnMissingBean(OperatonExecutionSpecificationFactory::class)
     @ConditionalOnBean(AuthorizationService::class)
-    fun camundaExecutionSpecificationFactory(
-        repository: CamundaExecutionRepository,
+    fun operatonExecutionSpecificationFactory(
+        repository: OperatonExecutionRepository,
         queryDialectHelper: QueryDialectHelper
-    ): CamundaExecutionSpecificationFactory {
-        return CamundaExecutionSpecificationFactory(repository, queryDialectHelper)
+    ): OperatonExecutionSpecificationFactory {
+        return OperatonExecutionSpecificationFactory(repository, queryDialectHelper)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaProcessDefinitionSpecificationFactory::class)
+    @ConditionalOnMissingBean(OperatonProcessDefinitionSpecificationFactory::class)
     @ConditionalOnBean(AuthorizationService::class)
-    fun camundaProcessDefinitionSpecificationFactory(
-        repository: CamundaProcessDefinitionRepository,
+    fun operatonProcessDefinitionSpecificationFactory(
+        repository: OperatonProcessDefinitionRepository,
         queryDialectHelper: QueryDialectHelper
-    ): CamundaProcessDefinitionSpecificationFactory {
-        return CamundaProcessDefinitionSpecificationFactory(repository, queryDialectHelper)
+    ): OperatonProcessDefinitionSpecificationFactory {
+        return OperatonProcessDefinitionSpecificationFactory(repository, queryDialectHelper)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CamundaExecutionProcessDefinitionMapper::class)
+    @ConditionalOnMissingBean(OperatonExecutionProcessDefinitionMapper::class)
     @ConditionalOnBean(AuthorizationService::class)
-    fun camundaExecutionProcessDefinitionMapper() = CamundaExecutionProcessDefinitionMapper()
+    fun operatonExecutionProcessDefinitionMapper() = OperatonExecutionProcessDefinitionMapper()
 
 
     @Bean
-    @ConditionalOnMissingBean(CamundaTaskIdentityLinkMapper::class)
-    fun camundaTaskIdentityLinkMapper(): CamundaTaskIdentityLinkMapper {
-        return CamundaTaskIdentityLinkMapper()
+    @ConditionalOnMissingBean(OperatonTaskIdentityLinkMapper::class)
+    fun operatonTaskIdentityLinkMapper(): OperatonTaskIdentityLinkMapper {
+        return OperatonTaskIdentityLinkMapper()
     }
 
     @Bean

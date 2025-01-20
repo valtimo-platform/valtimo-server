@@ -78,7 +78,6 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
     testImplementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
     testImplementation project(':test-utils-common')
-    testImplementation "org.camunda.community.mockito:camunda-platform-7-mockito:${camundaMockitoVersion}"
     testImplementation "org.mockito.kotlin:mockito-kotlin:${mockitoKotlinVersion}"
 
     jar {
