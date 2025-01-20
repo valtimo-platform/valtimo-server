@@ -26,6 +26,7 @@ import com.ritense.document.service.impl.JsonSchemaDocumentService
 import com.ritense.formviewmodel.submission.FormViewModelStartFormSubmissionHandlerFactory
 import com.ritense.formviewmodel.submission.FormViewModelUserTaskSubmissionHandlerFactory
 import com.ritense.formviewmodel.viewmodel.Submission
+import com.ritense.formviewmodel.web.rest.dto.StartFormSubmissionResult
 import com.ritense.processlink.domain.ActivityTypeWithEventName
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.processlink.service.ProcessLinkService
@@ -65,14 +66,14 @@ class FormViewModelSubmissionService(
         documentDefinitionName: String,
         submission: ObjectNode,
         documentId: UUID? = null,
-    ) {
+    ): StartFormSubmissionResult {
         val document = documentId?.let {
             runWithoutAuthorization {
                 documentService.getDocumentBy(JsonSchemaDocumentId.existingId(documentId))
             }
         }
 
-        processAuthorizationService.checkAuthorization(processDefinitionKey, document)
+        processAuthorizationService.checkStartProcessAuthorization(processDefinitionKey, document)
 
         val processLink = runWithoutAuthorization {
             getStartEventProcessLink(processDefinitionKey)
@@ -86,7 +87,7 @@ class FormViewModelSubmissionService(
 
         val submissionConverted = parseSubmission(submission, submissionType)
 
-        startFormSubmissionHandler.handle(
+        return startFormSubmissionHandler.handle(
             documentDefinitionName = documentDefinitionName,
             processDefinitionKey = processDefinitionKey,
             submission = submissionConverted,

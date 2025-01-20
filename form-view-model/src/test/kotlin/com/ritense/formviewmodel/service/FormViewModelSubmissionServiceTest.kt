@@ -63,7 +63,7 @@ class FormViewModelSubmissionServiceTest(
 
     @BeforeEach
     fun setUp() {
-        testStartFormSubmissionHandler = spy(TestStartFormSubmissionHandler())
+        testStartFormSubmissionHandler = spy(TestStartFormSubmissionHandler(formDefinitionService = formDefinitionService))
         formViewModelStartFormSubmissionHandlerFactory = FormViewModelStartFormSubmissionHandlerFactory(
             handlers = listOf(testStartFormSubmissionHandler),
             formDefinitionService = formDefinitionService,

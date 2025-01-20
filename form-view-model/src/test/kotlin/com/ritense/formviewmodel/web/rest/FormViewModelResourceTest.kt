@@ -268,7 +268,7 @@ class FormViewModelResourceTest(
             ).accept(APPLICATION_JSON_UTF8_VALUE)
                 .contentType(APPLICATION_JSON_UTF8_VALUE)
                 .content(objectMapper.writeValueAsString(TestViewModel()))
-        ).andExpect(status().isNoContent)
+        ).andExpect(status().isOk)
     }
 
     @Test
@@ -284,7 +284,7 @@ class FormViewModelResourceTest(
             ).accept(APPLICATION_JSON_UTF8_VALUE)
                 .contentType(APPLICATION_JSON_UTF8_VALUE)
                 .content(objectMapper.writeValueAsString(TestViewModel()))
-        ).andExpect(status().isNoContent)
+        ).andExpect(status().isOk)
     }
 
     @Test

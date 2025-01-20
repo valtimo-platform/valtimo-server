@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.formviewmodel.service.FormViewModelService
 import com.ritense.formviewmodel.service.FormViewModelSubmissionService
 import com.ritense.formviewmodel.viewmodel.ViewModel
+import com.ritense.formviewmodel.web.rest.dto.StartFormSubmissionResult
 import com.ritense.valtimo.contract.annotation.SkipComponentScan
 import com.ritense.valtimo.contract.domain.ValtimoMediaType.APPLICATION_JSON_UTF8_VALUE
 import org.springframework.http.ResponseEntity
@@ -118,14 +119,14 @@ class FormViewModelResource(
         @RequestParam documentDefinitionName: String,
         @RequestParam(required = false) documentId: UUID?,
         @RequestBody submission: ObjectNode
-    ): ResponseEntity<Void> {
-        formViewModelSubmissionService.handleStartFormSubmission(
+    ): ResponseEntity<StartFormSubmissionResult> {
+        val result = formViewModelSubmissionService.handleStartFormSubmission(
             processDefinitionKey = processDefinitionKey,
             documentDefinitionName = documentDefinitionName,
             submission = submission,
             documentId = documentId,
         )
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.ok(result)
     }
 
 }

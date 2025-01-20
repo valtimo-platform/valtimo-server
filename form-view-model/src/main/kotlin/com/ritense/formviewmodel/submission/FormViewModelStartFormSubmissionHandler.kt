@@ -18,6 +18,7 @@ package com.ritense.formviewmodel.submission
 
 import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.formviewmodel.viewmodel.Submission
+import com.ritense.formviewmodel.web.rest.dto.StartFormSubmissionResult
 import com.ritense.processlink.domain.ProcessLink
 import org.springframework.transaction.annotation.Transactional
 import kotlin.reflect.KClass
@@ -48,9 +49,10 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
         documentDefinitionName: String,
         processDefinitionKey: String,
         submission: T
-    ): Unit { }
+    ): Unit {
+    }
 
-     /**
+    /**
      * Handles the form submission process for starting a process.
      * In order to start a process please dispatch StartProcessCommand.
      *
@@ -73,11 +75,14 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
      * @see com.ritense.formviewmodel.commandhandling.StartProcessCommand}`
      */
     fun <T> handle(
-         documentDefinitionName: String,
-         processDefinitionKey: String,
-         submission: T,
-         document: JsonSchemaDocument?,
-    ): Unit = handle(documentDefinitionName, processDefinitionKey, submission)
+        documentDefinitionName: String,
+        processDefinitionKey: String,
+        submission: T,
+        document: JsonSchemaDocument?,
+    ): StartFormSubmissionResult {
+        handle(documentDefinitionName, processDefinitionKey, submission)
+        return StartFormSubmissionResult(document?.id?.id)
+    }
 
     /**
      * Retrieves the type of the submission.

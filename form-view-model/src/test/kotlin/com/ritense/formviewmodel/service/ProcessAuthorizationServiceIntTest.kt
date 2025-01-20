@@ -24,14 +24,14 @@ class ProcessAuthorizationServiceIntTest @Autowired constructor(
     @WithMockUser(authorities = [AuthoritiesConstants.USER])
     fun `should fail validation for process definition`() {
         assertThrows<AccessDeniedException> {
-            processAuthorizationService.checkAuthorization("fvm-uicomponent-task-process")
+            processAuthorizationService.checkStartProcessAuthorization("fvm-uicomponent-task-process")
         }
     }
 
     @Test
     @WithMockUser(authorities = [AuthoritiesConstants.ADMIN])
     fun `should not fail validation for process definition without context`() {
-        processAuthorizationService.checkAuthorization("fvm-uicomponent-task-process")
+        processAuthorizationService.checkStartProcessAuthorization("fvm-uicomponent-task-process")
     }
 
     @Test
@@ -47,7 +47,7 @@ class ProcessAuthorizationServiceIntTest @Autowired constructor(
         }.resultingDocument().get()
 
         assertThrows<AccessDeniedException> {
-            processAuthorizationService.checkAuthorization("fvm-form-task-process", document)
+            processAuthorizationService.checkStartProcessAuthorization("fvm-form-task-process", document)
         }
     }
 
@@ -64,6 +64,6 @@ class ProcessAuthorizationServiceIntTest @Autowired constructor(
             )
         }.resultingDocument().get()
 
-        processAuthorizationService.checkAuthorization("fvm-form-task-process", document)
+        processAuthorizationService.checkStartProcessAuthorization("fvm-form-task-process", document)
     }
 }

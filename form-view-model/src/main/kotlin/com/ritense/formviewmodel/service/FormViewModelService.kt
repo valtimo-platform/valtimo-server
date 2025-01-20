@@ -70,7 +70,7 @@ class FormViewModelService(
             }
         }
 
-        processAuthorizationService.checkAuthorization(processDefinitionKey, document)
+        processAuthorizationService.checkStartProcessAuthorization(processDefinitionKey, document)
 
         val processLink = runWithoutAuthorization {
              getStartEventProcessLink(processDefinitionKey)
@@ -134,7 +134,7 @@ class FormViewModelService(
             }
         }
 
-        processAuthorizationService.checkAuthorization(processDefinitionKey, document)
+        processAuthorizationService.checkStartProcessAuthorization(processDefinitionKey, document)
 
         val processLink =  runWithoutAuthorization {
             getStartEventProcessLink(processDefinitionKey)

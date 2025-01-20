@@ -19,7 +19,7 @@ class ProcessAuthorizationService(
     private val authorizationService: AuthorizationService
 ) {
 
-    fun checkAuthorization(
+    fun checkStartProcessAuthorization(
         processDefinitionKey: String,
         document: JsonSchemaDocument? = null,
     ) {
