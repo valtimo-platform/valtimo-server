@@ -16,10 +16,10 @@
 
 package com.ritense.formviewmodel.submission
 
+import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.formviewmodel.viewmodel.Submission
 import com.ritense.processlink.domain.ProcessLink
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
 import kotlin.reflect.KClass
 import kotlin.reflect.full.allSupertypes
 
@@ -43,12 +43,12 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
      */
     fun supports(formName: String): Boolean = false
 
-    @Deprecated("since 12.6.0", replaceWith = ReplaceWith("handle(documentDefinitionName, processDefinitionKey, submission)"))
+    @Deprecated("since 12.6.0", replaceWith = ReplaceWith("handle(documentDefinitionName, processDefinitionKey, submission, document)"))
     fun <T> handle(
         documentDefinitionName: String,
         processDefinitionKey: String,
         submission: T
-    ): Unit = handle(documentDefinitionName, processDefinitionKey, submission, null)
+    ): Unit { }
 
      /**
      * Handles the form submission process for starting a process.
@@ -68,7 +68,7 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
      * @param documentDefinitionName the name of the document definition
      * @param processDefinitionKey the key of the process definition
      * @param submission the submission to be handled
-     * @param documentId the id of the document, available if started from a supporting process
+     * @param document the document, available if started from a supporting process
      * @param <T> the type of the submission
      * @see com.ritense.formviewmodel.commandhandling.StartProcessCommand}`
      */
@@ -76,7 +76,7 @@ interface FormViewModelStartFormSubmissionHandler<T : Submission> {
          documentDefinitionName: String,
          processDefinitionKey: String,
          submission: T,
-         documentId: UUID? = null,
+         document: JsonSchemaDocument?,
     ): Unit = handle(documentDefinitionName, processDefinitionKey, submission)
 
     /**
