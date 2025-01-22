@@ -31,6 +31,10 @@ class CaseDefinitionSettings(
     val canHaveAssignee: Boolean = false,
     @Column(name = "auto_assign_tasks")
     val autoAssignTasks: Boolean = false,
+    @Column(name = "has_external_create_case_form")
+    val hasExternalCreateCaseForm: Boolean = false,
+    @Column(name = "external_create_case_form_url")
+    val externalCreateCaseFormUrl: String? = null,
 ) {
     init {
         require(
@@ -39,5 +43,11 @@ class CaseDefinitionSettings(
                 else -> true
             }
         ) { "Case property [autoAssignTasks] can only be true when [canHaveAssignee] is true." }
+        require(
+            when (hasExternalCreateCaseForm) {
+                true -> !externalCreateCaseFormUrl.isNullOrBlank()
+                else -> true
+            }
+        ) { "Case property [hasExternalCreateCaseForm] can only be true when [externalCreateCaseFormUrl] is not null or blank." }
     }
 }

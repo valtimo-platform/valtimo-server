@@ -20,15 +20,22 @@ import com.ritense.case.domain.CaseDefinitionSettings
 
 data class CaseSettingsDto(
     val canHaveAssignee: Boolean? = null,
-    val autoAssignTasks: Boolean? = null
+    val autoAssignTasks: Boolean? = null,
+    val hasExternalCreateCaseForm: Boolean? = null,
+    val externalCreateCaseFormUrl: String? = null,
 ) {
     fun update(currentSettings: CaseDefinitionSettings): CaseDefinitionSettings {
         return CaseDefinitionSettings(
-            currentSettings.name,
-            getSettingForUpdate(currentSettings.canHaveAssignee, this.canHaveAssignee) ?: false,
-            when (this.canHaveAssignee) {
+            name = currentSettings.name,
+            canHaveAssignee = getSettingForUpdate(currentSettings.canHaveAssignee, this.canHaveAssignee) ?: false,
+            autoAssignTasks = when (this.canHaveAssignee) {
                 false -> false
                 else -> getSettingForUpdate(currentSettings.autoAssignTasks, this.autoAssignTasks) ?: false
+            },
+            hasExternalCreateCaseForm = getSettingForUpdate(currentSettings.hasExternalCreateCaseForm, this.hasExternalCreateCaseForm) ?: false,
+            externalCreateCaseFormUrl = when (this.hasExternalCreateCaseForm) {
+                false -> null
+                else -> getSettingForUpdate(currentSettings.externalCreateCaseFormUrl, this.externalCreateCaseFormUrl) ?: null
             }
         )
     }
