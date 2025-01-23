@@ -137,6 +137,7 @@ public class KeycloakUserManagementService implements UserManagementService {
     }
 
     @Override
+    @Cacheable("manageableUserByEmail")
     public Optional<ManageableUser> findByEmail(String email) {
         return findUserRepresentationByEmailCached(email).map(this::toManageableUserByRetrievingRoles);
     }
