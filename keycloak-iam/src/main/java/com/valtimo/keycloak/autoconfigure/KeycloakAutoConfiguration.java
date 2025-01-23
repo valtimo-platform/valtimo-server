@@ -38,6 +38,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.autoconfigure.security.oauth2.client.ClientsConfiguredCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -46,6 +47,7 @@ import org.springframework.core.annotation.Order;
 
 @AutoConfiguration
 @EnableConfigurationProperties(KeycloakSpringBootProperties.class)
+@EnableCaching
 public class KeycloakAutoConfiguration {
 
     @Bean
