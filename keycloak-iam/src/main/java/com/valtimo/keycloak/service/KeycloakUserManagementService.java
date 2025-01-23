@@ -46,6 +46,8 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -58,16 +60,13 @@ public class KeycloakUserManagementService implements UserManagementService {
 
     private final KeycloakService keycloakService;
     private final String clientName;
-    private final UserCache userCache;
 
     public KeycloakUserManagementService(
         KeycloakService keycloakService,
-        String keycloakClientName,
-        UserCache userCache
+        String keycloakClientName
     ) {
         this.keycloakService = keycloakService;
         this.clientName = keycloakClientName;
-        this.userCache = userCache;
     }
 
     @Override
@@ -134,14 +133,9 @@ public class KeycloakUserManagementService implements UserManagementService {
     }
 
     @Override
+    @Cacheable("manageableUserByEmail")
     public Optional<ManageableUser> findByEmail(String email) {
-        return Optional.ofNullable(
-            userCache.get(
-                CacheType.EMAIL,
-                email,
-                (emailToRetrieve) -> findUserRepresentationByEmail(emailToRetrieve).map(this::toManageableUserByRetrievingRoles).orElse(null)
-            )
-        );
+        return findUserRepresentationByEmail(email).map(this::toManageableUserByRetrievingRoles);
     }
 
     @Override
@@ -150,28 +144,23 @@ public class KeycloakUserManagementService implements UserManagementService {
     }
 
     @Override
+    @Cacheable("valtimoUserByIdentifier")
     public ValtimoUser findByUserIdentifier(String userIdentifier) {
-        return userCache.get(
-            CacheType.USER_IDENTIFIER,
-            userIdentifier,
-            (identifier) -> {
-                UserRepresentation user = null;
-                try (Keycloak keycloak = keycloakService.keycloak()) {
-                    switch (OauthConfigHolder.getCurrentInstance().getIdentifierField()) {
-                        case USERID ->
-                            user = keycloakService.usersResource(keycloak).get(userIdentifier).toRepresentation();
-                        case USERNAME -> {
-                            var users = keycloakService.usersResource(keycloak).search(userIdentifier);
-                            if (!users.isEmpty()) {
-                                user = users.get(0);
-                            }
-                        }
+        UserRepresentation user = null;
+        try (Keycloak keycloak = keycloakService.keycloak()) {
+            switch (OauthConfigHolder.getCurrentInstance().getIdentifierField()) {
+                case USERID ->
+                    user = keycloakService.usersResource(keycloak).get(userIdentifier).toRepresentation();
+                case USERNAME -> {
+                    var users = keycloakService.usersResource(keycloak).search(userIdentifier);
+                    if (!users.isEmpty()) {
+                        user = users.get(0);
                     }
                 }
-                Boolean isUserEnabled = user != null ? user.isEnabled() : null;
-                return Boolean.TRUE.equals(isUserEnabled) ? toValtimoUserByRetrievingRoles(user) : null;
             }
-        );
+        }
+        Boolean isUserEnabled = user != null ? user.isEnabled() : null;
+        return Boolean.TRUE.equals(isUserEnabled) ? toValtimoUserByRetrievingRoles(user) : null;
     }
 
     @Override
