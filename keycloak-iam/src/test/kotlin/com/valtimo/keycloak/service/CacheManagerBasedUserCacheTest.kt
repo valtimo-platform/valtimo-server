@@ -19,20 +19,29 @@ package com.valtimo.keycloak.service
 import com.ritense.valtimo.contract.authentication.ManageableUser
 import com.ritense.valtimo.contract.authentication.model.ValtimoUser
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
+import org.springframework.cache.caffeine.CaffeineCacheManager
 
-class RequestScopeUserCacheTest {
-     @Test
+class CacheManagerBasedUserCacheTest {
+
+    private lateinit var cache: UserCache
+
+    @BeforeEach
+    fun setup() {
+        cache = CacheManagerBasedUserCache(CaffeineCacheManager())
+    }
+
+    @Test
      fun `should return user information from cache`() {
          val cacheType = CacheType.EMAIL
          val key = "key"
          val expectedResult = mock<ManageableUser>()
          val requestFunction: (String) -> ManageableUser? = { expectedResult }
-         val cache = RequestScopeUserCache()
 
          val result = cache.get(cacheType, key, requestFunction)
 
@@ -50,8 +59,6 @@ class RequestScopeUserCacheTest {
             mockRequestFunction.retrieveUser(key)
             expectedResult
         }
-
-        val cache = RequestScopeUserCache()
 
         val result = cache.get(cacheType, key, requestFunction)
         val result2 = cache.get(cacheType, key, requestFunction)
@@ -78,8 +85,6 @@ class RequestScopeUserCacheTest {
             expectedResult2
         }
 
-        val cache = RequestScopeUserCache()
-
         val result1 = cache.get(cacheType1, key, requestFunction1)
         val result2 = cache.get(cacheType2, key, requestFunction2)
         assertEquals(expectedResult1, result1)
@@ -92,7 +97,6 @@ class RequestScopeUserCacheTest {
         val cacheType = CacheType.EMAIL
         val key = "key"
         val requestFunction: (String) -> String? = { key }
-        val cache = RequestScopeUserCache()
 
         val ex = assertThrows<IllegalArgumentException> {
             cache.get(cacheType, key, requestFunction)

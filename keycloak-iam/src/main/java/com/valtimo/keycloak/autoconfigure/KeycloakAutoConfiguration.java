@@ -27,8 +27,8 @@ import com.valtimo.keycloak.security.jwt.authentication.KeycloakTokenAuthenticat
 import com.valtimo.keycloak.security.jwt.provider.KeycloakSecretKeyProvider;
 import com.valtimo.keycloak.service.KeycloakService;
 import com.valtimo.keycloak.service.KeycloakUserManagementService;
-import com.valtimo.keycloak.service.RequestScopeUserCache;
 import com.valtimo.keycloak.service.UserCache;
+import com.valtimo.keycloak.service.CacheManagerBasedUserCache;
 import javax.sql.DataSource;
 import org.keycloak.adapters.springboot.KeycloakSpringBootProperties;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,12 +39,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.ClientsConfiguredCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.annotation.Order;
-import org.springframework.web.context.annotation.RequestScope;
 
 @AutoConfiguration
 @EnableConfigurationProperties(KeycloakSpringBootProperties.class)
@@ -127,10 +127,11 @@ public class KeycloakAutoConfiguration {
     }
 
     @Bean
-    @RequestScope
     @ConditionalOnMissingBean(UserCache.class)
-    public UserCache requestScopeUserCache() {
-        return new RequestScopeUserCache();
+    public UserCache cacheManagerBasedUserCache(
+        CacheManager cacheManager
+    ) {
+        return new CacheManagerBasedUserCache(cacheManager);
     }
 
 }
