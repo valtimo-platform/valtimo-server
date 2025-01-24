@@ -20,6 +20,7 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.apache.commons.validator.routines.UrlValidator
 
 @Entity
 @Table(name = "case_definition")
@@ -48,6 +49,16 @@ class CaseDefinitionSettings(
                 true -> !externalCreateCaseFormUrl.isNullOrBlank()
                 else -> true
             }
-        ) { "Case property [hasExternalCreateCaseForm] can only be true when [externalCreateCaseFormUrl] is not null or blank." }
+        ) {
+            "Case property [hasExternalCreateCaseForm] can only be true when [externalCreateCaseFormUrl] is not null or blank."
+        }
+        require(
+            when (hasExternalCreateCaseForm) {
+                true -> UrlValidator(arrayOf("http", "https")).isValid(externalCreateCaseFormUrl)
+                else -> true
+            }
+        ) {
+            "Case property [externalCreateCaseFormUrl] can only be true when [externalCreateCaseFormUrl] is a valid URL."
+        }
     }
 }

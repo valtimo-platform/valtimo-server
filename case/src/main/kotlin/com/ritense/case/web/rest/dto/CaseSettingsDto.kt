@@ -35,7 +35,7 @@ data class CaseSettingsDto(
             hasExternalCreateCaseForm = getSettingForUpdate(currentSettings.hasExternalCreateCaseForm, this.hasExternalCreateCaseForm) ?: false,
             externalCreateCaseFormUrl = when (this.hasExternalCreateCaseForm) {
                 false -> null
-                else -> getSettingForUpdate(currentSettings.externalCreateCaseFormUrl, this.externalCreateCaseFormUrl) ?: null
+                else -> getSettingForUpdate(currentSettings.externalCreateCaseFormUrl, this.externalCreateCaseFormUrl)
             }
         )
     }
