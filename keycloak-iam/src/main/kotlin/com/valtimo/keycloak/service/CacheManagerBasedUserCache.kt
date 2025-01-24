@@ -1,10 +1,10 @@
 package com.valtimo.keycloak.service
 
 import mu.KotlinLogging
-import org.springframework.cache.CacheManager
+import org.springframework.cache.caffeine.CaffeineCacheManager
 
 class CacheManagerBasedUserCache(
-    private val cacheManager: CacheManager
+    private val cacheManager: CaffeineCacheManager
 ) : UserCache {
 
     @Suppress("UNCHECKED_CAST")

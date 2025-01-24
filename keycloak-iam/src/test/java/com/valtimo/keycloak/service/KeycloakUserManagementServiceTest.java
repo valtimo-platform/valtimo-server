@@ -53,7 +53,7 @@ class KeycloakUserManagementServiceTest {
 
     private KeycloakService keycloakService;
     private KeycloakUserManagementService userManagementService;
-    private CacheManager cacheManager;
+    private CaffeineCacheManager cacheManager;
     private CacheManagerBasedUserCache userCache;
 
     private UserRepresentation jamesVance;
