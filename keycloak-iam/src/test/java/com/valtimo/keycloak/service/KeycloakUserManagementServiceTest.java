@@ -219,6 +219,7 @@ class KeycloakUserManagementServiceTest {
 
         userManagementService.findByEmail(email);
         userManagementService.findByEmail(email);
+        userManagementService.findNamedUserByEmail(email);
 
         verify(keycloakService.usersResource(any()), times(1)).search(null, null, null, email, 0, 1, true, true);
     }
