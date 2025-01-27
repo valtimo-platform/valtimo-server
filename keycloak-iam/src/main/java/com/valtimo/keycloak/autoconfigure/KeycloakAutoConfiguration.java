@@ -25,7 +25,7 @@ import com.valtimo.keycloak.security.config.KeycloakOAuth2HttpSecurityConfigurer
 import com.valtimo.keycloak.security.config.ValtimoKeycloakPropertyResolver;
 import com.valtimo.keycloak.security.jwt.authentication.KeycloakTokenAuthenticator;
 import com.valtimo.keycloak.security.jwt.provider.KeycloakSecretKeyProvider;
-import com.valtimo.keycloak.service.CacheManagerBasedUserCache;
+import com.valtimo.keycloak.service.UserCacheImpl;
 import com.valtimo.keycloak.service.KeycloakService;
 import com.valtimo.keycloak.service.KeycloakUserManagementService;
 import com.valtimo.keycloak.service.UserCache;
@@ -128,10 +128,10 @@ public class KeycloakAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserCache.class)
-    public UserCache cacheManagerBasedUserCache(
+    public UserCache userCache(
         CaffeineCacheManager cacheManager
     ) {
-        return new CacheManagerBasedUserCache(cacheManager);
+        return new UserCacheImpl(cacheManager);
     }
 
 }

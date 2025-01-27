@@ -27,13 +27,13 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.springframework.cache.caffeine.CaffeineCacheManager
 
-class CacheManagerBasedUserCacheTest {
+class UserCacheImplTest {
 
     private lateinit var cache: UserCache
 
     @BeforeEach
     fun setup() {
-        cache = CacheManagerBasedUserCache(CaffeineCacheManager())
+        cache = UserCacheImpl(CaffeineCacheManager())
     }
 
     @Test

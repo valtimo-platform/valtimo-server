@@ -46,7 +46,6 @@ import org.keycloak.representations.idm.UserRepresentation;
 
 import com.ritense.valtimo.contract.OauthConfigHolder;
 import com.ritense.valtimo.contract.config.ValtimoProperties.Oauth;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 
 class KeycloakUserManagementServiceTest {
@@ -54,7 +53,7 @@ class KeycloakUserManagementServiceTest {
     private KeycloakService keycloakService;
     private KeycloakUserManagementService userManagementService;
     private CaffeineCacheManager cacheManager;
-    private CacheManagerBasedUserCache userCache;
+    private UserCacheImpl userCache;
 
     private UserRepresentation jamesVance;
     private UserRepresentation johnDoe;
@@ -69,7 +68,7 @@ class KeycloakUserManagementServiceTest {
     public void before() {
         keycloakService = mock(KeycloakService.class, RETURNS_DEEP_STUBS);
         cacheManager = new CaffeineCacheManager();
-        userCache = new CacheManagerBasedUserCache(cacheManager);
+        userCache = new UserCacheImpl(cacheManager);
         userManagementService = new KeycloakUserManagementService(keycloakService, "clientName", userCache);
 
         jamesVance = newUser("James", "Vance", List.of(USER));
