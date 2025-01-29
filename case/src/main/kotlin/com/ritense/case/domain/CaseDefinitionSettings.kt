@@ -20,20 +20,21 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.apache.commons.validator.routines.UrlValidator
 
 @Entity
 @Table(name = "case_definition")
 class CaseDefinitionSettings(
     @Id
-    @Column(name = "case_definition_name")
+    @Column(name = "case_definition_name", nullable = false, length = 256)
     val name: String,
-    @Column(name = "can_have_assignee")
+    @Column(name = "can_have_assignee", nullable = false)
     val canHaveAssignee: Boolean = false,
-    @Column(name = "auto_assign_tasks")
+    @Column(name = "auto_assign_tasks", nullable = false)
     val autoAssignTasks: Boolean = false,
-    @Column(name = "has_external_create_case_form")
+    @Column(name = "has_external_create_case_form", nullable = false)
     val hasExternalCreateCaseForm: Boolean = false,
-    @Column(name = "external_create_case_form_url")
+    @Column(name = "external_create_case_form_url", nullable = true, length = 512)
     val externalCreateCaseFormUrl: String? = null,
 ) {
     init {
@@ -48,6 +49,24 @@ class CaseDefinitionSettings(
                 true -> !externalCreateCaseFormUrl.isNullOrBlank()
                 else -> true
             }
-        ) { "Case property [hasExternalCreateCaseForm] can only be true when [externalCreateCaseFormUrl] is not null or blank." }
+        ) {
+            "Case property [hasExternalCreateCaseForm] can only be true when [externalCreateCaseFormUrl] is not null or blank."
+        }
+        require(
+            when (hasExternalCreateCaseForm) {
+                true -> UrlValidator(arrayOf("http", "https")).isValid(externalCreateCaseFormUrl)
+                else -> true
+            }
+        ) {
+            "Case property [externalCreateCaseFormUrl] is not a valid URL."
+        }
+        require(
+            when (hasExternalCreateCaseForm && !externalCreateCaseFormUrl.isNullOrBlank()) {
+                true -> externalCreateCaseFormUrl.length <= 512
+                else -> true
+            }
+        ) {
+            "Case property [externalCreateCaseFormUrl] exceeds the maximum length of 512 characters."
+        }
     }
 }
