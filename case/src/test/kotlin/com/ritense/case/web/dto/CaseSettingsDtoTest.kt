@@ -87,7 +87,30 @@ class CaseSettingsDtoTest {
             caseSettingsDto.update(currentCaseSettings)
         }.let { exception ->
             assertThat(exception.message)
-                .isEqualTo("Case property [externalCreateCaseFormUrl] can only be true when [externalCreateCaseFormUrl] is a valid URL.")
+                .isEqualTo("Case property [externalCreateCaseFormUrl] is not a valid URL.")
+        }
+    }
+
+    @Test
+    fun `should throw IllegalArgumentException when updating case setting 'hasExternalCreateCaseForm' exceeds 512 characters`() {
+        val currentCaseSettings = CaseDefinitionSettings(
+            name = "name"
+        )
+        assertThat(currentCaseSettings.hasExternalCreateCaseForm).isFalse()
+        assertThat(currentCaseSettings.externalCreateCaseFormUrl).isNull()
+
+        val caseSettingsDto = CaseSettingsDto(
+            hasExternalCreateCaseForm = true,
+            externalCreateCaseFormUrl = "https://www.example.com/search?param1=value10&param2=value20&param3=value30&param4=value40&param5=value50&param6=value60&param7=value70&param8=value80&param9=value90&param10=value100&param11=value110&param12=value120&param13=value130&param14=value140&param15=value150&param16=value160&param17=value170&param18=value180&param19=value190&param20=value200&param21=value210&param22=value220&param23=value230&param24=value240&param25=value250&param26=value260&param27=value270&param28=value280&param29=value290&extra_param=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        )
+        assertThat(caseSettingsDto.hasExternalCreateCaseForm).isTrue()
+        assertThat(caseSettingsDto.externalCreateCaseFormUrl).isNotBlank()
+
+        assertThrows<IllegalArgumentException> {
+            caseSettingsDto.update(currentCaseSettings)
+        }.let { exception ->
+            assertThat(exception.message)
+                .isEqualTo("Case property [externalCreateCaseFormUrl] exceeds the maximum length of 512 characters.")
         }
     }
 
