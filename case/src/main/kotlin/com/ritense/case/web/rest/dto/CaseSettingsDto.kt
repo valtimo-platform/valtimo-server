@@ -43,4 +43,14 @@ data class CaseSettingsDto(
     private fun <T> getSettingForUpdate(currentValue: T?, newValue: T?): T? {
         return newValue ?: currentValue
     }
+
+    companion object {
+
+        fun from(settings: CaseDefinitionSettings) = CaseSettingsDto(
+            canHaveAssignee = settings.canHaveAssignee,
+            autoAssignTasks = settings.autoAssignTasks,
+            hasExternalCreateCaseForm = settings.hasExternalCreateCaseForm,
+            externalCreateCaseFormUrl = settings.externalCreateCaseFormUrl
+        )
+    }
 }
