@@ -16,18 +16,22 @@
 
 package com.ritense.gzac.fvm
 
-import com.ritense.formviewmodel.viewmodel.Submission
-import com.ritense.formviewmodel.viewmodel.ViewModel
-import com.ritense.valtimo.camunda.domain.CamundaTask
+import com.ritense.formviewmodel.submission.FormViewModelStartFormSubmissionHandler
+import com.ritense.processlink.domain.ProcessLink
 import mu.KLogger
 import mu.KotlinLogging
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
+import org.springframework.stereotype.Component
 
-class DummyViewModel : ViewModel, Submission {
+@Component
+@Order(Ordered.LOWEST_PRECEDENCE)
+class NoopFormViewModelStartFormSubmissionHandler: FormViewModelStartFormSubmissionHandler<NoopViewModel> {
 
-    override fun update(task: CamundaTask?, page: Int?): ViewModel {
-        logger.info { "Update called on ${this::class.java.simpleName}, taskId=${task?.id}, page=$page" }
+    override fun supports(processLink: ProcessLink) = true
 
-        return this
+    override fun <T> handle(documentDefinitionName: String, processDefinitionKey: String, submission: T) {
+        logger.debug { "Start form submission handle: documentDefinitionName=$documentDefinitionName, processDefinitionKey=$processDefinitionKey" }
     }
 
     companion object {
