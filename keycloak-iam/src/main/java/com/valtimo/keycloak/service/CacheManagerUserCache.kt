@@ -49,7 +49,7 @@ class CacheManagerUserCache(
     }
 
     @CacheEvict(allEntries = true, value = ["EMAIL_ManageableUser", "USER_IDENTIFIER_ValtimoUser"])
-    @Scheduled(fixedRateString = "\${valtimo.keycloak.cache.ttl:PT1H}")
+    @Scheduled(fixedRateString = "\${valtimo.keycloak.cache.maxTtl:PT1H}")
     fun logCacheClear() {
         logger.debug { "Clearing all user information cache" }
     }
