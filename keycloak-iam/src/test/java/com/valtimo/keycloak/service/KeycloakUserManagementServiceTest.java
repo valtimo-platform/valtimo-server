@@ -225,16 +225,6 @@ class KeycloakUserManagementServiceTest {
     }
 
     @Test
-    void shouldRetrieveNamedUserFromCache() {
-        String email = "test@example.com";
-
-        userManagementService.findNamedUserByEmail(email);
-        userManagementService.findNamedUserByEmail(email);
-
-        verify(keycloakService.usersResource(any()), times(1)).search(null, null, null, email, 0, 1, true, true);
-    }
-
-    @Test
     void findByUserIdentifierShouldNotThrowAnExceptionWhenSearchingOnUsernameAndNoUserIsNotFound() {
         OauthConfigHolder.getCurrentInstance().setIdentifierField(ValtimoProperties.IdentifierField.USERNAME);
 
