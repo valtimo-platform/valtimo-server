@@ -54,7 +54,7 @@ class PluginProcessLinkServiceImpl(
         val correspondingProcessDefinitions =
             uniqueProcessDefinitionIds.map { runWithoutAuthorization { camundaProcessService.getProcessDefinitionById(it) } }
         val groupedByProcessDefinitionKey = correspondingProcessDefinitions.groupBy { it.key }
-        val compatiblePluginProcessLinksArray = groupedByProcessDefinitionKey.map { (key, processDefinitions) ->
+        val compatiblePluginProcessLinksList = groupedByProcessDefinitionKey.map { (key, processDefinitions) ->
             CompatiblePluginProcessLinks(
                 processDefinitionKey = key,
                 versions = processDefinitions.map { processDefinition ->
@@ -69,6 +69,6 @@ class PluginProcessLinkServiceImpl(
             )
         }
 
-        return compatiblePluginProcessLinksArray
+        return compatiblePluginProcessLinksList
     }
 }
