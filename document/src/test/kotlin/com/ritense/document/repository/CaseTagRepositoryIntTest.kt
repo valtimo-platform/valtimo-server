@@ -1,10 +1,9 @@
-package com.ritense.document.service
+package com.ritense.document.repository
 
 import com.ritense.document.BaseIntegrationTest
 import com.ritense.document.domain.CaseTag
 import com.ritense.document.domain.CaseTagColor
 import com.ritense.document.domain.CaseTagId
-import com.ritense.document.repository.CaseTagRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.transaction.annotation.Transactional
@@ -25,7 +24,6 @@ class CaseTagRepositoryIntTest @Autowired constructor(
         )
 
         repository.save(tag)
-
     }
 
 }
