@@ -16,25 +16,17 @@
 
 package com.ritense.gzac.fvm
 
-import com.ritense.formviewmodel.submission.FormViewModelStartFormSubmissionHandler
-import com.ritense.processlink.domain.ProcessLink
-import mu.KLogger
-import mu.KotlinLogging
-import org.springframework.core.Ordered
-import org.springframework.core.annotation.Order
-import org.springframework.stereotype.Component
-
-@Component
-@Order(Ordered.LOWEST_PRECEDENCE)
-class NoopFormViewModelStartFormSubmissionHandler: FormViewModelStartFormSubmissionHandler<NoopViewModel> {
-
-    override fun supports(processLink: ProcessLink) = true
-
-    override fun <T> handle(documentDefinitionName: String, processDefinitionKey: String, submission: T) {
-        logger.debug { "Start form submission handle: documentDefinitionName=$documentDefinitionName, processDefinitionKey=$processDefinitionKey" }
-    }
-
-    companion object {
-        private val logger: KLogger = KotlinLogging.logger {}
-    }
-}
+//@Component
+//@Order(Ordered.LOWEST_PRECEDENCE)
+//class NoopFormViewModelStartFormSubmissionHandler: FormViewModelStartFormSubmissionHandler<NoopViewModel> {
+//
+//    override fun supports(processLink: ProcessLink) = true
+//
+//    override fun <T> handle(documentDefinitionName: String, processDefinitionKey: String, submission: T) {
+//        logger.debug { "Start form submission handle: documentDefinitionName=$documentDefinitionName, processDefinitionKey=$processDefinitionKey" }
+//    }
+//
+//    companion object {
+//        private val logger: KLogger = KotlinLogging.logger {}
+//    }
+//}

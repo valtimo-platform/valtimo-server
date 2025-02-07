@@ -19,13 +19,24 @@
             "allowPrevious": true,
             "components": [
                 {
-                    "label": "Text Field",
-                    "applyMaskOn": "change",
-                    "tableView": true,
-                    "validateWhenHidden": false,
-                    "key": "test",
-                    "type": "textfield",
-                    "input": true
+                    "collapsible": true,
+                    "key": "panel",
+                    "type": "panel",
+                    "label": "Panel",
+                    "input": false,
+                    "tableView": false,
+                    "components": [
+                        {
+                            "label": "Text Field",
+                            "applyMaskOn": "change",
+                            "tableView": true,
+                            "validateWhenHidden": false,
+                            "key": "test",
+                            "type": "textfield",
+                            "input": true
+                        }
+                    ],
+                    "collapsed": false
                 }
             ],
             "input": false,
