@@ -338,7 +338,10 @@ public class FormIoFormDefinition extends AbstractAggregateRoot<FormIoFormDefini
         final List<ObjectNode> inputFields = new LinkedList<>();
         List<ArrayNode> components = getComponentsWithInputs(formDefinition);
         components.forEach(componentsNode -> componentsNode.forEach(fieldNode -> {
-            if ((isInputComponent(fieldNode) || isTextFieldComponent(fieldNode)) && !isButtonTypeComponent(fieldNode)) {
+            if (
+                (isInputComponent(fieldNode) || isTextFieldComponent(fieldNode) || isHiddenFieldComponent(fieldNode))
+                && !isButtonTypeComponent(fieldNode)
+            ) {
                 inputFields.add((ObjectNode) fieldNode);
             }
         }));
@@ -546,6 +549,10 @@ public class FormIoFormDefinition extends AbstractAggregateRoot<FormIoFormDefini
             List<String> values = new ArrayList<>();
             node.forEach(childNode -> values.add(childNode.textValue()));
             return values;
+        } else if (nodeType == JsonNodeType.OBJECT) {
+            Map<String, Object> values = new HashMap<>();
+            node.fields().forEachRemaining(entry -> values.put(entry.getKey(), extractNodeValue(entry.getValue())));
+            return values;
         } else {
             logger.warn("Submitted form field value to be stored in process variables is of an unsupported type");
             return null;
@@ -566,6 +573,12 @@ public class FormIoFormDefinition extends AbstractAggregateRoot<FormIoFormDefini
     private static boolean isTextFieldComponent(JsonNode jsonNode) {
         return jsonNode.has("type")
             && jsonNode.get("type").textValue().equalsIgnoreCase("textfield")
+            && jsonNode.has(PROPERTY_KEY);
+    }
+
+    private static boolean isHiddenFieldComponent(JsonNode jsonNode) {
+        return jsonNode.has("type")
+            && jsonNode.get("type").textValue().equalsIgnoreCase("hidden")
             && jsonNode.has(PROPERTY_KEY);
     }
 
