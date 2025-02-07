@@ -17,11 +17,14 @@
 package com.ritense.objecttypenapi
 
 import com.ritense.objecttypenapi.client.Objecttype
+import com.ritense.objecttypenapi.client.ObjecttypeVersion
 import com.ritense.objecttypenapi.client.ObjecttypenApiClient
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -60,5 +63,26 @@ internal class ObjecttypenApiPluginTest{
 
         assertEquals(objecttypesMock, result)
         verify(client).getObjecttypes(any(), any())
+    }
+
+    @Test
+    fun `should call client on get objecttype version`() {
+        val objecttypeVersionUrl = URI("http://example.com/versions/1")
+        val version = 1
+        val resultMock = mock<ObjecttypeVersion>()
+        whenever(client.getObjecttypeVersion(plugin.authenticationPluginConfiguration, objecttypeVersionUrl)).thenReturn(resultMock)
+
+        val result = plugin.getObjecttypeVersion(objecttypeVersionUrl)
+
+        assertEquals(resultMock, result)
+        verify(client).getObjecttypeVersion(any(), eq(objecttypeVersionUrl))
+    }
+
+    @Test
+    fun `should create object type version url `() {
+        val objecttypeUrl = URI("http://example.com/objecttypes/some-object-type-uuid")
+        val result = plugin.getObjectTypeVersionUrl(objecttypeUrl, 1)
+
+        assertThat(result).isEqualTo(URI("$objecttypeUrl/versions/1"))
     }
 }

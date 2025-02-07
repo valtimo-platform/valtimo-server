@@ -18,6 +18,7 @@ package com.ritense.objecttypenapi
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.ritense.objecttypenapi.client.Objecttype
+import com.ritense.objecttypenapi.client.ObjecttypeVersion
 import com.ritense.objecttypenapi.client.ObjecttypenApiClient
 import com.ritense.plugin.annotation.Plugin
 import com.ritense.plugin.annotation.PluginProperty
@@ -51,10 +52,26 @@ class ObjecttypenApiPlugin(
         return objecttypenApiClient.getObjecttypes(authenticationPluginConfiguration, typeUrl)
     }
 
+    fun getObjecttypeVersion(typeVersionUrl: URI): ObjecttypeVersion {
+        logger.debug { "Get object type version for typeVersionUrl=$typeVersionUrl" }
+        return objecttypenApiClient.getObjecttypeVersion(
+            authentication = authenticationPluginConfiguration,
+            objecttypeVersionUrl = typeVersionUrl,
+        )
+    }
+
     fun getObjectTypeUrlById(id: String): URI {
         return UriComponentsBuilder.fromUri(url)
             .pathSegment("objecttypes")
             .pathSegment(id)
+            .build()
+            .toUri()
+    }
+
+    fun getObjectTypeVersionUrl(objectTypeUrl: URI, version: Int): URI {
+        return UriComponentsBuilder.fromUri(objectTypeUrl)
+            .pathSegment("versions")
+            .pathSegment(version.toString())
             .build()
             .toUri()
     }

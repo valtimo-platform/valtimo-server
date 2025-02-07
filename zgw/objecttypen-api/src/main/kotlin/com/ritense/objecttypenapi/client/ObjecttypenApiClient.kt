@@ -59,6 +59,23 @@ class ObjecttypenApiClient(
             .body<List<Objecttype>>()!!
     }
 
+    fun getObjecttypeVersion(
+        authentication: ObjecttypenApiAuthentication,
+        objecttypeVersionUrl: URI
+    ): ObjecttypeVersion {
+        val url = sanitizeUriHost(objecttypeVersionUrl)
+        return restClientBuilder
+            .clone()
+            .apply {
+                authentication.applyAuth(it)
+            }
+            .build()
+            .get()
+            .uri(url)
+            .retrieve()
+            .body<ObjecttypeVersion>()!!
+    }
+
     private fun sanitizeUriHost(objecttypesUrl: URI): URI {
         val url = if (objecttypesUrl.host == HOST_DOCKER_INTERNAL) {
             URI.create(objecttypesUrl.toString().replace(HOST_DOCKER_INTERNAL, "localhost"))

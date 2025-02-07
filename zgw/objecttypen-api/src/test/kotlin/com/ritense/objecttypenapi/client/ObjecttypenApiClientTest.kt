@@ -16,9 +16,11 @@
 
 package com.ritense.objecttypenapi.client
 
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.ritense.objecttypenapi.ObjecttypenApiAuthentication
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -191,6 +193,60 @@ internal class ObjecttypenApiClientTest {
         assertEquals(LocalDate.of(2019, 8, 24), result.createdAt)
         assertEquals(LocalDate.of(2019, 8, 24), result.modifiedAt)
         assertEquals(listOf(URI("http://example.com")), result.versions)
+    }
+
+    @Test
+    fun `should send get single objecttype version request and parse response`() {
+        val restClientBuilder = RestClient.builder()
+        val client = ObjecttypenApiClient(restClientBuilder)
+
+        val responseBody = """
+            {
+                "url": "http://example.com/api/v1/objecttypes/3e852115-277a-4570-873a-9a64be3aeb34/versions/1",
+                "version": 1,
+                "objectType": "http://example.com/api/v1/objecttypes/3e852115-277a-4570-873a-9a64be3aeb34",
+                "status": "draft",
+                "jsonSchema": {
+                    "type": "object",
+                    "title": "ObjectType Taak",
+
+                    "properties": {
+                        "someNumber": {
+                            "type": "string",
+                            "pattern": "^[0-9]+${'$'}"
+                        }
+                    }
+                },
+                "createdAt": "2022-02-03",
+                "modifiedAt": "2022-02-04",
+                "publishedAt": "2022-02-05"
+            }
+        """.trimIndent()
+
+        mockApi.enqueue(mockResponse(responseBody))
+
+        val objecttypeVersionUrl = mockApi.url("/some-object-uuid/versions/1").toString()
+
+        val result = client.getObjecttypeVersion(
+            TestAuthentication(),
+            URI(objecttypeVersionUrl)
+        )
+
+        val recordedRequest = mockApi.takeRequest()
+        val requestedUrl = recordedRequest.requestUrl
+
+        assertEquals("Bearer test", recordedRequest.getHeader("Authorization"))
+
+        assertEquals(objecttypeVersionUrl, requestedUrl.toString())
+
+        assertThat(result.url).isEqualTo(URI("http://example.com/api/v1/objecttypes/3e852115-277a-4570-873a-9a64be3aeb34/versions/1"))
+        assertThat(result.version).isEqualTo(1)
+        assertThat(result.objectType).isEqualTo(URI("http://example.com/api/v1/objecttypes/3e852115-277a-4570-873a-9a64be3aeb34"))
+        assertThat(result.status).isEqualTo(ObjecttypeVersion.Status.DRAFT)
+        assertThat(result.jsonSchema).isInstanceOf(ObjectNode::class.java)
+        assertThat(result.createdAt).isEqualTo("2022-02-03")
+        assertThat(result.modifiedAt).isEqualTo("2022-02-04")
+        assertThat(result.publishedAt).isEqualTo("2022-02-05")
     }
 
     private fun mockResponse(body: String): MockResponse {

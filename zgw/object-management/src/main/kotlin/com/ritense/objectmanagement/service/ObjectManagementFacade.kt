@@ -37,7 +37,8 @@ import java.util.UUID
 
 class ObjectManagementFacade(
     private val objectManagementRepository: ObjectManagementRepository,
-    private val pluginService: PluginService
+    private val pluginService: PluginService,
+    private val objectManagementValidationService: ObjectManagementValidationService,
 ) {
     fun getObjectByUuid(objectName: String, uuid: UUID): ObjectWrapper {
         logger.debug { "Get object by UUID objectName=$objectName uuid=$uuid" }
@@ -150,6 +151,8 @@ class ObjectManagementFacade(
             )
         )
 
+        objectManagementValidationService.validateObject(accessObject.objectManagement, data)
+
         try {
             return accessObject.objectenApiPlugin.createObject(objectRequest)
         } catch (ex: RestClientResponseException) {
@@ -176,6 +179,8 @@ class ObjectManagementFacade(
                 startAt = LocalDate.now()
             )
         )
+
+        objectManagementValidationService.validateObject(accessObject.objectManagement, data)
 
         try {
             return accessObject.objectenApiPlugin
