@@ -18,15 +18,33 @@ package com.ritense.document.autoconfiguration
 
 import com.ritense.authorization.AuthorizationService
 import com.ritense.document.repository.CaseTagRepository
+import com.ritense.document.security.CaseTagHttpSecurityConfigurer
 import com.ritense.document.service.CaseTagService
 import com.ritense.document.service.DocumentDefinitionService
+import com.ritense.document.web.rest.CaseTagResource
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
+import org.springframework.core.annotation.Order
 
 
 @AutoConfiguration
 class CaseTagAutoConfiguration {
+
+    @Order(295)
+    @Bean
+    @ConditionalOnMissingBean(CaseTagHttpSecurityConfigurer::class)
+    fun caseTagHttpSecurityConfigurer(): CaseTagHttpSecurityConfigurer {
+        return CaseTagHttpSecurityConfigurer()
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CaseTagResource::class)
+    fun caseTagResource(
+        caseTagService: CaseTagService,
+    ): CaseTagResource {
+        return CaseTagResource(caseTagService)
+    }
 
     @Bean
     @ConditionalOnMissingBean(CaseTagService::class)

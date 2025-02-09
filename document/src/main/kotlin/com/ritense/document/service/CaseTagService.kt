@@ -82,6 +82,44 @@ class CaseTagService(
         )
     }
 
+    fun update(
+        caseDefinitionName: String,
+        @Valid requests: List<CaseTagUpdateRequestDto>
+    ): List<CaseTag> {
+        denyManagementOperation()
+
+        val existingCaseTags = caseTagRepository
+            .findByIdCaseDefinitionName(caseDefinitionName)
+        check(existingCaseTags.size == requests.size) {
+            throw IllegalStateException(
+                "Failed to update case tags. Reason: the number of "
+                    + "case tags in the update request does not match the number of existing case tags."
+            )
+        }
+
+        val updatedCaseTags = requests.mapIndexed { _, request ->
+            val existingCaseTag = existingCaseTags.find { it.id.key == request.key }
+                ?: throw CaseTagNotFoundException(request.key, caseDefinitionName)
+            existingCaseTag.copy(
+                title = request.title,
+                color = request.color
+            )
+        }
+
+        return caseTagRepository.saveAll(updatedCaseTags)
+    }
+
+    fun delete(caseDefinitionName: String, caseTagKey: String) {
+        denyManagementOperation()
+
+        val caseTag =
+            caseTagRepository.findDistinctByIdCaseDefinitionNameAndIdKey(
+                caseDefinitionName, caseTagKey
+            ) ?: throw CaseTagNotFoundException(caseTagKey, caseDefinitionName)
+
+        caseTagRepository.delete(caseTag)
+    }
+
     private fun denyManagementOperation() {
         authorizationService.requirePermission(
             EntityAuthorizationRequest(
