@@ -21,6 +21,7 @@
                     "input": false,
                     "label": "Panel",
                     "title": "Panel with table",
+                    "collapsed": false,
                     "tableView": false,
                     "components": [
                         {
@@ -540,7 +541,31 @@
                             "showValidations": false
                         }
                     ],
-                    "collapsible": false
+                    "collapsible": true
+                },
+                {
+                    "key": "collapsedPanel",
+                    "type": "panel",
+                    "input": false,
+                    "label": "Panel",
+                    "title": "Collapsed panel",
+                    "collapsed": true,
+                    "tableView": false,
+                    "components": [
+                        {
+                            "key": "error",
+                            "type": "textfield",
+                            "input": true,
+                            "label": "Error field",
+                            "tableView": true,
+                            "attributes": {
+                                "data-testid": "wizard-ui-test-error"
+                            },
+                            "applyMaskOn": "change",
+                            "placeholder": "type your error here"
+                        }
+                    ],
+                    "collapsible": true
                 }
             ],
             "collapsible": false,
