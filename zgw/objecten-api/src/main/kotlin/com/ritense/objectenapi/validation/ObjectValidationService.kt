@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.ritense.objectmanagement.service
+package com.ritense.objectenapi.validation
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.google.common.cache.CacheBuilder
-import com.ritense.objectmanagement.domain.ObjectManagement
+import com.ritense.objectenapi.client.ObjectRequest
 import com.ritense.objecttypenapi.ObjecttypenApiPlugin
 import com.ritense.objecttypenapi.client.ObjecttypeVersion
-import com.ritense.plugin.domain.PluginConfigurationId
 import com.ritense.plugin.service.PluginService
 import mu.KLogger
 import mu.KotlinLogging
@@ -29,28 +27,35 @@ import java.net.URI
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
-import java.util.UUID
 
-class ObjectManagementValidationService(
+class ObjectValidationService(
     private val pluginService: PluginService,
     private val jsonSchemaValidationService: JsonSchemaValidationService,
+    private val validationType: ValidationType = ValidationType.LOG,
     private val cacheTtl: Duration = Duration.ofHours(1),
     private val clock: Clock = Clock.systemDefaultZone() //Can be used for testing or ticking on whole minutes
 ) {
     private val objectTypeCache = CacheBuilder.newBuilder()
         .build<URI, CachedObjectType>()
 
-    fun validateObject(objectManagement: ObjectManagement, data: JsonNode) {
-        val plugin = getObjectTypenApiPlugin(objectManagement.objecttypenApiPluginConfigurationId)
-        val objectTypeUrl = plugin.getObjectTypeUrlById(objectManagement.objecttypeId)
-        val objectTypeVersionUrl = plugin.getObjectTypeVersionUrl(objectTypeUrl, objectManagement.objecttypeVersion)
+    fun validate(objectRequest: ObjectRequest, patch: Boolean = false) {
+        if (validationType == ValidationType.DISABLED || objectRequest.record.data == null) {
+            return
+        }
 
-        val objecttypeVersion = getObjectTypeVersion(plugin, objectTypeVersionUrl)
+        val plugin = getObjectTypenApiPlugin(objectRequest.type)!!
+        val objectTypeUrl = objectRequest.type
+        val objectTypeVersionUrl = plugin.getObjectTypeVersionUrl(objectTypeUrl, objectRequest.record.typeVersion)
 
         try {
-            jsonSchemaValidationService.validate(objecttypeVersion.jsonSchema, data)
+            val objecttypeVersion = getObjectTypeVersion(plugin, objectTypeVersionUrl)
+
+            jsonSchemaValidationService.validate(objecttypeVersion.jsonSchema, objectRequest.record.data, patch)
         } catch (e: Exception) {
             logger.error(e) { "Error while validating data for object of type $objectTypeVersionUrl" }
+            if (validationType == ValidationType.ERROR) {
+                throw e
+            }
         }
     }
 
@@ -66,6 +71,7 @@ class ObjectManagementValidationService(
 
         val objecttypeVersion = cachedObjectType.objecttypeVersion
 
+        // Published type versions are not invalidated from the cache, since they don't change anymore
         if (objecttypeVersion.status !== ObjecttypeVersion.Status.PUBLISHED &&
             cachedObjectType.createdOn.plus(cacheTtl).isAfter(Instant.now(clock))
         ) {
@@ -75,8 +81,10 @@ class ObjectManagementValidationService(
         return objecttypeVersion
     }
 
-    private fun getObjectTypenApiPlugin(id: UUID) = pluginService
-        .createInstance(PluginConfigurationId.existingId(id)) as ObjecttypenApiPlugin
+    private fun getObjectTypenApiPlugin(typeUrl:URI) = pluginService.createInstance(
+            clazz = ObjecttypenApiPlugin::class.java,
+            configurationFilter = ObjecttypenApiPlugin.findConfigurationByUrl(typeUrl)
+        )
 
     private data class CachedObjectType(
         val objecttypeVersion: ObjecttypeVersion

@@ -24,6 +24,7 @@ import com.ritense.objectenapi.event.ObjectPatched
 import com.ritense.objectenapi.event.ObjectUpdated
 import com.ritense.objectenapi.event.ObjectViewed
 import com.ritense.objectenapi.event.ObjectsListed
+import com.ritense.objectenapi.validation.ObjectValidationService
 import com.ritense.outbox.OutboxService
 import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpStatus
@@ -35,7 +36,8 @@ import java.net.URI
 class ObjectenApiClient(
     private val restClientBuilder: RestClient.Builder,
     private val outboxService: OutboxService,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val objectValidationService: ObjectValidationService
 ) {
 
     fun getObject(
@@ -155,6 +157,8 @@ class ObjectenApiClient(
         objectsApiUrl: URI,
         objectRequest: ObjectRequest
     ): ObjectWrapper {
+        objectValidationService.validate(objectRequest)
+
         val objectRequestCorrectedHost = if (objectRequest.type.host == "localhost") {
             objectRequest.copy(
                 type = UriComponentsBuilder
@@ -190,6 +194,8 @@ class ObjectenApiClient(
         objectUrl: URI,
         objectRequest: ObjectRequest
     ): ObjectWrapper {
+        objectValidationService.validate(objectRequest, true)
+
         val objectRequestCorrectedHost = if (objectRequest.type.host == "localhost") {
             objectRequest.copy(
                 type = UriComponentsBuilder
@@ -223,6 +229,8 @@ class ObjectenApiClient(
         objectUrl: URI,
         objectRequest: ObjectRequest
     ): ObjectWrapper {
+        objectValidationService.validate(objectRequest)
+
         val objectRequestCorrectedHost = if (objectRequest.type.host == "localhost") {
             objectRequest.copy(
                 type = UriComponentsBuilder

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ritense.objectmanagement.service
+package com.ritense.objectenapi.validation
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.networknt.schema.JsonSchema
@@ -26,7 +26,7 @@ import com.networknt.schema.ValidationMessage
 
 class JsonSchemaValidationService {
 
-    fun validate(schema: JsonNode, data: JsonNode) {
+    fun validate(jsonSchema: JsonNode, data: JsonNode, patch: Boolean = false) {
 
         // This creates a schema factory that will use Draft 2020-12 as the default if $schema is not specified
         // in the schema data. If $schema is specified in the schema data then that schema dialect will be used
@@ -34,20 +34,19 @@ class JsonSchemaValidationService {
         val jsonSchemaFactory: JsonSchemaFactory = JsonSchemaFactory.getInstance(VersionFlag.V202012)
         val builder: SchemaValidatorsConfig.Builder = SchemaValidatorsConfig.builder()
 
-
         // By default the JDK regular expression implementation which is not ECMA 262 compliant is used
         // Note that setting this requires including optional dependencies
         // builder.regularExpressionFactory(GraalJSRegularExpressionFactory.getInstance());
         // builder.regularExpressionFactory(JoniRegularExpressionFactory.getInstance());
-        val config: SchemaValidatorsConfig = builder.build()
+        val config: SchemaValidatorsConfig = builder
+            .formatAssertionsEnabled(true)
+            .build()
 
+        val schema: JsonSchema = jsonSchemaFactory.getSchema(jsonSchema, config)
 
-        val schema: JsonSchema = jsonSchemaFactory.getSchema(schema, config)
-
-        val validationMessages = schema.validate(data) { executionContext ->
-            // By default since Draft 2019-09 the format keyword only generates annotations and not assertions
-            executionContext.executionConfig.formatAssertionsEnabled = true
-        }
+        val validationMessages = schema.validate(data)
+            .filterNot { patch && it.type == "required" }
+            .toSet()
 
         if (validationMessages.isNotEmpty()) {
             throw JsonSchemaValidationException(validationMessages)

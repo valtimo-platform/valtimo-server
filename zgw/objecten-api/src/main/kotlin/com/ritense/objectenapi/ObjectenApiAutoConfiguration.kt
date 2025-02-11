@@ -26,6 +26,9 @@ import com.ritense.objectenapi.security.ObjectenApiHttpSecurityConfigurer
 import com.ritense.objectenapi.service.ZaakObjectDataResolver
 import com.ritense.objectenapi.service.ZaakObjectService
 import com.ritense.objectenapi.service.ZaakObjectValueResolverFactory
+import com.ritense.objectenapi.validation.JsonSchemaValidationService
+import com.ritense.objectenapi.validation.ObjectValidationService
+import com.ritense.objectenapi.validation.ValidationType
 import com.ritense.objectenapi.web.rest.ObjectResource
 import com.ritense.objectenapi.web.rest.ZaakObjectResource
 import com.ritense.outbox.OutboxService
@@ -57,11 +60,13 @@ class ObjectenApiAutoConfiguration {
     fun objectenApiClient(
         restClientBuilder: RestClient.Builder,
         outboxService: OutboxService,
-        objectMapper: ObjectMapper
+        objectMapper: ObjectMapper,
+        objectValidationService: ObjectValidationService
     ) = ObjectenApiClient(
         restClientBuilder,
         outboxService,
-        objectMapper
+        objectMapper,
+        objectValidationService
     )
 
     @Bean
@@ -131,4 +136,20 @@ class ObjectenApiAutoConfiguration {
     fun errorObjectManagementInfoProvider(): ObjectManagementInfoProvider {
         return ErrorObjectManagementInfoProvider()
     }
+
+
+    @Bean
+    @ConditionalOnMissingBean(ObjectValidationService::class)
+    fun objectManagementValidationService(
+        pluginService: PluginService,
+        jsonSchemaValidationService: JsonSchemaValidationService
+    ) = ObjectValidationService(
+        pluginService = pluginService,
+        jsonSchemaValidationService = jsonSchemaValidationService,
+        validationType = ValidationType.LOG,
+    )
+
+    @Bean
+    @ConditionalOnMissingBean(JsonSchemaValidationService::class)
+    fun jsonSchemaValidationService() = JsonSchemaValidationService()
 }

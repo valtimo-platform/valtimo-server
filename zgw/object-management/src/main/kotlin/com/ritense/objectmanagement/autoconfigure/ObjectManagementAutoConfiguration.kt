@@ -20,10 +20,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ritense.objectmanagement.autodeployment.ObjectManagementDefinitionDeploymentService
 import com.ritense.objectmanagement.repository.ObjectManagementRepository
 import com.ritense.objectmanagement.security.config.ObjectManagementHttpSecurityConfigurer
-import com.ritense.objectmanagement.service.JsonSchemaValidationService
 import com.ritense.objectmanagement.service.ObjectManagementFacade
 import com.ritense.objectmanagement.service.ObjectManagementService
-import com.ritense.objectmanagement.service.ObjectManagementValidationService
 import com.ritense.objectmanagement.web.rest.ObjectManagementManagementResource
 import com.ritense.objectmanagement.web.rest.ObjectManagementResource
 import com.ritense.plugin.service.PluginService
@@ -48,29 +46,13 @@ class ObjectManagementAutoConfiguration {
     @ConditionalOnMissingBean(ObjectManagementFacade::class)
     fun objectManagementFacade(
         objectManagementRepository: ObjectManagementRepository,
-        pluginService: PluginService,
-        objectManagementValidationService: ObjectManagementValidationService
+        pluginService: PluginService
     ): ObjectManagementFacade {
         return ObjectManagementFacade(
             objectManagementRepository,
             pluginService,
-            objectManagementValidationService
         )
     }
-
-    @Bean
-    @ConditionalOnMissingBean(ObjectManagementValidationService::class)
-    fun objectManagementValidationService(
-        pluginService: PluginService,
-        jsonSchemaValidationService: JsonSchemaValidationService
-    ) = ObjectManagementValidationService(
-        pluginService,
-        jsonSchemaValidationService
-    )
-
-    @Bean
-    @ConditionalOnMissingBean(JsonSchemaValidationService::class)
-    fun jsonSchemaValidationService() = JsonSchemaValidationService()
 
     @Bean
     @ConditionalOnMissingBean(ObjectManagementService::class)
