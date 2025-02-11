@@ -16,6 +16,7 @@
 
 package com.ritense.document.domain.impl.snapshot;
 
+import com.ritense.document.domain.CaseTag;
 import com.ritense.document.domain.Document;
 import com.ritense.document.domain.DocumentDefinition;
 import com.ritense.document.domain.InternalCaseStatusId;
@@ -28,6 +29,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId;
 import com.ritense.document.domain.relation.DocumentRelation;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Transient;
@@ -55,6 +57,9 @@ public class HistoricDocument implements Document {
 
     @Embedded
     private InternalCaseStatusId internalStatus;
+
+    @ElementCollection
+    private Set<String> caseTags;
 
     @Transient
     private int version;
@@ -145,6 +150,11 @@ public class HistoricDocument implements Document {
         } else {
             return internalStatus.getKey();
         }
+    }
+
+    @Override
+    public Set<CaseTag> caseTags() {
+        return Set.of();
     }
 
     @Override

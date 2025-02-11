@@ -46,6 +46,9 @@ public interface Document {
     String internalStatus();
 
     @JsonProperty
+    Set<CaseTag> caseTags();
+
+    @JsonProperty
     String assigneeId();
 
     @JsonProperty

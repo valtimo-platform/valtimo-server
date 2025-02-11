@@ -20,6 +20,8 @@ import static com.ritense.valtimo.contract.utils.AssertionConcern.assertArgument
 import static com.ritense.valtimo.contract.utils.AssertionConcern.assertArgumentTrue;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.collect.Sets;
+import com.ritense.document.domain.CaseTag;
 import com.ritense.document.domain.Document;
 import com.ritense.document.domain.InternalCaseStatus;
 import com.ritense.document.domain.RelatedFile;
@@ -41,6 +43,7 @@ import com.ritense.valtimo.contract.utils.RequestHelper;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
@@ -49,6 +52,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinColumns;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -116,6 +121,17 @@ public class JsonSchemaDocument extends AbstractAggregateRoot<JsonSchemaDocument
         }
     )
     private InternalCaseStatus internalStatus;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "case_tag_link",
+        joinColumns = @JoinColumn(name = "json_schema_document_id", referencedColumnName="json_schema_document_id"),
+        inverseJoinColumns = {
+            @JoinColumn(name = "case_tag_key", referencedColumnName = "case_tag_key"),
+            @JoinColumn(name = "case_definition_name", referencedColumnName = "case_definition_name")
+        }
+    )
+    private Set<CaseTag> caseTags;
 
     @Column(name = "assignee_id", columnDefinition = "varchar(64)")
     private String assigneeId;
@@ -324,6 +340,14 @@ public class JsonSchemaDocument extends AbstractAggregateRoot<JsonSchemaDocument
         this.internalStatus = internalCaseStatus;
     }
 
+    public void addCaseTag(CaseTag caseTag) {
+        if (caseTags == null) {
+            this.caseTags = Sets.newHashSet(caseTag);
+        } else {
+            this.caseTags.add(caseTag);
+        }
+    }
+
     @Override
     public JsonSchemaDocumentId id() {
         return id;
@@ -361,6 +385,11 @@ public class JsonSchemaDocument extends AbstractAggregateRoot<JsonSchemaDocument
         } else {
             return internalStatus.getId().getKey();
         }
+    }
+
+    @Override
+    public Set<CaseTag> caseTags() {
+        return caseTags;
     }
 
     @Override

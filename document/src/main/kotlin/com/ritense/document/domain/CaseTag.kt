@@ -16,6 +16,7 @@
 
 package com.ritense.document.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -26,7 +27,9 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "case_tag")
 data class CaseTag(
+
     @EmbeddedId
+    @JsonIgnore
     val id: CaseTagId,
     @Column(name = "case_tag_title")
     val title: String,

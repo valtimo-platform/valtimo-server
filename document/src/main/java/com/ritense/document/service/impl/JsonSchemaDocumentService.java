@@ -54,6 +54,7 @@ import com.ritense.document.event.DocumentAssigned;
 import com.ritense.document.event.DocumentAssigneeChangedEvent;
 import com.ritense.document.event.DocumentCreated;
 import com.ritense.document.event.DocumentDeleted;
+import com.ritense.document.service.CaseTagService;
 import com.ritense.valtimo.contract.event.DocumentDeletedEvent;
 import com.ritense.document.event.DocumentStatusChanged;
 import com.ritense.document.event.DocumentUnassigned;
@@ -114,6 +115,8 @@ public class JsonSchemaDocumentService implements DocumentService {
 
     private final InternalCaseStatusService internalCaseStatusService;
 
+    private final CaseTagService caseTagService;
+
     public JsonSchemaDocumentService(
         JsonSchemaDocumentRepository documentRepository,
         JsonSchemaDocumentDefinitionService documentDefinitionService,
@@ -124,7 +127,8 @@ public class JsonSchemaDocumentService implements DocumentService {
         ApplicationEventPublisher applicationEventPublisher,
         OutboxService outboxService,
         ObjectMapper objectMapper,
-        InternalCaseStatusService internalCaseStatusService
+        InternalCaseStatusService internalCaseStatusService,
+        CaseTagService caseTagService
     ) {
         this.documentRepository = documentRepository;
         this.documentDefinitionService = documentDefinitionService;
@@ -136,6 +140,7 @@ public class JsonSchemaDocumentService implements DocumentService {
         this.outboxService = outboxService;
         this.objectMapper = objectMapper;
         this.internalCaseStatusService = internalCaseStatusService;
+        this.caseTagService = caseTagService;
     }
 
     @Override
@@ -733,6 +738,40 @@ public class JsonSchemaDocumentService implements DocumentService {
             )
         );
     }
+
+    @Override
+    public void addCaseTag(
+        @LoggableResource(resourceType = JsonSchemaDocument.class) Document.Id documentId,
+        @Nullable String caseTagKey
+    ) {
+        JsonSchemaDocument document = runWithoutAuthorization(
+            () -> getDocumentBy(documentId)
+        );
+
+        authorizationService.requirePermission(
+            new EntityAuthorizationRequest<>(
+                JsonSchemaDocument.class,
+                MODIFY,
+                document
+            )
+        );
+
+        var caseTag = caseTagKey != null ? caseTagService.get(
+            document.definitionId().name(),
+            caseTagKey
+        ) : null;
+        document.addCaseTag(caseTag);
+
+        documentRepository.save(document);
+
+        outboxService.send(() ->
+            new DocumentStatusChanged(
+                document.id().toString(),
+                objectMapper.valueToTree(document)
+            )
+        );
+    }
+
 
     private void publishDocumentAssigneeChangedEvent(
         @LoggableResource(resourceType = JsonSchemaDocument.class) UUID documentId,

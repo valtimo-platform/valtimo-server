@@ -2,14 +2,19 @@ package com.ritense.document.service
 
 import com.ritense.authorization.AuthorizationContext
 import com.ritense.document.BaseIntegrationTest
+import com.ritense.document.BaseTest
 import com.ritense.document.domain.CaseTagColor
+import com.ritense.document.domain.impl.JsonDocumentContent
+import com.ritense.document.domain.impl.JsonSchemaDocument
 import com.ritense.document.web.rest.dto.CaseTagCreateRequestDto
 import com.ritense.document.web.rest.dto.CaseTagUpdateRequestDto
+import com.ritense.valtimo.contract.authentication.AuthoritiesConstants.ADMIN
 import jakarta.validation.ConstraintViolationException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.transaction.annotation.Transactional
 
 
@@ -80,4 +85,34 @@ class CaseTagServiceIntTest @Autowired constructor(
         }
     }
 
+    @Test
+    @WithMockUser(username = USERNAME, authorities = [ADMIN])
+    fun `should add case tag `() {
+
+        AuthorizationContext.runWithoutAuthorization {
+            caseTagService.create("house", CaseTagCreateRequestDto("some-tag", "Some Tag", CaseTagColor.MAGENTA))
+        }
+
+        val content = JsonDocumentContent("{\"street\": \"Funenpark\"}")
+        val document = JsonSchemaDocument.create(
+            definition(),
+            content,
+            BaseTest.USERNAME,
+            documentSequenceGeneratorService,
+            null
+        ).resultingDocument().get()
+
+        documentRepository.save(document)
+
+        documentService.addCaseTag(document.id, "some-tag")
+
+        val updatedDocument = documentService.findBy(document.id).get()
+
+        println(updatedDocument.caseTags())
+
+    }
+
+    companion object {
+        private const val USERNAME = "john@ritense.com"
+    }
 }

@@ -96,6 +96,7 @@ class DocumentTableValueResolver(
                 "definitionId.version" -> document.definitionId().version()
                 "id" -> document.id().id
                 "internalStatus" -> document.internalStatus()
+                // TODO: add case tags
                 "modifiedOn" -> document.modifiedOn().orElse(null)
                 "sequence" -> document.sequence()
                 "version" -> document.version()
