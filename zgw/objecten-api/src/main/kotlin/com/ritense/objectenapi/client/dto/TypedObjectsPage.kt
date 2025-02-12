@@ -14,21 +14,28 @@
  * limitations under the License.
  */
 
-package com.ritense.objectenapi.client
+package com.ritense.objectenapi.client.dto
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.ritense.objectenapi.client.dto.TypedObjectsPage
-
-data class ObjectsList(
+data class TypedObjectsPage<T>(
     val count: Int,
     val next: String? = null,
     val previous: String? = null,
-    val results: List<ObjectWrapper>
-)
+    val results: List<TypedObjectWrapper<T>>
+) {
+    companion object {
+        fun <T> getAll(
+            getPage: (page: Int) -> TypedObjectsPage<T>
+        ): List<TypedObjectWrapper<T>> {
+            var page = 0
+            val results = generateSequence(getPage(page)) { previousPage ->
+                if (previousPage.next != null) {
+                    getPage(++page)
+                } else {
+                    null
+                }
+            }.toList()
 
-fun TypedObjectsPage<JsonNode>.toObjectsList() = ObjectsList(
-    count = count,
-    next = next,
-    previous = previous,
-    results = results.map { it.toObjectWrapper() }
-)
+            return results.flatMap(TypedObjectsPage<T>::results)
+        }
+    }
+}
