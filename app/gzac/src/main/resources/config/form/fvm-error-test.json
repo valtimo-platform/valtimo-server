@@ -1,0 +1,43 @@
+{
+    "display": "wizard",
+    "components": [
+        {
+            "key": "page",
+            "type": "panel",
+            "input": false,
+            "label": "Page",
+            "title": "Page",
+            "tableView": false,
+            "components": [
+                {
+                    "key": "updateError",
+                    "type": "textfield",
+                    "input": true,
+                    "label": "Update error field",
+                    "tableView": true,
+                    "applyMaskOn": "change",
+                    "placeholder": "type your error here"
+                },
+                {
+                    "key": "submitError",
+                    "type": "textfield",
+                    "input": true,
+                    "label": "Submit error field",
+                    "tableView": true,
+                    "applyMaskOn": "change",
+                    "placeholder": "type your error here"
+                }
+            ],
+            "collapsible": false,
+            "saveOnEnter": false,
+            "scrollToTop": false,
+            "buttonSettings": {
+                "next": true,
+                "cancel": true,
+                "previous": true
+            },
+            "navigateOnEnter": false,
+            "breadcrumbClickable": true
+        }
+    ]
+}

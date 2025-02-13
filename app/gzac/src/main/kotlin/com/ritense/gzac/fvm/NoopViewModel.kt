@@ -16,16 +16,24 @@
 
 package com.ritense.gzac.fvm
 
+import com.ritense.formviewmodel.error.FormException
 import com.ritense.formviewmodel.viewmodel.Submission
 import com.ritense.formviewmodel.viewmodel.ViewModel
 import com.ritense.valtimo.camunda.domain.CamundaTask
 import mu.KLogger
 import mu.KotlinLogging
 
-class NoopViewModel : ViewModel, Submission {
+class NoopViewModel(
+    val updateError: String? = null,
+    val submitError: String? = null,
+) : ViewModel, Submission {
 
     override fun update(task: CamundaTask?, page: Int?): ViewModel {
         logger.info { "Update called on ${this::class.java.simpleName}, taskId=${task?.id}, page=$page" }
+
+        if (!updateError.isNullOrBlank()) {
+            throw FormException(updateError, "updateError")
+        }
 
         return this
     }

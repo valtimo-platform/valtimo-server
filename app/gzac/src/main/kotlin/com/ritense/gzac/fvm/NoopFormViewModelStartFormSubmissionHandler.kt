@@ -16,6 +16,7 @@
 
 package com.ritense.gzac.fvm
 
+import com.ritense.formviewmodel.error.FormException
 import com.ritense.formviewmodel.submission.FormViewModelStartFormSubmissionHandler
 import com.ritense.processlink.domain.ProcessLink
 import mu.KLogger
@@ -32,6 +33,11 @@ class NoopFormViewModelStartFormSubmissionHandler: FormViewModelStartFormSubmiss
 
     override fun <T> handle(documentDefinitionName: String, processDefinitionKey: String, submission: T) {
         logger.debug { "Start form submission handle: documentDefinitionName=$documentDefinitionName, processDefinitionKey=$processDefinitionKey" }
+        (submission as? NoopViewModel)?.let {
+            if (!it.submitError.isNullOrBlank()) {
+                throw FormException(it.submitError, "submitError")
+            }
+        }
     }
 
     companion object {

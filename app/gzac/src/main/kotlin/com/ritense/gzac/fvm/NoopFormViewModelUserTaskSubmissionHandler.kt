@@ -16,6 +16,7 @@
 
 package com.ritense.gzac.fvm
 
+import com.ritense.formviewmodel.error.FormException
 import com.ritense.formviewmodel.submission.FormViewModelUserTaskSubmissionHandler
 import com.ritense.processlink.domain.ProcessLink
 import com.ritense.valtimo.camunda.domain.CamundaTask
@@ -33,6 +34,11 @@ class NoopFormViewModelUserTaskSubmissionHandler: FormViewModelUserTaskSubmissio
 
     override fun <T> handle(submission: T, task: CamundaTask, businessKey: String) {
         logger.debug { "User task submission handle: taskId=${task.id}, businessKey=$businessKey" }
+        (submission as? NoopViewModel)?.let {
+            if (!it.submitError.isNullOrBlank()) {
+                throw FormException(it.submitError, "submitError")
+            }
+        }
     }
 
     companion object {
