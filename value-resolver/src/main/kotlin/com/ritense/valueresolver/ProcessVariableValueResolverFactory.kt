@@ -16,9 +16,10 @@
 
 package com.ritense.valueresolver
 
-import java.util.function.Function
+import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.bpm.engine.delegate.VariableScope
+import java.util.function.Function
 
 /**
  * This resolver can resolve requestedValues against the variables of a process or task.
@@ -26,7 +27,8 @@ import org.camunda.bpm.engine.delegate.VariableScope
  * The value of the requestedValue should be in the format pv:someProperty
  */
 class ProcessVariableValueResolverFactory(
-    private val runtimeService: RuntimeService
+    private val runtimeService: RuntimeService,
+    private val historicService: HistoryService,
 ) : ValueResolverFactory {
 
     override fun supportedPrefix(): String {
@@ -44,14 +46,14 @@ class ProcessVariableValueResolverFactory(
     }
 
     override fun createResolver(documentId: String): Function<String, Any?> {
-        val processInstanceIds = runtimeService.createProcessInstanceQuery()
+        val processInstanceIds = historicService.createHistoricProcessInstanceQuery()
             .processInstanceBusinessKey(documentId)
             .list()
             .map { it.id }
             .toTypedArray()
 
         return Function { requestedValue ->
-            val values = runtimeService.createVariableInstanceQuery()
+            val values = historicService.createHistoricVariableInstanceQuery()
                 .processInstanceIdIn(*processInstanceIds)
                 .variableName(requestedValue)
                 .list()

@@ -18,6 +18,7 @@ package com.ritense.valueresolver
 
 import java.util.UUID
 import org.assertj.core.api.Assertions.assertThat
+import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.RuntimeService
 import org.camunda.community.mockito.delegate.DelegateTaskFake
 import org.junit.jupiter.api.Test
@@ -28,8 +29,9 @@ import org.mockito.kotlin.verify
 internal class ValueResolverFactoryServiceImplTest {
 
     private val runtimeService: RuntimeService = mock()
+    private val historyService: HistoryService = mock()
     private val resolverService = ValueResolverServiceImpl(
-        listOf(ProcessVariableValueResolverFactory(runtimeService), FixedValueResolverFactory())
+        listOf(ProcessVariableValueResolverFactory(runtimeService, historyService), FixedValueResolverFactory())
     )
 
     @Test
@@ -37,8 +39,8 @@ internal class ValueResolverFactoryServiceImplTest {
         val exception = assertThrows<RuntimeException> {
             val resolverService = ValueResolverServiceImpl(
                 listOf(
-                    ProcessVariableValueResolverFactory(runtimeService),
-                    ProcessVariableValueResolverFactory(runtimeService)
+                    ProcessVariableValueResolverFactory(runtimeService, historyService),
+                    ProcessVariableValueResolverFactory(runtimeService, historyService)
                 )
             )
 
