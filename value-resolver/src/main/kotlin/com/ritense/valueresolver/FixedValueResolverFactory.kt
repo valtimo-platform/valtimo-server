@@ -69,7 +69,7 @@ class FixedValueResolverFactory(
     }
 
     private fun toLongOrNullSave(value: String): Long? {
-        return if (value.startsWith("0")) {
+        return if (value.length >= 2 && value[0] == '0') {
             null
         } else {
             value.toLongOrNull()
