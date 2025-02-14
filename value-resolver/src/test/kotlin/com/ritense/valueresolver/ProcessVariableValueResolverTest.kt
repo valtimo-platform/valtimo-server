@@ -16,23 +16,24 @@
 
 package com.ritense.valueresolver
 
-import java.time.LocalDate
-import java.util.UUID
 import org.assertj.core.api.Assertions
+import org.camunda.bpm.engine.HistoryService
 import org.camunda.bpm.engine.RuntimeService
-import org.camunda.bpm.engine.variable.Variables
-import org.camunda.community.mockito.delegate.DelegateCaseVariableInstanceFake
+import org.camunda.bpm.engine.history.HistoricProcessInstance
+import org.camunda.bpm.engine.history.HistoricVariableInstance
 import org.camunda.community.mockito.delegate.DelegateTaskFake
-import org.camunda.community.mockito.process.ProcessInstanceFake
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.RETURNS_DEEP_STUBS
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.time.LocalDate
+import java.util.UUID
 
 internal class ProcessVariableValueResolverTest {
     private val runtimeService: RuntimeService = mock(defaultAnswer = RETURNS_DEEP_STUBS)
-    private val processVariableValueResolver = ProcessVariableValueResolverFactory(runtimeService)
+    private val historyService: HistoryService = mock(defaultAnswer = RETURNS_DEEP_STUBS)
+    private val processVariableValueResolver = ProcessVariableValueResolverFactory(runtimeService, historyService)
 
     @Test
     fun `should resolve requestedValue from process variables`() {
@@ -78,11 +79,13 @@ internal class ProcessVariableValueResolverTest {
     fun `should resolve requestedValue from process variables by document ID`() {
         val somePropertyName = "somePropertyName"
         val documentInstanceId = UUID.randomUUID().toString()
-        val processInstance = ProcessInstanceFake.builder().processInstanceId(UUID.randomUUID().toString()).build()
-        whenever(runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(documentInstanceId).list())
+        val processInstance = mock<HistoricProcessInstance>()
+        whenever(processInstance.id).thenReturn(UUID.randomUUID().toString())
+        whenever(historyService.createHistoricProcessInstanceQuery().processInstanceBusinessKey(documentInstanceId).list())
             .thenReturn(listOf(processInstance))
-        val variableInstance = DelegateCaseVariableInstanceFake().create(somePropertyName, Variables.booleanValue(true))
-        whenever(runtimeService.createVariableInstanceQuery()
+        val variableInstance = mock<HistoricVariableInstance>()
+        whenever(variableInstance.value).thenReturn(true)
+        whenever(historyService.createHistoricVariableInstanceQuery()
             .processInstanceIdIn(processInstance.id)
             .variableName(somePropertyName)
             .list())
