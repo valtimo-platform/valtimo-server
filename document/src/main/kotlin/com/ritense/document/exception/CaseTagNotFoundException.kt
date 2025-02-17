@@ -17,8 +17,8 @@
 package com.ritense.document.exception
 
 class CaseTagNotFoundException(
-    internalCaseStatusKey: String,
+    caseTagKey: String,
     caseDefinitionName: String
 ) : RuntimeException(
-    "A case tag with key $internalCaseStatusKey could not be found for case with key $caseDefinitionName"
+    "A case tag with key $caseTagKey could not be found for case with key $caseDefinitionName"
 )

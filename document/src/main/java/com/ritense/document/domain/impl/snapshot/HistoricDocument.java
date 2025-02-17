@@ -29,7 +29,6 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentId;
 import com.ritense.document.domain.relation.DocumentRelation;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Transient;
@@ -58,8 +57,9 @@ public class HistoricDocument implements Document {
     @Embedded
     private InternalCaseStatusId internalStatus;
 
-    @ElementCollection
-    private Set<String> caseTags;
+    // Not persisting caseTags. HistoricDocument will be deprecated.
+    @Transient
+    private Set<CaseTag> caseTags;
 
     @Transient
     private int version;
@@ -154,7 +154,11 @@ public class HistoricDocument implements Document {
 
     @Override
     public Set<CaseTag> caseTags() {
-        return Set.of();
+        if (caseTags == null) {
+            return null;
+        } else {
+            return caseTags;
+        }
     }
 
     @Override

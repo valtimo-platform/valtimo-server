@@ -43,7 +43,6 @@ import com.ritense.valtimo.contract.utils.RequestHelper;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
@@ -347,6 +346,7 @@ public class JsonSchemaDocument extends AbstractAggregateRoot<JsonSchemaDocument
             this.caseTags.add(caseTag);
         }
     }
+
 
     @Override
     public JsonSchemaDocumentId id() {
