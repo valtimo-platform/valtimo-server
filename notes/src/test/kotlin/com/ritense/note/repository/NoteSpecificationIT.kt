@@ -23,14 +23,20 @@ import com.ritense.document.service.DocumentService
 import com.ritense.note.BaseIntegrationTest
 import com.ritense.note.domain.Note
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockito.kotlin.mock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.PlatformTransactionManager
+import org.springframework.transaction.support.DefaultTransactionDefinition
+import org.springframework.transaction.support.TransactionTemplate
 import java.time.LocalDateTime
 import java.util.UUID
 
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NoteSpecificationIT(
     @Autowired
     private val noteRepository: NoteRepository,
@@ -41,13 +47,26 @@ class NoteSpecificationIT(
     @Autowired
     private val objectMapper: ObjectMapper,
 
+    @Autowired
+    private val transactionManager: PlatformTransactionManager
+
 ): BaseIntegrationTest() {
     lateinit var documentId: UUID
     lateinit var noteId: UUID
     lateinit var note: Note
+    lateinit var defaultTransactionDefinition: DefaultTransactionDefinition
+    lateinit var readOnlyTransactionTemplate: TransactionTemplate
 
-    @BeforeEach
+    @BeforeAll
     fun beforeEach() {
+
+        defaultTransactionDefinition = DefaultTransactionDefinition().apply {
+            propagationBehavior = DefaultTransactionDefinition.PROPAGATION_REQUIRES_NEW
+            isReadOnly = true
+        }
+
+        readOnlyTransactionTemplate = TransactionTemplate(transactionManager, defaultTransactionDefinition)
+
         documentId = AuthorizationContext.runWithoutAuthorization {
             documentService.createDocument(
                 NewDocumentRequest(PROFILE_DOCUMENT_DEFINITION_NAME, objectMapper.createObjectNode())
@@ -68,7 +87,6 @@ class NoteSpecificationIT(
     }
 
     @Test
-    @Transactional(readOnly = true)
     fun `should be able to get note by reference in read only transaction`() {
 
         // Given
@@ -80,8 +98,12 @@ class NoteSpecificationIT(
         )
 
         // When
-        val foundNote = noteSpecification.javaClass.getDeclaredMethod("identifierToEntity", String::class.java)
-            .invoke(noteSpecification, noteId.toString())
+        val foundNote = readOnlyTransactionTemplate.execute { status ->
+            assertTrue(status.isReadOnly)
+
+            noteSpecification.javaClass.getDeclaredMethod("identifierToEntity", String::class.java)
+                .invoke(noteSpecification, noteId.toString())
+        }
 
         // Then
         assertEquals(note, foundNote)
