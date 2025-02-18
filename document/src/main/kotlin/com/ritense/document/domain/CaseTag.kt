@@ -29,7 +29,6 @@ import jakarta.persistence.Table
 data class CaseTag(
 
     @EmbeddedId
-    @JsonIgnore
     val id: CaseTagId,
     @Column(name = "case_tag_title")
     val title: String,
