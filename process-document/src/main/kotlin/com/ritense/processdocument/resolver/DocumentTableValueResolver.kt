@@ -97,7 +97,7 @@ class DocumentTableValueResolver(
                 "definitionId.version" -> document.definitionId().version()
                 "id" -> document.id().id
                 "internalStatus" -> document.internalStatus()
-                "caseTags" -> document.caseTags().map { CaseTagResponseDto(it) }
+                "caseTags" -> document.caseTags()
                 "modifiedOn" -> document.modifiedOn().orElse(null)
                 "sequence" -> document.sequence()
                 "version" -> document.version()

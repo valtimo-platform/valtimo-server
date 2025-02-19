@@ -35,6 +35,7 @@ import com.ritense.document.service.result.CreateDocumentResult;
 import com.ritense.document.service.result.DocumentResult;
 import com.ritense.document.service.result.ModifyDocumentResult;
 import com.ritense.document.service.result.error.DocumentOperationError;
+import com.ritense.document.web.rest.dto.CaseTagResponseDto;
 import com.ritense.valtimo.contract.Constants;
 import com.ritense.valtimo.contract.audit.utils.AuditHelper;
 import com.ritense.valtimo.contract.document.event.DocumentRelatedFileAddedEvent;
@@ -65,6 +66,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
@@ -388,8 +390,8 @@ public class JsonSchemaDocument extends AbstractAggregateRoot<JsonSchemaDocument
     }
 
     @Override
-    public Set<CaseTag> caseTags() {
-        return caseTags;
+    public Set<CaseTagResponseDto> caseTags() {
+        return caseTags.stream().map(CaseTagResponseDto::new).collect(Collectors.toSet());
     }
 
     @Override

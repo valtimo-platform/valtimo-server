@@ -27,6 +27,7 @@ import com.ritense.document.domain.impl.JsonSchemaDocumentDefinition;
 import com.ritense.document.domain.impl.JsonSchemaDocumentDefinitionId;
 import com.ritense.document.domain.impl.JsonSchemaDocumentId;
 import com.ritense.document.domain.relation.DocumentRelation;
+import com.ritense.document.web.rest.dto.CaseTagResponseDto;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.hibernate.annotations.Type;
 
 @Embeddable
@@ -153,11 +155,11 @@ public class HistoricDocument implements Document {
     }
 
     @Override
-    public Set<CaseTag> caseTags() {
+    public Set<CaseTagResponseDto> caseTags() {
         if (caseTags == null) {
             return null;
         } else {
-            return caseTags;
+            return caseTags.stream().map(CaseTagResponseDto::new).collect(Collectors.toSet());
         }
     }
 

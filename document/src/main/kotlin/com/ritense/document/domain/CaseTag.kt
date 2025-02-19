@@ -40,5 +40,6 @@ data class CaseTag(
 ) {
     init {
         require(title.isNotBlank()) { "title was blank!" }
+        require(order >= 0) { "order was < 0" }
     }
 }
