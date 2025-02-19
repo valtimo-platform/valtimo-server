@@ -23,12 +23,17 @@ data class CaseTagResponseDto(
     val key: String,
     val caseDefinitionName: String,
     val title: String,
-    val color: CaseTagColor
+    val color: CaseTagColor,
+    val order: Int,
+    val visibleInCaseListByDefault: Boolean
+
 ) {
     constructor(caseTag: CaseTag) : this(
         caseTag.id.key,
         caseTag.id.caseDefinitionName,
         caseTag.title,
-        caseTag.color
+        caseTag.color,
+        1,
+        true
     )
 }
