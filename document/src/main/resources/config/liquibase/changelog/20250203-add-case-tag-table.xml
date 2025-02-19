@@ -16,6 +16,9 @@
             <column name="case_tag_color" type="varchar(50)">
                 <constraints nullable="false"/>
             </column>
+            <column name="case_tag_order" type="${intType}">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
         <addPrimaryKey tableName="case_tag" columnNames="case_tag_key, case_definition_name"

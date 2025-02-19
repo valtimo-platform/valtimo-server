@@ -57,7 +57,8 @@ class CaseTagService(
                     request.key
                 ),
                 request.title,
-                request.color
+                request.color,
+                request.order
             )
         )
     }
@@ -77,7 +78,8 @@ class CaseTagService(
         caseTagRepository.save(
             oldCaseTag.copy(
                 title = request.title,
-                color = request.color
+                color = request.color,
+                order = request.order
             )
         )
     }
@@ -102,7 +104,8 @@ class CaseTagService(
                 ?: throw CaseTagNotFoundException(request.key, caseDefinitionName)
             existingCaseTag.copy(
                 title = request.title,
-                color = request.color
+                color = request.color,
+                order = request.order
             )
         }
 

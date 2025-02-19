@@ -34,7 +34,9 @@ data class CaseTag(
     val title: String,
     @Column(name = "case_tag_color")
     @Enumerated(EnumType.STRING)
-    val color: CaseTagColor
+    val color: CaseTagColor,
+    @Column(name = "case_tag_order")
+    val order: Int
 ) {
     init {
         require(title.isNotBlank()) { "title was blank!" }
