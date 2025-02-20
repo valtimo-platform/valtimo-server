@@ -21,8 +21,8 @@ import com.ritense.case.domain.CaseDefinitionSettings
 data class CaseSettingsDto(
     val canHaveAssignee: Boolean? = null,
     val autoAssignTasks: Boolean? = null,
-    val hasExternalCreateCaseForm: Boolean? = null,
-    val externalCreateCaseFormUrl: String? = null,
+    val hasExternalStartCaseForm: Boolean? = null,
+    val externalStartCaseFormUrl: String? = null,
 ) {
     fun update(currentSettings: CaseDefinitionSettings): CaseDefinitionSettings {
         return CaseDefinitionSettings(
@@ -32,10 +32,10 @@ data class CaseSettingsDto(
                 false -> false
                 else -> getSettingForUpdate(currentSettings.autoAssignTasks, this.autoAssignTasks) ?: false
             },
-            hasExternalCreateCaseForm = getSettingForUpdate(currentSettings.hasExternalCreateCaseForm, this.hasExternalCreateCaseForm) ?: false,
-            externalCreateCaseFormUrl = when (this.hasExternalCreateCaseForm) {
+            hasExternalStartCaseForm = getSettingForUpdate(currentSettings.hasExternalStartCaseForm, this.hasExternalStartCaseForm) ?: false,
+            externalStartCaseFormUrl = when (this.hasExternalStartCaseForm) {
                 false -> null
-                else -> getSettingForUpdate(currentSettings.externalCreateCaseFormUrl, this.externalCreateCaseFormUrl)
+                else -> getSettingForUpdate(currentSettings.externalStartCaseFormUrl, this.externalStartCaseFormUrl)
             }
         )
     }
@@ -49,8 +49,8 @@ data class CaseSettingsDto(
         fun from(settings: CaseDefinitionSettings) = CaseSettingsDto(
             canHaveAssignee = settings.canHaveAssignee,
             autoAssignTasks = settings.autoAssignTasks,
-            hasExternalCreateCaseForm = settings.hasExternalCreateCaseForm,
-            externalCreateCaseFormUrl = settings.externalCreateCaseFormUrl
+            hasExternalStartCaseForm = settings.hasExternalStartCaseForm,
+            externalStartCaseFormUrl = settings.externalStartCaseFormUrl
         )
     }
 }

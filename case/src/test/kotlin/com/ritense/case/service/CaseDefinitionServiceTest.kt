@@ -76,8 +76,8 @@ class CaseDefinitionServiceTest {
         val caseDefinitionSettings = CaseDefinitionSettings(
             name = caseDefinitionName,
             canHaveAssignee = true,
-            hasExternalCreateCaseForm = true,
-            externalCreateCaseFormUrl = externalFormUrl
+            hasExternalStartCaseForm = true,
+            externalStartCaseFormUrl = externalFormUrl
         )
 
         whenever(documentDefinitionService.findLatestByName(caseDefinitionName))
@@ -90,8 +90,8 @@ class CaseDefinitionServiceTest {
         verify(caseDefinitionSettingsRepository).getReferenceById(caseDefinitionName)
         assertEquals(caseDefinitionName, foundCaseDefinitionSettings.name)
         assertTrue(foundCaseDefinitionSettings.canHaveAssignee)
-        assertTrue(foundCaseDefinitionSettings.hasExternalCreateCaseForm)
-        assertEquals(externalFormUrl, foundCaseDefinitionSettings.externalCreateCaseFormUrl)
+        assertTrue(foundCaseDefinitionSettings.hasExternalStartCaseForm)
+        assertEquals(externalFormUrl, foundCaseDefinitionSettings.externalStartCaseFormUrl)
     }
 
     @Test
@@ -137,12 +137,12 @@ class CaseDefinitionServiceTest {
         val caseDefinitionName = "name"
         val currentCaseDefinitionSettings = CaseDefinitionSettings(
             name = caseDefinitionName,
-            hasExternalCreateCaseForm = false
+            hasExternalStartCaseForm = false
         )
         val updatedCaseDefinitionSettings = CaseDefinitionSettings(
             name = caseDefinitionName,
-            hasExternalCreateCaseForm = true,
-            externalCreateCaseFormUrl = "https://www.example.com/external-form"
+            hasExternalStartCaseForm = true,
+            externalStartCaseFormUrl = "https://www.example.com/external-form"
         )
         val caseSettingsDto: CaseSettingsDto = mock()
         whenever(documentDefinitionService.findLatestByName(caseDefinitionName))

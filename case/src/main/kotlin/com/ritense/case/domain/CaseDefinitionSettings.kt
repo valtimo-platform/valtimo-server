@@ -32,10 +32,10 @@ class CaseDefinitionSettings(
     val canHaveAssignee: Boolean = false,
     @Column(name = "auto_assign_tasks", nullable = false)
     val autoAssignTasks: Boolean = false,
-    @Column(name = "has_external_create_case_form", nullable = false)
-    val hasExternalCreateCaseForm: Boolean = false,
-    @Column(name = "external_create_case_form_url", nullable = true, length = 512)
-    val externalCreateCaseFormUrl: String? = null,
+    @Column(name = "has_external_start_case_form", nullable = false)
+    val hasExternalStartCaseForm: Boolean = false,
+    @Column(name = "external_start_case_form_url", nullable = true, length = 512)
+    val externalStartCaseFormUrl: String? = null,
 ) {
     init {
         require(
@@ -45,28 +45,28 @@ class CaseDefinitionSettings(
             }
         ) { "Case property [autoAssignTasks] can only be true when [canHaveAssignee] is true." }
         require(
-            when (hasExternalCreateCaseForm) {
-                true -> !externalCreateCaseFormUrl.isNullOrBlank()
+            when (hasExternalStartCaseForm) {
+                true -> !externalStartCaseFormUrl.isNullOrBlank()
                 else -> true
             }
         ) {
-            "Case property [hasExternalCreateCaseForm] can only be true when [externalCreateCaseFormUrl] is not null or blank."
+            "Case property [hasExternalStartCaseForm] can only be true when [externalStartCaseFormUrl] is not null or blank."
         }
         require(
-            when (hasExternalCreateCaseForm) {
-                true -> UrlValidator(arrayOf("http", "https")).isValid(externalCreateCaseFormUrl)
+            when (hasExternalStartCaseForm) {
+                true -> UrlValidator(arrayOf("http", "https")).isValid(externalStartCaseFormUrl)
                 else -> true
             }
         ) {
-            "Case property [externalCreateCaseFormUrl] is not a valid URL."
+            "Case property [externalStartCaseFormUrl] is not a valid URL."
         }
         require(
-            when (hasExternalCreateCaseForm && !externalCreateCaseFormUrl.isNullOrBlank()) {
-                true -> externalCreateCaseFormUrl.length <= 512
+            when (hasExternalStartCaseForm && !externalStartCaseFormUrl.isNullOrBlank()) {
+                true -> externalStartCaseFormUrl.length <= 512
                 else -> true
             }
         ) {
-            "Case property [externalCreateCaseFormUrl] exceeds the maximum length of 512 characters."
+            "Case property [externalStartCaseFormUrl] exceeds the maximum length of 512 characters."
         }
     }
 }

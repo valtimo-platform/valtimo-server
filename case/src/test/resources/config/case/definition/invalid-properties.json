@@ -1,6 +1,6 @@
 {
     "canHaveAssignee": false,
     "autoAssignTasks": true,
-    "hasExternalCreateCaseForm": true,
-    "externalCreateCaseFormUrl": ""
+    "hasExternalStartCaseForm": true,
+    "externalStartCaseFormUrl": ""
 }
