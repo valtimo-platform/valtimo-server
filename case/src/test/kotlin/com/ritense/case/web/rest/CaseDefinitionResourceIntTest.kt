@@ -91,8 +91,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
             .andExpect(jsonPath(CAN_HAVE_ASSIGNEE).value(false))
             .andExpect(jsonPath(AUTO_ASSIGN_TASKS).value(false))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(false))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL, nullValue()))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(false))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL, nullValue()))
     }
 
     @Test
@@ -112,8 +112,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
             .andExpect(jsonPath(CAN_HAVE_ASSIGNEE).value(false))
             .andExpect(jsonPath(AUTO_ASSIGN_TASKS).value(false))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(false))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL, nullValue()))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(false))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL, nullValue()))
     }
 
     @Deprecated("Since 11.0.0")
@@ -133,8 +133,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(jsonPath(ROOT).isNotEmpty)
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
             .andExpect(jsonPath(CAN_HAVE_ASSIGNEE).value(true))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(false))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL, nullValue()))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(false))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL, nullValue()))
         val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
         assertEquals(caseDefinitionName, settingsInDatabase.name)
         assertEquals(true, settingsInDatabase.canHaveAssignee)
@@ -157,8 +157,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(jsonPath(ROOT).isNotEmpty)
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
             .andExpect(jsonPath(CAN_HAVE_ASSIGNEE).value(true))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(false))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL, nullValue()))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(false))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL, nullValue()))
         val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
         assertEquals(caseDefinitionName, settingsInDatabase.name)
         assertEquals(true, settingsInDatabase.canHaveAssignee)
@@ -188,8 +188,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
             .andExpect(jsonPath(CAN_HAVE_ASSIGNEE).value(true))
             .andExpect(jsonPath(AUTO_ASSIGN_TASKS).value(true))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(false))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL, nullValue()))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(false))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL, nullValue()))
         val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
         assertEquals(caseDefinitionName, settingsInDatabase.name)
         assertEquals(true, settingsInDatabase.canHaveAssignee)
@@ -207,8 +207,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             caseDefinitionName,
             canHaveAssignee = true,
             autoAssignTasks = true,
-            hasExternalCreateCaseForm = true,
-            externalCreateCaseFormUrl = externalFormUrl
+            hasExternalStartCaseForm = true,
+            externalStartCaseFormUrl = externalFormUrl
         )
         caseDefinitionSettingsRepository.save(settings)
         mockMvc
@@ -222,8 +222,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
             .andExpect(jsonPath(CAN_HAVE_ASSIGNEE).value(true))
             .andExpect(jsonPath(AUTO_ASSIGN_TASKS).value(true))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(true))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL).value(externalFormUrl))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(true))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL).value(externalFormUrl))
         val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
         assertEquals(caseDefinitionName, settingsInDatabase.name)
         assertEquals(true, settingsInDatabase.canHaveAssignee)
@@ -231,7 +231,7 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
 
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
-    fun `should update case setting 'has external case create form' as an admin`() {
+    fun `should update case setting 'has external case start form' as an admin`() {
         val caseDefinitionName = "resource-test-update"
         val externalFormUrl = "https://www.example.com/external-form"
         runWithoutAuthorization {
@@ -253,17 +253,17 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
             .andExpect(status().isOk)
             .andExpect(jsonPath(ROOT).isNotEmpty)
             .andExpect(jsonPath(NAME).value(caseDefinitionName))
-            .andExpect(jsonPath(HAS_EXTERNAL_CREATE_CASE_FORM).value(true))
-            .andExpect(jsonPath(EXTERNAL_CREATE_CASE_FORM_URL).value(externalFormUrl))
+            .andExpect(jsonPath(HAS_EXTERNAL_START_CASE_FORM).value(true))
+            .andExpect(jsonPath(EXTERNAL_START_CASE_FORM_URL).value(externalFormUrl))
         val settingsInDatabase = caseDefinitionSettingsRepository.getReferenceById(caseDefinitionName)
         assertEquals(caseDefinitionName, settingsInDatabase.name)
-        assertEquals(true, settingsInDatabase.hasExternalCreateCaseForm)
-        assertEquals(externalFormUrl, settingsInDatabase.externalCreateCaseFormUrl)
+        assertEquals(true, settingsInDatabase.hasExternalStartCaseForm)
+        assertEquals(externalFormUrl, settingsInDatabase.externalStartCaseFormUrl)
     }
 
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
-    fun `should expect a server error when updating case setting 'has external case create form' as an admin when specified uri is blank`() {
+    fun `should expect a server error when updating case setting 'has external case start form' as an admin when specified uri is blank`() {
         val caseDefinitionName = "resource-test-update"
         runWithoutAuthorization {
             documentDefinitionService.deploy(basicDocumentDefinition(caseDefinitionName))
@@ -286,7 +286,7 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
 
     @Test
     @WithMockUser(username = "admin@ritense.com", authorities = [ADMIN])
-    fun `should expect a server error when updating case setting 'has external case create form' as an admin when specified uri is invalid`() {
+    fun `should expect a server error when updating case setting 'has external case start form' as an admin when specified uri is invalid`() {
         val caseDefinitionName = "resource-test-update"
         runWithoutAuthorization {
             documentDefinitionService.deploy(basicDocumentDefinition(caseDefinitionName))
@@ -1308,7 +1308,7 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
         private const val NAME = "$.name"
         private const val CAN_HAVE_ASSIGNEE = "$.canHaveAssignee"
         private const val AUTO_ASSIGN_TASKS = "$.autoAssignTasks"
-        private const val HAS_EXTERNAL_CREATE_CASE_FORM = "$.hasExternalCreateCaseForm"
-        private const val EXTERNAL_CREATE_CASE_FORM_URL = "$.externalCreateCaseFormUrl"
+        private const val HAS_EXTERNAL_START_CASE_FORM = "$.hasExternalStartCaseForm"
+        private const val EXTERNAL_START_CASE_FORM_URL = "$.externalStartCaseFormUrl"
     }
 }
