@@ -1,0 +1,136 @@
+{
+    "display": "wizard",
+    "components": [
+        {
+            "key": "firstPage",
+            "type": "panel",
+            "input": false,
+            "label": "First page",
+            "title": "First page",
+            "tableView": false,
+            "components": [
+                {
+                    "key": "panel",
+                    "type": "panel",
+                    "input": false,
+                    "label": "Panel",
+                    "title": "Panel",
+                    "tableView": false,
+                    "collapsible": true,
+                    "components": [
+                                {
+                                    "key": "enableUpdateValidation",
+                                    "type": "checkbox",
+                                    "input": true,
+                                    "label": "Enable update validation",
+                                    "tableView": false,
+                                    "defaultValue": false,
+                                    "validateWhenHidden": false
+                                },
+                                {
+                                    "key": "enableSubmissionValidation",
+                                    "type": "checkbox",
+                                    "input": true,
+                                    "label": "Enable submission validation",
+                                    "tableView": false,
+                                    "defaultValue": false,
+                                    "validateWhenHidden": false
+                                },
+                                {
+                                    "key": "enableBusinessValidation",
+                                    "type": "checkbox",
+                                    "input": true,
+                                    "label": "Enable business validation",
+                                    "tableView": false,
+                                    "defaultValue": false,
+                                    "validateWhenHidden": false
+                                },
+                                {
+                                    "label": "Container",
+                                    "tableView": false,
+                                    "validateWhenHidden": false,
+                                    "key": "container",
+                                    "type": "container",
+                                    "input": true,
+                                    "components": [
+                                        {
+                                            "key": "positiveNumber",
+                                            "mask": false,
+                                            "type": "number",
+                                            "input": true,
+                                            "label": "Positive number",
+                                            "delimiter": false,
+                                            "tableView": false,
+                                            "attributes": {
+                                                "data-testid": "testform-number1"
+                                            },
+                                            "applyMaskOn": "change",
+                                            "inputFormat": "plain",
+                                            "placeholder": "1",
+                                            "defaultValue": 1,
+                                            "requireDecimal": false,
+                                            "validateWhenHidden": false,
+                                            "truncateMultipleSpaces": false
+                                        },
+                                        {
+                                            "key": "futureDateTime",
+                                            "type": "datetime",
+                                            "input": true,
+                                            "label": "Future date",
+                                            "widget": {
+                                                "mode": "single",
+                                                "type": "calendar",
+                                                "locale": "en",
+                                                "maxDate": null,
+                                                "minDate": null,
+                                                "time_24hr": false,
+                                                "allowInput": true,
+                                                "enableTime": true,
+                                                "noCalendar": false,
+                                                "hourIncrement": 1,
+                                                "disableWeekdays": false,
+                                                "disableWeekends": false,
+                                                "minuteIncrement": 1,
+                                                "displayInTimezone": "viewer",
+                                                "useLocaleSettings": false
+                                            },
+                                            "tableView": false,
+                                            "datePicker": {
+                                                "disableWeekdays": false,
+                                                "disableWeekends": false
+                                            },
+                                            "enableMaxDateInput": false,
+                                            "enableMinDateInput": false,
+                                            "validateWhenHidden": false
+                                        },
+                                        {
+                                            "key": "maxLengthString",
+                                            "type": "textfield",
+                                            "input": true,
+                                            "label": "Max 20 characters",
+                                            "tableView": true,
+                                            "applyMaskOn": "change",
+                                            "placeholder": "test",
+                                            "defaultValue": "test",
+                                            "validateWhenHidden": false
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            "collapsible": false,
+            "saveOnEnter": false,
+            "scrollToTop": false,
+            "buttonSettings": {
+                "next": true,
+                "cancel": true,
+                "previous": true
+            },
+            "navigateOnEnter": false,
+            "breadcrumbClickable": true
+        }
+    ]
+}
