@@ -20,20 +20,37 @@ import com.ritense.case.domain.CaseDefinitionSettings
 
 data class CaseSettingsDto(
     val canHaveAssignee: Boolean? = null,
-    val autoAssignTasks: Boolean? = null
+    val autoAssignTasks: Boolean? = null,
+    val hasExternalStartCaseForm: Boolean? = null,
+    val externalStartCaseFormUrl: String? = null,
 ) {
     fun update(currentSettings: CaseDefinitionSettings): CaseDefinitionSettings {
         return CaseDefinitionSettings(
-            currentSettings.name,
-            getSettingForUpdate(currentSettings.canHaveAssignee, this.canHaveAssignee) ?: false,
-            when (this.canHaveAssignee) {
+            name = currentSettings.name,
+            canHaveAssignee = getSettingForUpdate(currentSettings.canHaveAssignee, this.canHaveAssignee) ?: false,
+            autoAssignTasks = when (this.canHaveAssignee) {
                 false -> false
                 else -> getSettingForUpdate(currentSettings.autoAssignTasks, this.autoAssignTasks) ?: false
+            },
+            hasExternalStartCaseForm = getSettingForUpdate(currentSettings.hasExternalStartCaseForm, this.hasExternalStartCaseForm) ?: false,
+            externalStartCaseFormUrl = when (this.hasExternalStartCaseForm) {
+                false -> null
+                else -> getSettingForUpdate(currentSettings.externalStartCaseFormUrl, this.externalStartCaseFormUrl)
             }
         )
     }
 
     private fun <T> getSettingForUpdate(currentValue: T?, newValue: T?): T? {
         return newValue ?: currentValue
+    }
+
+    companion object {
+
+        fun from(settings: CaseDefinitionSettings) = CaseSettingsDto(
+            canHaveAssignee = settings.canHaveAssignee,
+            autoAssignTasks = settings.autoAssignTasks,
+            hasExternalStartCaseForm = settings.hasExternalStartCaseForm,
+            externalStartCaseFormUrl = settings.externalStartCaseFormUrl
+        )
     }
 }

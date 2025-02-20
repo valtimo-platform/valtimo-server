@@ -20,17 +20,22 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.apache.commons.validator.routines.UrlValidator
 
 @Entity
 @Table(name = "case_definition")
 class CaseDefinitionSettings(
     @Id
-    @Column(name = "case_definition_name")
+    @Column(name = "case_definition_name", nullable = false, length = 256)
     val name: String,
-    @Column(name = "can_have_assignee")
+    @Column(name = "can_have_assignee", nullable = false)
     val canHaveAssignee: Boolean = false,
-    @Column(name = "auto_assign_tasks")
+    @Column(name = "auto_assign_tasks", nullable = false)
     val autoAssignTasks: Boolean = false,
+    @Column(name = "has_external_start_case_form", nullable = false)
+    val hasExternalStartCaseForm: Boolean = false,
+    @Column(name = "external_start_case_form_url", nullable = true, length = 512)
+    val externalStartCaseFormUrl: String? = null,
 ) {
     init {
         require(
@@ -39,5 +44,29 @@ class CaseDefinitionSettings(
                 else -> true
             }
         ) { "Case property [autoAssignTasks] can only be true when [canHaveAssignee] is true." }
+        require(
+            when (hasExternalStartCaseForm) {
+                true -> !externalStartCaseFormUrl.isNullOrBlank()
+                else -> true
+            }
+        ) {
+            "Case property [hasExternalStartCaseForm] can only be true when [externalStartCaseFormUrl] is not null or blank."
+        }
+        require(
+            when (hasExternalStartCaseForm) {
+                true -> UrlValidator(arrayOf("http", "https")).isValid(externalStartCaseFormUrl)
+                else -> true
+            }
+        ) {
+            "Case property [externalStartCaseFormUrl] is not a valid URL."
+        }
+        require(
+            when (hasExternalStartCaseForm && !externalStartCaseFormUrl.isNullOrBlank()) {
+                true -> externalStartCaseFormUrl.length <= 512
+                else -> true
+            }
+        ) {
+            "Case property [externalStartCaseFormUrl] exceeds the maximum length of 512 characters."
+        }
     }
 }
