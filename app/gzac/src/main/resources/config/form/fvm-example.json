@@ -37,10 +37,10 @@
                                     "validateWhenHidden": false
                                 },
                                 {
-                                    "key": "enableBusinessValidation",
+                                    "key": "showBusinessError",
                                     "type": "checkbox",
                                     "input": true,
-                                    "label": "Enable business validation",
+                                    "label": "Show business error",
                                     "tableView": false,
                                     "defaultValue": false,
                                     "validateWhenHidden": false
@@ -74,33 +74,36 @@
                                         },
                                         {
                                             "key": "futureDateTime",
-                                            "type": "datetime",
-                                            "input": true,
                                             "label": "Future date",
-                                            "widget": {
-                                                "mode": "single",
-                                                "type": "calendar",
-                                                "locale": "en",
-                                                "maxDate": null,
-                                                "minDate": null,
-                                                "time_24hr": false,
-                                                "allowInput": true,
-                                                "enableTime": true,
-                                                "noCalendar": false,
-                                                "hourIncrement": 1,
-                                                "disableWeekdays": false,
-                                                "disableWeekends": false,
-                                                "minuteIncrement": 1,
-                                                "displayInTimezone": "viewer",
-                                                "useLocaleSettings": false
-                                            },
+                                            "format": "yyyy-MM-dd",
                                             "tableView": false,
                                             "datePicker": {
-                                                "disableWeekdays": false,
-                                                "disableWeekends": false
+                                                "disableWeekends": false,
+                                                "disableWeekdays": false
                                             },
-                                            "enableMaxDateInput": false,
+                                            "enableTime": false,
                                             "enableMinDateInput": false,
+                                            "enableMaxDateInput": false,
+                                            "type": "datetime",
+                                            "input": true,
+                                            "widget": {
+                                                "type": "calendar",
+                                                "displayInTimezone": "viewer",
+                                                "locale": "en",
+                                                "useLocaleSettings": false,
+                                                "allowInput": true,
+                                                "mode": "single",
+                                                "enableTime": false,
+                                                "noCalendar": false,
+                                                "format": "yyyy-MM-dd",
+                                                "hourIncrement": 1,
+                                                "minuteIncrement": 1,
+                                                "time_24hr": false,
+                                                "minDate": null,
+                                                "disableWeekends": false,
+                                                "disableWeekdays": false,
+                                                "maxDate": null
+                                            },
                                             "validateWhenHidden": false
                                         },
                                         {
@@ -113,6 +116,56 @@
                                             "placeholder": "test",
                                             "defaultValue": "test",
                                             "validateWhenHidden": false
+                                        },
+                                        {
+                                            "key": "selectedValue",
+                                            "label": "Select one",
+                                            "widget": "choicesjs",
+                                            "tableView": true,
+                                            "dataSrc": "custom",
+                                            "data": {
+                                                "custom": "values = data.container.selectOptions;"
+                                            },
+                                            "valueProperty": "value",
+                                            "template": "<span>{{ item.label }}</span>",
+                                            "validateWhenHidden": false,
+                                            "type": "select",
+                                            "input": true
+                                        },
+                                        {
+                                            "label": "Datagrid",
+                                            "hideLabel": true,
+                                            "reorder": false,
+                                            "addAnotherPosition": "bottom",
+                                            "layoutFixed": false,
+                                            "enableRowGroups": false,
+                                            "initEmpty": false,
+                                            "tableView": false,
+                                            "validateWhenHidden": false,
+                                            "key": "grid",
+                                            "type": "datagrid",
+                                            "addAnother": "Add",
+                                            "input": true,
+                                            "components": [
+                                                {
+                                                    "key": "textInput",
+                                                    "type": "textfield",
+                                                    "input": true,
+                                                    "label": "Text",
+                                                    "tableView": true,
+                                                    "applyMaskOn": "change",
+                                                    "validateWhenHidden": false
+                                                },
+                                                {
+                                                    "key": "showError",
+                                                    "type": "checkbox",
+                                                    "input": true,
+                                                    "label": "Show error",
+                                                    "tableView": false,
+                                                    "defaultValue": false,
+                                                    "validateWhenHidden": false
+                                                }
+                                            ]
                                         }
                                     ]
                                 }

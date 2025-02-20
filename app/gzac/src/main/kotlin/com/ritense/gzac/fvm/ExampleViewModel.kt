@@ -26,11 +26,11 @@ import mu.KLogger
 import mu.KotlinLogging
 import java.time.OffsetDateTime
 
-class ExampleViewModel(
+data class ExampleViewModel(
     val enableUpdateValidation: Boolean? = false,
     val enableSubmissionValidation: Boolean? = false,
-    val enableBusinessValidation: Boolean? = false,
-    val container: ExampleContainer = ExampleContainer(),
+    val showBusinessError: Boolean? = false,
+    val container: Container = Container(),
 ) : ViewModel, Submission {
 
     override fun update(task: CamundaTask?, page: Int?, document: JsonSchemaDocument?): ViewModel {
@@ -48,8 +48,8 @@ class ExampleViewModel(
         errors.addAll(
             container.validate().map { it.withParent("container") }
         )
-        if (enableBusinessValidation == true) {
-           errors.add(ComponentError(component = null, message = "Business Error"))
+        if (showBusinessError == true) {
+            errors.add(ComponentError(component = null, message = "Business Error"))
         }
 
         if (errors.isNotEmpty()) {
@@ -60,28 +60,66 @@ class ExampleViewModel(
     companion object {
         private val logger: KLogger = KotlinLogging.logger {}
     }
-}
 
-class ExampleContainer(
-    val positiveNumber: Int? = null,
-    val futureDateTime: OffsetDateTime? = null,
-    val maxLengthString: String? = null
-) {
-    fun validate(): List<ComponentError> {
-        val errors = mutableListOf<ComponentError>()
+    data class Container(
+        val positiveNumber: Int? = null,
+        val futureDateTime: OffsetDateTime? = null,
+        val maxLengthString: String? = null,
+        val selectedValue: Int? = null,
+        val grid: List<GridRow> = listOf()
+    ) {
+        val selectOptions = listOf(
+            SelectOption(1, "One"),
+            SelectOption(2, "Two"),
+            SelectOption(-1, "Invalid"),
+        )
 
-        if (positiveNumber != null && positiveNumber < 0) {
-            errors.add(ComponentError("positiveNumber", "number must be greater than zero"))
+        fun validate(): List<ComponentError> {
+            val errors = mutableListOf<ComponentError>()
+
+            if (positiveNumber != null && positiveNumber < 0) {
+                errors.add(ComponentError("positiveNumber", "number must be greater than zero"))
+            }
+
+            if (futureDateTime != null && futureDateTime.isBefore(OffsetDateTime.now())) {
+                errors.add(ComponentError("futureDateTime", "must be in the future"))
+            }
+
+            if (maxLengthString != null && maxLengthString.length > 20) {
+                errors.add(ComponentError("maxLengthString", "length cannot be greater than 20"))
+            }
+
+            if (selectedValue != null && (selectedValue < 0 || selectOptions.none { it.value == selectedValue })) {
+                errors.add(ComponentError("selectedValue", "value is invalid"))
+            }
+
+            grid.forEachIndexed { index, row ->
+                errors.addAll(row.validate()
+                    .map { it.withParent("grid[$index]") }
+                )
+            }
+
+            return errors.toList()
         }
 
-        if (futureDateTime != null && futureDateTime.isBefore(OffsetDateTime.now())) {
-            errors.add(ComponentError("futureDateTime", "datetime must be in the future"))
-        }
+        data class SelectOption<T>(
+            val value: T,
+            val label: String
+        )
 
-        if (maxLengthString != null && maxLengthString.length > 20) {
-            errors.add(ComponentError("maxLengthString", "lenght cannot be greater than 20"))
-        }
+        data class GridRow(
+            val textInput: String? = null,
+            val showError: Boolean? = false,
+        ) {
+            fun validate(): List<ComponentError> {
+                val errors = mutableListOf<ComponentError>()
 
-        return errors
+                if (showError != false) {
+                    errors.add(ComponentError("textInput", "input is invalid"))
+                }
+
+                return errors.toList()
+            }
+        }
     }
 }
