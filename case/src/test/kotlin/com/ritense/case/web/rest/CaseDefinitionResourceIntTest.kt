@@ -244,8 +244,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
                     .content(
                         """
                         {
-                            "hasExternalCreateCaseForm": true,
-                            "externalCreateCaseFormUrl": "$externalFormUrl"
+                            "hasExternalStartCaseForm": true,
+                            "externalStartCaseFormUrl": "$externalFormUrl"
                         }
                         """.trimIndent()
                     )
@@ -275,8 +275,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
                     .content(
                         """
                         {
-                            "hasExternalCreateCaseForm": true,
-                            "externalCreateCaseFormUrl": "   "
+                            "hasExternalStartCaseForm": true,
+                            "externalStartCaseFormUrl": "   "
                         }
                         """.trimIndent()
                     )
@@ -298,8 +298,8 @@ class CaseDefinitionResourceIntTest : BaseIntegrationTest() {
                     .content(
                         """
                         {
-                            "hasExternalCreateCaseForm": true,
-                            "externalCreateCaseFormUrl": "this is not a valid url"
+                            "hasExternalStartCaseForm": true,
+                            "externalStartCaseFormUrl": "this is not a valid url"
                         }
                         """.trimIndent()
                     )
