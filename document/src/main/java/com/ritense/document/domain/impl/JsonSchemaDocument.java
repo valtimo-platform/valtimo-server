@@ -391,7 +391,11 @@ public class JsonSchemaDocument extends AbstractAggregateRoot<JsonSchemaDocument
 
     @Override
     public Set<CaseTagResponseDto> caseTags() {
-        return caseTags.stream().map(CaseTagResponseDto::new).collect(Collectors.toSet());
+        if (caseTags == null) {
+            return null;
+        } else {
+            return caseTags.stream().map(CaseTagResponseDto::new).collect(Collectors.toSet());
+        }
     }
 
     @Override
